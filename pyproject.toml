@@ -1,0 +1,8 @@
+# Minimal config. The package is not pip-installed; pytest puts src/ on the
+# import path via `pythonpath` below. Kaggle notebooks do the equivalent with
+#   import sys; sys.path.insert(0, "/kaggle/working/research_paper/src")
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
