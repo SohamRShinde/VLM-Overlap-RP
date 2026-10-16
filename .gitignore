@@ -1,0 +1,70 @@
+# --- Model weights and checkpoints (never in git) ---
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.ckpt
+*.onnx
+*.gguf
+models/
+checkpoints/
+
+# --- Cached activations / intermediate tensors ---
+*.npy
+*.npz
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+activations/
+cache/
+.cache/
+
+# --- Datasets and images ---
+data/
+datasets/
+*.zip
+*.tar
+*.tar.gz
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.bmp
+*.tif
+*.tiff
+
+# --- PDFs (papers live outside the repo; see docs/plan_v2.md section 2) ---
+*.pdf
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Notebooks ---
+.ipynb_checkpoints/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# NOT ignored, on purpose (plan_v2.md section 7):
+#   results/*.json  - small JSON results, must be versioned
+#   configs/*.json  - head lists and experiment configs
