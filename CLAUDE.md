@@ -5,8 +5,11 @@ Question: do heads that implement prompted prior override (Lietzow et al.
 2606.28273) overlap with heads that let in-image text override vision?
 
 **Plan of record: @docs/plan_v2.md** (v2.1, 16 Oct 2026). Read it before
-proposing experiments; it supersedes any earlier plan. Venue is AAAI-27
-**GSR-VLM** (not AIR-FM; see plan section 0 item 8).
+proposing experiments; it supersedes any earlier plan.
+
+**Venue: undecided.** AIR-FM was the AAAI-2026 workshop and is gone; plan v2.1
+section 0.8 proposes GSR-VLM but that was never agreed (DECISIONS.md D01,
+reopened). Do not state a venue, page limit, or framing as settled.
 
 ## Living documents (keep current, never overwrite wholesale)
 - `docs/STATE.md`     status, blockers, open questions, next steps
