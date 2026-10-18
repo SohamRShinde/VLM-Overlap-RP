@@ -1,14 +1,28 @@
 {
-  "_comment": "Dataset source for the T screen. UNVERIFIED: plan_v2.md 3.1 marks Visual-Counterfact access as [VERIFY], and docs/STATE.md asks which release Lietzow used (469/467 objects vs the 493 Nooralahzadeh report). Fill in before the Kaggle run; do not guess.",
+  "_comment": "Dataset source for the T screen. Column names and row count verified by the user in the Hugging Face dataset viewer on 2026-10-18; license and the 493-vs-467 question are still open (docs/STATE.md).",
   "dataset": {
     "name": "Visual-Counterfact",
     "paper": "Golovanevsky et al. 2025a, arXiv 2505.17127",
-    "source_type": null,
-    "source_id": null,
-    "release": null,
+    "source_type": "huggingface",
+    "source_id": "mgolov/Visual-Counterfact",
+    "split": "color",
+    "n_rows": 493,
+    "verified_on": "2026-10-18",
+    "verified_by": "user, Hugging Face dataset viewer",
     "license": null,
+    "columns": {
+      "object": "object noun used in the prompt; NOT guaranteed unique across rows",
+      "correct_answer": "stringified Python list of acceptable colours, e.g. \"['brown', 'white']\"",
+      "incorrect_answer": "counterfactual colour",
+      "original_image": "real-colour image; the T condition pastes notes on this one",
+      "counterfact_image": "recoloured image; used by the P and V conditions"
+    },
     "excluded_objects": ["radish", "spider"],
-    "expected_n_after_exclusions": 467
+    "open_questions": [
+      "493 rows here vs Lietzow's 469 (467 after exclusions): different release, or different filtering? Pin before the replication gate.",
+      "License not stated on the viewer page; check the dataset card before publishing.",
+      "Are all 493 'object' values unique? The manifest requires unique ids, so the notebook suffixes them."
+    ]
   },
   "manifest_path": "data/manifest.json"
 }

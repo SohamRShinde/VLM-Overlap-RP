@@ -5,7 +5,12 @@ import math
 
 import pytest
 
-from circuit_overlap.data import check_colors_in_vocabulary, load_manifest
+from circuit_overlap.data import (
+    check_colors_in_vocabulary,
+    collect_color_vocabulary,
+    load_manifest,
+    parse_color_list,
+)
 from circuit_overlap.screen import (
     ObjectRecord,
     classify,
@@ -16,10 +21,11 @@ from circuit_overlap.screen import (
 VOCAB = ["red", "blue", "green", "yellow", "purple"]
 
 
-def rec(oid="strawberry", neutral="Red.", incongruent="Blue.", dn=2.0, di=-2.0, layout="c"):
+def rec(oid="strawberry", neutral="Red.", incongruent="Blue.", dn=2.0, di=-2.0,
+        layout="c", original_colors=("red",)):
     return ObjectRecord(
         object_id=oid,
-        original_color="red",
+        original_colors=original_colors,
         counterfactual_color="blue",
         answer_neutral=neutral,
         answer_incongruent=incongruent,
@@ -139,6 +145,59 @@ def test_empty_summary_does_not_divide_by_zero():
 # --- manifest --------------------------------------------------------------
 
 
+# --- multi-colour correct answers (mgolov/Visual-Counterfact "color" split) ---
+
+
+def test_any_accepted_colour_counts_as_correct():
+    """correct_answer is a list: a cow answered "white" is not wrong because
+    the list happens to start with "brown"."""
+    vocab = ["brown", "white", "blue"]
+    r = rec(original_colors=("brown", "white"), neutral="It is white.")
+    out = classify(r, vocab)
+    assert out.correct_neutral is True and out.usable is True
+
+
+def test_a_colour_outside_the_accepted_set_is_still_wrong():
+    out = classify(rec(original_colors=("brown", "white"), neutral="Green."),
+                   ["brown", "white", "green", "blue"])
+    assert out.correct_neutral is False and out.usable is False
+
+
+def test_record_accepts_the_stringified_list_straight_from_the_dataset():
+    r = ObjectRecord(
+        object_id="cow_01",
+        original_colors="['brown', 'white']",
+        counterfactual_color="blue",
+        answer_neutral="Brown.",
+        answer_incongruent="Blue.",
+    )
+    assert r.original_colors == ("brown", "white")
+    assert classify(r, ["brown", "white", "blue"]).usable is True
+
+
+def test_reference_colour_is_carried_into_the_outcome():
+    r = rec(original_colors=("brown", "white"))
+    object.__setattr__(r, "reference_color", "white")
+    assert classify(r, ["brown", "white", "blue"]).reference_color == "white"
+
+
+def test_object_name_defaults_to_the_id_but_can_differ():
+    assert rec(oid="strawberry_017").object_name == "strawberry_017"
+    r = ObjectRecord(
+        object_id="strawberry_017", object_name="strawberry",
+        original_colors=["red"], counterfactual_color="blue",
+        answer_neutral="Red.", answer_incongruent="Blue.",
+    )
+    assert r.object_name == "strawberry"
+
+
+def test_summary_counts_multicolour_objects():
+    records = [rec(oid="a", original_colors=("brown", "white"), neutral="Brown."),
+               rec(oid="b")]
+    s = summarise_screen(records, ["brown", "white", "red", "blue"], min_usable=1)
+    assert s["n_objects_multicolor"] == 1
+
+
 def write_manifest(tmp_path, items, make_images=True):
     if make_images:
         from PIL import Image
@@ -157,28 +216,64 @@ def test_manifest_loads_and_resolves_relative_paths(tmp_path):
     path = write_manifest(
         tmp_path,
         [{"object_id": "strawberry", "image": "imgs/s.png",
-          "original_color": "red", "counterfactual_color": "blue"}],
+          "original_colors": "red", "counterfactual_color": "blue"}],
     )
     entries = load_manifest(path)
     assert entries[0].image.exists()
     assert entries[0].open_image().size == (28, 28)
 
 
+def test_manifest_accepts_the_datasets_own_column_shape(tmp_path):
+    """A manifest written straight from mgolov/Visual-Counterfact rows."""
+    path = write_manifest(
+        tmp_path,
+        [{"object_id": "cow_003", "object_name": "cow", "image": "c.png",
+          "correct_answer": "['brown', 'white']", "counterfactual_color": "blue"}],
+    )
+    e = load_manifest(path)[0]
+    assert e.original_colors == ("brown", "white")
+    assert e.primary_original_color == "brown"
+    assert e.object_name == "cow" and e.object_id == "cow_003"
+
+
+def test_manifest_rejects_a_counterfactual_that_is_also_correct(tmp_path):
+    path = write_manifest(
+        tmp_path,
+        [{"object_id": "cow", "image": "c.png",
+          "correct_answer": "['brown', 'white']", "counterfactual_color": "white"}],
+    )
+    with pytest.raises(ValueError, match="also an accepted answer"):
+        load_manifest(path)
+
+
+def test_collect_vocabulary_unions_every_colour_used(tmp_path):
+    path = write_manifest(
+        tmp_path,
+        [{"object_id": "cow", "image": "c.png",
+          "correct_answer": "['brown', 'white']", "counterfactual_color": "blue"},
+         {"object_id": "berry", "image": "b.png",
+          "correct_answer": "red", "counterfactual_color": "blue"}],
+    )
+    assert collect_color_vocabulary(load_manifest(path)) == [
+        "blue", "brown", "red", "white"
+    ]
+
+
 def test_manifest_rejects_duplicates_missing_fields_and_equal_colors(tmp_path):
-    base = {"object_id": "a", "image": "a.png", "original_color": "red",
+    base = {"object_id": "a", "image": "a.png", "original_colors": "red",
             "counterfactual_color": "blue"}
     with pytest.raises(ValueError, match="duplicate"):
         load_manifest(write_manifest(tmp_path, [base, dict(base)]))
     with pytest.raises(ValueError, match="missing"):
         load_manifest(write_manifest(tmp_path, [{"object_id": "a"}]))
-    with pytest.raises(ValueError, match="equal"):
+    with pytest.raises(ValueError, match="also an accepted answer"):
         load_manifest(
             write_manifest(tmp_path, [dict(base, counterfactual_color="red")])
         )
 
 
 def test_manifest_reports_a_missing_image(tmp_path):
-    items = [{"object_id": "a", "image": "nope.png", "original_color": "red",
+    items = [{"object_id": "a", "image": "nope.png", "original_colors": "red",
               "counterfactual_color": "blue"}]
     with pytest.raises(FileNotFoundError):
         load_manifest(write_manifest(tmp_path, items, make_images=False))
@@ -191,7 +286,7 @@ def test_manifest_reports_a_missing_image(tmp_path):
 def test_colors_outside_the_parser_vocabulary_are_reported(tmp_path):
     path = write_manifest(
         tmp_path,
-        [{"object_id": "a", "image": "a.png", "original_color": "magenta",
+        [{"object_id": "a", "image": "a.png", "original_colors": "magenta",
           "counterfactual_color": "blue"}],
     )
     assert check_colors_in_vocabulary(load_manifest(path), VOCAB) == ["magenta"]

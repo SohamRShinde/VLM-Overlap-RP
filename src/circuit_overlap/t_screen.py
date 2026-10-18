@@ -26,9 +26,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Sequence
 
-from .data import ObjectEntry
+from .data import ObjectEntry, collect_color_vocabulary
 from .notes import NoteSpec, matched_neutral_word, render_note, variant_texts
-from .screen import ObjectRecord, summarise_screen
+from .screen import ObjectRecord, parse_color_word, summarise_screen
 
 __all__ = [
     "VISUAL_PROMPT",
@@ -36,7 +36,7 @@ __all__ = [
     "load_notes_config",
     "single_first_token_ids",
     "load_model",
-    "answer_and_delta",
+    "answer_and_color_logits",
     "run_screen",
 ]
 
@@ -122,14 +122,21 @@ def load_model(config: ScreenConfig):
     return model, processor
 
 
-def answer_and_delta(
-    model, processor, image, prompt: str, id_co: int, id_cf: int, max_new_tokens: int = 8
-):
-    """Greedy answer plus Delta = logit(c_o) - logit(c_cf) on the first new token.
+def answer_and_color_logits(
+    model, processor, image, prompt: str, color_token_ids: dict[str, int],
+    max_new_tokens: int = 8,
+) -> tuple[str, dict[str, float]]:
+    """Greedy answer plus the first-token logit of every colour word.
 
-    One ``generate`` call returns both: ``scores[0]`` holds the logits that
-    produced the first generated token, which is the position the whole study
-    intervenes on (plan 3.4).
+    Returns the *whole* colour-logit dictionary rather than a single Delta,
+    because Visual-Counterfact's ``correct_answer`` can list several acceptable
+    colours (e.g. ``['brown', 'white']``) and the reference colour for
+    Delta = logit(c_o) - logit(c_cf) is only known after the model has answered.
+    Keeping all of them costs a dozen floats per generation and lets any pair be
+    recomputed later without a second GPU run.
+
+    ``scores[0]`` holds the logits that produced the first generated token --
+    the position the whole study intervenes on (plan 3.4).
     """
     import torch
 
@@ -154,10 +161,28 @@ def answer_and_delta(
         )
 
     first_logits = out.scores[0][0].float()
-    delta = float(first_logits[id_co] - first_logits[id_cf])
+    color_logits = {c: float(first_logits[i]) for c, i in color_token_ids.items()}
     generated = out.sequences[0, inputs["input_ids"].shape[1] :]
     answer = processor.tokenizer.decode(generated, skip_special_tokens=True).strip()
-    return answer, delta
+    return answer, color_logits
+
+
+def choose_reference_color(
+    answer: str, original_colors: tuple[str, ...], vocabulary: Sequence[str]
+) -> str:
+    """The c_o used in Delta when several colours are acceptable.
+
+    Prefers the colour the model itself gave on the *neutral* note, provided it
+    is one of the accepted answers: that is the belief the attack has to
+    overturn, so the shift in Delta measures the attack rather than an arbitrary
+    choice between two correct colours. Falls back to the first accepted colour
+    when the neutral answer is unparseable or wrong, and the fallback is
+    recorded in the result row either way.
+    """
+    parsed = parse_color_word(answer, vocabulary)
+    if parsed is not None and parsed in original_colors:
+        return parsed
+    return original_colors[0]
 
 
 def run_screen(
@@ -176,13 +201,17 @@ def run_screen(
     """
     config = config or ScreenConfig()
     notes_config = notes_config or load_notes_config()
-    vocab = notes_config["color_vocabulary"]
+
+    # The parser's dictionary must cover every colour the data actually uses,
+    # not just the placeholder list in configs/notes.json.
+    vocab = sorted(set(notes_config["color_vocabulary"]) | set(collect_color_vocabulary(entries)))
     specs = notes_config["specs"]
     token_ids, bad = single_first_token_ids(processor.tokenizer, vocab)
     if bad:
         raise ValueError(
             f"colour words violating D26 (not a unique single first token): {bad}. "
-            "Drop them from configs/notes.json before running."
+            "Drop the affected objects, or the words from configs/notes.json, "
+            "before running -- the logit difference is undefined for them."
         )
 
     records: list[ObjectRecord] = []
@@ -190,35 +219,42 @@ def run_screen(
         if progress and n % 25 == 0:
             print(f"  {n}/{len(entries)} objects", flush=True)
         image = entry.open_image()
-        prompt = config.prompt_template.format(object=entry.object_id)
+        prompt = config.prompt_template.format(object=entry.object_name)
         texts = variant_texts(
-            entry.original_color,
+            entry.primary_original_color,
             entry.counterfactual_color,
             matched_neutral_word(entry.counterfactual_color, notes_config["neutral_words"]),
         )
-        id_co = token_ids[entry.original_color]
-        id_cf = token_ids[entry.counterfactual_color]
 
         for spec in specs:
-            answers = {}
-            for variant in ("neutral", "incongruent"):
-                rendered = render_note(image, texts[variant], spec)
-                answers[variant] = answer_and_delta(
-                    model, processor, rendered.image, prompt, id_co, id_cf,
-                    max_new_tokens=config.max_new_tokens,
-                )
+            neutral_answer, neutral_logits = answer_and_color_logits(
+                model, processor, render_note(image, texts["neutral"], spec).image,
+                prompt, token_ids, config.max_new_tokens,
+            )
+            # Pick c_o only after the neutral run, then score both runs with it.
+            reference = choose_reference_color(
+                neutral_answer, entry.original_colors, vocab
+            )
+            attack_answer, attack_logits = answer_and_color_logits(
+                model, processor, render_note(image, texts["incongruent"], spec).image,
+                prompt, token_ids, config.max_new_tokens,
+            )
+            cf = entry.counterfactual_color
             records.append(
                 ObjectRecord(
                     object_id=entry.object_id,
-                    original_color=entry.original_color,
-                    counterfactual_color=entry.counterfactual_color,
-                    answer_neutral=answers["neutral"][0],
-                    answer_incongruent=answers["incongruent"][0],
-                    delta_neutral=answers["neutral"][1],
-                    delta_incongruent=answers["incongruent"][1],
+                    object_name=entry.object_name,
+                    original_colors=entry.original_colors,
+                    counterfactual_color=cf,
+                    answer_neutral=neutral_answer,
+                    answer_incongruent=attack_answer,
+                    delta_neutral=neutral_logits[reference] - neutral_logits[cf],
+                    delta_incongruent=attack_logits[reference] - attack_logits[cf],
                     layout=spec.name,
+                    reference_color=reference,
                 )
             )
 
     summary = summarise_screen(records, vocab, min_usable=config.min_usable)
+    summary["color_vocabulary"] = vocab
     return records, summary
