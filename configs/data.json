@@ -1,0 +1,14 @@
+{
+  "_comment": "Dataset source for the T screen. UNVERIFIED: plan_v2.md 3.1 marks Visual-Counterfact access as [VERIFY], and docs/STATE.md asks which release Lietzow used (469/467 objects vs the 493 Nooralahzadeh report). Fill in before the Kaggle run; do not guess.",
+  "dataset": {
+    "name": "Visual-Counterfact",
+    "paper": "Golovanevsky et al. 2025a, arXiv 2505.17127",
+    "source_type": null,
+    "source_id": null,
+    "release": null,
+    "license": null,
+    "excluded_objects": ["radish", "spider"],
+    "expected_n_after_exclusions": 467
+  },
+  "manifest_path": "data/manifest.json"
+}

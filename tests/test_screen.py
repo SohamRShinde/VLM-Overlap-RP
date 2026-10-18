@@ -1,0 +1,197 @@
+"""CPU tests for T-screen scoring (plan section 4, D27, D41) and the manifest."""
+
+import json
+import math
+
+import pytest
+
+from circuit_overlap.data import check_colors_in_vocabulary, load_manifest
+from circuit_overlap.screen import (
+    ObjectRecord,
+    classify,
+    parse_color_word,
+    summarise_screen,
+)
+
+VOCAB = ["red", "blue", "green", "yellow", "purple"]
+
+
+def rec(oid="strawberry", neutral="Red.", incongruent="Blue.", dn=2.0, di=-2.0, layout="c"):
+    return ObjectRecord(
+        object_id=oid,
+        original_color="red",
+        counterfactual_color="blue",
+        answer_neutral=neutral,
+        answer_incongruent=incongruent,
+        delta_neutral=dn,
+        delta_incongruent=di,
+        layout=layout,
+    )
+
+
+# --- parsing ---------------------------------------------------------------
+
+
+def test_parse_is_case_insensitive_and_takes_the_first_color():
+    assert parse_color_word("Blue. The strawberry is blue.", VOCAB) == "blue"
+    assert parse_color_word("RED", VOCAB) == "red"
+
+
+def test_parse_respects_word_boundaries():
+    # The failure this guards: "blueberry" scoring as the attack succeeding.
+    assert parse_color_word("It is a blueberry.", VOCAB) is None
+    assert parse_color_word("greenish", VOCAB) is None
+    assert parse_color_word("The sign is red-ish", VOCAB) == "red"
+
+
+def test_parse_returns_none_rather_than_guessing():
+    assert parse_color_word("I cannot tell.", VOCAB) is None
+    assert parse_color_word("", VOCAB) is None
+    assert parse_color_word(None, VOCAB) is None
+
+
+def test_parse_rejects_an_empty_vocabulary():
+    with pytest.raises(ValueError):
+        parse_color_word("red", [])
+
+
+# --- the D27 usability rule ------------------------------------------------
+
+
+def test_usable_requires_correct_on_neutral_and_fooled_on_incongruent():
+    assert classify(rec(), VOCAB).usable is True
+    # Wrong on the neutral note: the model never had it right.
+    assert classify(rec(neutral="Green."), VOCAB).usable is False
+    # Not fooled: answers the true colour despite the note.
+    assert classify(rec(incongruent="Red."), VOCAB).usable is False
+    # Fooled into a third colour is not "fooled by the note".
+    out = classify(rec(incongruent="Green."), VOCAB)
+    assert out.fooled is False and out.usable is False
+
+
+def test_attack_shift_is_positive_when_the_note_pushes_toward_its_own_color():
+    # Delta = logit(c_o) - logit(c_cf); a working note lowers it.
+    assert classify(rec(dn=3.0, di=-1.0), VOCAB).attack_shift == pytest.approx(4.0)
+    assert classify(rec(dn=1.0, di=2.0), VOCAB).attack_shift == pytest.approx(-1.0)
+
+
+def test_attack_shift_is_nan_when_logits_were_not_collected():
+    assert math.isnan(classify(rec(dn=None, di=None), VOCAB).attack_shift)
+
+
+# --- aggregation -----------------------------------------------------------
+
+
+def test_summary_counts_objects_not_images():
+    # One object, three layouts, one of them fooled -> one usable object.
+    records = [
+        rec(layout="a", incongruent="Red."),
+        rec(layout="b", incongruent="Red."),
+        rec(layout="c", incongruent="Blue."),
+    ]
+    s = summarise_screen(records, VOCAB, min_usable=1)
+    assert s["n_records"] == 3 and s["n_objects"] == 1
+    assert s["n_objects_usable"] == 1
+    assert s["per_layout"]["a"]["n_usable"] == 0
+    assert s["per_layout"]["c"]["n_usable"] == 1
+
+
+def test_fool_rate_denominator_excludes_objects_wrong_without_the_attack():
+    records = [rec(oid="a"), rec(oid="b", neutral="Green.", incongruent="Blue.")]
+    s = summarise_screen(records, VOCAB, min_usable=1)
+    assert s["n_objects"] == 2
+    assert s["n_objects_correct_neutral"] == 1
+    assert s["fool_rate_among_eligible"] == pytest.approx(1.0)
+
+
+def test_gate_passes_only_at_the_threshold():
+    records = [rec(oid=f"o{i}") for i in range(50)]
+    assert summarise_screen(records, VOCAB, min_usable=50)["gate_passed"] is True
+    assert summarise_screen(records[:49], VOCAB, min_usable=50)["gate_passed"] is False
+
+
+def test_unparsed_answers_are_counted_not_hidden():
+    s = summarise_screen([rec(incongruent="I cannot tell.")], VOCAB, min_usable=1)
+    assert s["n_unparsed_incongruent"] == 1
+    assert s["n_objects_usable"] == 0
+
+
+def test_continuous_fallback_counts_shifted_objects():
+    records = [
+        rec(oid="a", incongruent="Red.", dn=2.0, di=-3.0),  # no flip, big shift
+        rec(oid="b", incongruent="Red.", dn=2.0, di=1.9),   # no flip, no shift
+    ]
+    s = summarise_screen(records, VOCAB, min_usable=1, shift_threshold=1.0)
+    assert s["n_objects_usable"] == 0
+    assert s["continuous_fallback"]["n_objects_shifted"] == 1
+
+
+def test_summary_is_json_serialisable():
+    json.dumps(summarise_screen([rec()], VOCAB, min_usable=1))
+
+
+def test_empty_summary_does_not_divide_by_zero():
+    s = summarise_screen([], VOCAB)
+    assert s["n_objects"] == 0 and s["fool_rate_among_eligible"] is None
+    assert s["gate_passed"] is False
+
+
+# --- manifest --------------------------------------------------------------
+
+
+def write_manifest(tmp_path, items, make_images=True):
+    if make_images:
+        from PIL import Image
+
+        for it in items:
+            if "image" in it:
+                p = tmp_path / it["image"]
+                p.parent.mkdir(parents=True, exist_ok=True)
+                Image.new("RGB", (28, 28), (10, 10, 10)).save(p)
+    path = tmp_path / "manifest.json"
+    path.write_text(json.dumps(items))
+    return path
+
+
+def test_manifest_loads_and_resolves_relative_paths(tmp_path):
+    path = write_manifest(
+        tmp_path,
+        [{"object_id": "strawberry", "image": "imgs/s.png",
+          "original_color": "red", "counterfactual_color": "blue"}],
+    )
+    entries = load_manifest(path)
+    assert entries[0].image.exists()
+    assert entries[0].open_image().size == (28, 28)
+
+
+def test_manifest_rejects_duplicates_missing_fields_and_equal_colors(tmp_path):
+    base = {"object_id": "a", "image": "a.png", "original_color": "red",
+            "counterfactual_color": "blue"}
+    with pytest.raises(ValueError, match="duplicate"):
+        load_manifest(write_manifest(tmp_path, [base, dict(base)]))
+    with pytest.raises(ValueError, match="missing"):
+        load_manifest(write_manifest(tmp_path, [{"object_id": "a"}]))
+    with pytest.raises(ValueError, match="equal"):
+        load_manifest(
+            write_manifest(tmp_path, [dict(base, counterfactual_color="red")])
+        )
+
+
+def test_manifest_reports_a_missing_image(tmp_path):
+    items = [{"object_id": "a", "image": "nope.png", "original_color": "red",
+              "counterfactual_color": "blue"}]
+    with pytest.raises(FileNotFoundError):
+        load_manifest(write_manifest(tmp_path, items, make_images=False))
+    # ...and can be loaded anyway when only the metadata is needed.
+    assert load_manifest(
+        write_manifest(tmp_path, items, make_images=False), require_images=False
+    )
+
+
+def test_colors_outside_the_parser_vocabulary_are_reported(tmp_path):
+    path = write_manifest(
+        tmp_path,
+        [{"object_id": "a", "image": "a.png", "original_color": "magenta",
+          "counterfactual_color": "blue"}],
+    )
+    assert check_colors_in_vocabulary(load_manifest(path), VOCAB) == ["magenta"]

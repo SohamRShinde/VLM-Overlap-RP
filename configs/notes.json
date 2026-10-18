@@ -1,0 +1,11 @@
+{
+  "_comment": "Note-overlay settings for the T condition (plan_v2.md 3.1, D24-D26). color_vocabulary and neutral_words are PLACEHOLDERS: replace with the colour words the dataset actually uses, and keep only words that are a single first token under each model's tokenizer (D26). Verify with circuit_overlap.t_screen.single_first_token_ids.",
+  "color_vocabulary": ["red", "blue", "green", "yellow", "orange", "purple", "pink", "brown", "black", "white", "grey", "gray"],
+  "neutral_words": ["table", "window", "pencil", "letter", "number", "object", "plastic", "paper", "metal", "surface"],
+  "layouts": [
+    {"name": "center_small", "rel_width": 0.26, "anchor": [0.5, 0.5], "rotation_deg": 0.0},
+    {"name": "center_large", "rel_width": 0.44, "anchor": [0.5, 0.5], "rotation_deg": 0.0},
+    {"name": "corner_small", "rel_width": 0.26, "anchor": [0.18, 0.18], "rotation_deg": -8.0}
+  ],
+  "_layout_note": "center = 'on the object', corner = 'beside the object' (plan 3.7). This assumes the object is roughly centred; with per-object masks it should be replaced by true on/beside placement."
+}

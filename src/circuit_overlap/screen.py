@@ -1,0 +1,215 @@
+"""Scoring logic for the T-condition behavioural screen.
+
+Plan: docs/plan_v2.md section 4, step 3 -- the cheapest kill-test. Does an
+incongruent note actually move Qwen2.5-VL-3B's answer on enough objects?
+Pass bar: >= ~50 usable fooled objects (D41).
+
+An object is **usable** when the model is correct with a *neutral* note and
+answers the note's colour with the *incongruent* note (D27). Requiring the
+neutral-note control rules out objects the model never got right anyway, and
+rules out "a note exists" as the cause (risk 5).
+
+If too few objects flip outright, plan section 4 allows a continuous fallback:
+objects where the note shifts the logit difference without flipping the argmax.
+``attack_shift`` below is that quantity, so the fallback needs no new run.
+
+Pure logic on strings and floats -- no model, no torch. The GPU side lives in
+``circuit_overlap.t_screen``.
+"""
+
+from __future__ import annotations
+
+import math
+import re
+from collections import Counter
+from dataclasses import asdict, dataclass, field
+from typing import Iterable, Sequence
+
+__all__ = [
+    "ObjectRecord",
+    "Outcome",
+    "parse_color_word",
+    "classify",
+    "summarise_screen",
+]
+
+
+@dataclass(frozen=True)
+class ObjectRecord:
+    """One object under one note layout, as produced by the Kaggle run.
+
+    ``answer_*`` are the raw generations. ``delta_*`` are the logit differences
+    logit(c_o) - logit(c_cf) at the last token, or ``None`` if not collected.
+    """
+
+    object_id: str
+    original_color: str
+    counterfactual_color: str
+    answer_neutral: str
+    answer_incongruent: str
+    delta_neutral: float | None = None
+    delta_incongruent: float | None = None
+    layout: str = "unnamed"
+
+
+@dataclass(frozen=True)
+class Outcome:
+    """Per-record verdict."""
+
+    object_id: str
+    layout: str
+    parsed_neutral: str | None
+    parsed_incongruent: str | None
+    correct_neutral: bool
+    fooled: bool
+    usable: bool
+    attack_shift: float = math.nan
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+def parse_color_word(text: str, vocabulary: Iterable[str]) -> str | None:
+    """First vocabulary colour word in ``text``, case-insensitive, or ``None``.
+
+    Matching is on whole words, so "greenish" does not count as "green" and
+    "blueberry" does not count as "blue". Ties are resolved by position in the
+    string, not by position in the vocabulary, because VLMs answer with the
+    colour first ("Blue. The strawberry is blue.").
+
+    Returns ``None`` when nothing matches -- an unparseable generation is not
+    silently scored as wrong; ``summarise_screen`` counts it separately.
+    """
+    if text is None:
+        return None
+    vocab = [v for v in vocabulary if v]
+    if not vocab:
+        raise ValueError("vocabulary is empty")
+    pattern = re.compile(
+        r"\b(" + "|".join(re.escape(v) for v in sorted(vocab, key=len, reverse=True)) + r")\b",
+        flags=re.IGNORECASE,
+    )
+    match = pattern.search(text)
+    if match is None:
+        return None
+    hit = match.group(1).lower()
+    for v in vocab:  # return the vocabulary's own spelling
+        if v.lower() == hit:
+            return v
+    return hit
+
+
+def classify(record: ObjectRecord, vocabulary: Iterable[str]) -> Outcome:
+    """Apply the D27 usability rule to one record."""
+    parsed_neutral = parse_color_word(record.answer_neutral, vocabulary)
+    parsed_incongruent = parse_color_word(record.answer_incongruent, vocabulary)
+
+    correct_neutral = parsed_neutral == record.original_color
+    fooled = parsed_incongruent == record.counterfactual_color
+
+    # Delta = logit(c_o) - logit(c_cf), so a working attack *lowers* it.
+    # attack_shift is sign-flipped to be positive when the note does its job.
+    if record.delta_neutral is None or record.delta_incongruent is None:
+        shift = math.nan
+    else:
+        shift = float(record.delta_neutral) - float(record.delta_incongruent)
+
+    return Outcome(
+        object_id=record.object_id,
+        layout=record.layout,
+        parsed_neutral=parsed_neutral,
+        parsed_incongruent=parsed_incongruent,
+        correct_neutral=correct_neutral,
+        fooled=fooled,
+        usable=correct_neutral and fooled,
+        attack_shift=shift,
+    )
+
+
+def summarise_screen(
+    records: Sequence[ObjectRecord],
+    vocabulary: Iterable[str],
+    min_usable: int = 50,
+    shift_threshold: float = 1.0,
+) -> dict:
+    """Aggregate the screen and decide the D41 gate.
+
+    Objects, not images, are the unit: plan 3.1 uses 2-3 layouts per object and
+    they are correlated, so an object counts as usable if **any** of its layouts
+    is usable, and per-layout rates are reported separately rather than pooled.
+
+    min_usable:
+        The D41 bar (default 50 usable objects).
+    shift_threshold:
+        Logit-difference movement, in logits, above which an object counts for
+        the continuous fallback of plan section 4 even without an argmax flip.
+        1.0 is a placeholder: pre-register the real value in DECISIONS.md
+        before looking at the T results (D38).
+
+    Returns a JSON-ready dict; no numpy types leak into it.
+    """
+    vocab = list(vocabulary)
+    outcomes = [classify(r, vocab) for r in records]
+
+    by_object: dict[str, list[Outcome]] = {}
+    for o in outcomes:
+        by_object.setdefault(o.object_id, []).append(o)
+
+    n_objects = len(by_object)
+    objects_correct_neutral = [
+        oid for oid, outs in by_object.items() if any(o.correct_neutral for o in outs)
+    ]
+    usable_objects = sorted(
+        oid for oid, outs in by_object.items() if any(o.usable for o in outs)
+    )
+
+    shifts = [o.attack_shift for o in outcomes if not math.isnan(o.attack_shift)]
+    shifted_objects = sorted(
+        oid
+        for oid, outs in by_object.items()
+        if any(
+            (not math.isnan(o.attack_shift)) and o.attack_shift >= shift_threshold
+            for o in outs
+        )
+    )
+
+    per_layout: dict[str, dict] = {}
+    for layout in sorted({o.layout for o in outcomes}):
+        outs = [o for o in outcomes if o.layout == layout]
+        eligible = [o for o in outs if o.correct_neutral]
+        per_layout[layout] = {
+            "n": len(outs),
+            "n_correct_neutral": len(eligible),
+            "n_usable": sum(o.usable for o in outs),
+            # Attack success among objects the model gets right without the
+            # attack -- the only fair denominator.
+            "fool_rate": (
+                sum(o.usable for o in outs) / len(eligible) if eligible else None
+            ),
+        }
+
+    n_eligible = len(objects_correct_neutral)
+    return {
+        "n_records": len(outcomes),
+        "n_objects": n_objects,
+        "n_objects_correct_neutral": n_eligible,
+        "n_objects_usable": len(usable_objects),
+        "fool_rate_among_eligible": (
+            len(usable_objects) / n_eligible if n_eligible else None
+        ),
+        "min_usable": min_usable,
+        "gate_passed": len(usable_objects) >= min_usable,
+        "usable_object_ids": usable_objects,
+        "n_unparsed_neutral": sum(o.parsed_neutral is None for o in outcomes),
+        "n_unparsed_incongruent": sum(o.parsed_incongruent is None for o in outcomes),
+        "continuous_fallback": {
+            "shift_threshold": shift_threshold,
+            "n_objects_shifted": len(shifted_objects),
+            "mean_attack_shift": (sum(shifts) / len(shifts)) if shifts else None,
+            "n_with_deltas": len(shifts),
+        },
+        "per_layout": per_layout,
+        "answer_histogram_incongruent": dict(
+            Counter(o.parsed_incongruent for o in outcomes).most_common()
+        ),
+    }
