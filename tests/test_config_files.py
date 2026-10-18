@@ -24,12 +24,17 @@ def test_notes_config_has_a_length_matched_neutral_for_every_color():
         assert abs(len(neutral) - len(color)) <= 2
 
 
-def test_data_config_is_an_unfilled_placeholder():
-    """Guards against a dataset id being invented rather than verified."""
+def test_data_config_records_who_verified_the_dataset():
+    """Guards against a dataset id being invented rather than verified: an id
+    may only appear alongside the date it was checked against the source."""
     cfg = json.loads((ROOT / "configs" / "data.json").read_text())
     ds = cfg["dataset"]
-    assert ds["source_id"] is None, "fill this in only after verifying the release"
+    assert ds["source_id"] is None or ds.get("verified_on"), (
+        "a source_id must come with verified_on / verified_by"
+    )
     assert ds["excluded_objects"] == ["radish", "spider"]
+    # The 493-vs-467 discrepancy must stay visible until it is resolved.
+    assert any("493" in q for q in ds.get("open_questions", []))
 
 
 def test_screen_config_pins_a_grid_that_divides_into_tokens():

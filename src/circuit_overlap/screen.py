@@ -9,6 +9,11 @@ answers the note's colour with the *incongruent* note (D27). Requiring the
 neutral-note control rules out objects the model never got right anyway, and
 rules out "a note exists" as the cause (risk 5).
 
+"Correct" is **set membership**, not equality: Visual-Counterfact's
+``correct_answer`` column lists every acceptable real-world colour for an
+object (e.g. ``['brown', 'white']``), so an object with two plausible colours
+must not be scored wrong for picking the second one.
+
 If too few objects flip outright, plan section 4 allows a continuous fallback:
 objects where the note shifts the logit difference without flipping the argmax.
 ``attack_shift`` below is that quantity, so the fallback needs no new run.
@@ -22,8 +27,10 @@ from __future__ import annotations
 import math
 import re
 from collections import Counter
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from typing import Iterable, Sequence
+
+from .data import parse_color_list
 
 __all__ = [
     "ObjectRecord",
@@ -40,16 +47,34 @@ class ObjectRecord:
 
     ``answer_*`` are the raw generations. ``delta_*`` are the logit differences
     logit(c_o) - logit(c_cf) at the last token, or ``None`` if not collected.
+
+    original_colors:
+        Every acceptable colour (``correct_answer``). A bare string is accepted
+        and wrapped, so single-colour objects stay easy to write by hand.
+    reference_color:
+        The single colour used as c_o in ``delta_*``. There can be several
+        acceptable colours but only one logit difference, so the run records
+        which one it used -- normally the model's own neutral-note answer.
     """
 
     object_id: str
-    original_color: str
+    original_colors: tuple[str, ...]
     counterfactual_color: str
     answer_neutral: str
     answer_incongruent: str
     delta_neutral: float | None = None
     delta_incongruent: float | None = None
     layout: str = "unnamed"
+    reference_color: str | None = None
+    object_name: str = ""
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "original_colors", parse_color_list(self.original_colors))
+        object.__setattr__(
+            self, "counterfactual_color", parse_color_list(self.counterfactual_color)[0]
+        )
+        if not self.object_name:
+            object.__setattr__(self, "object_name", self.object_id)
 
 
 @dataclass(frozen=True)
@@ -64,6 +89,7 @@ class Outcome:
     fooled: bool
     usable: bool
     attack_shift: float = math.nan
+    reference_color: str | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -100,11 +126,18 @@ def parse_color_word(text: str, vocabulary: Iterable[str]) -> str | None:
 
 
 def classify(record: ObjectRecord, vocabulary: Iterable[str]) -> Outcome:
-    """Apply the D27 usability rule to one record."""
+    """Apply the D27 usability rule to one record.
+
+    ``vocabulary`` is only the parser's dictionary of colour words; what counts
+    as correct for *this* object is ``record.original_colors``.
+    """
     parsed_neutral = parse_color_word(record.answer_neutral, vocabulary)
     parsed_incongruent = parse_color_word(record.answer_incongruent, vocabulary)
 
-    correct_neutral = parsed_neutral == record.original_color
+    # Membership, not equality: correct_answer lists every acceptable colour.
+    correct_neutral = (
+        parsed_neutral is not None and parsed_neutral in record.original_colors
+    )
     fooled = parsed_incongruent == record.counterfactual_color
 
     # Delta = logit(c_o) - logit(c_cf), so a working attack *lowers* it.
@@ -123,7 +156,15 @@ def classify(record: ObjectRecord, vocabulary: Iterable[str]) -> Outcome:
         fooled=fooled,
         usable=correct_neutral and fooled,
         attack_shift=shift,
+        reference_color=record.reference_color,
     )
+
+
+def _record_colors(records: Sequence[ObjectRecord], object_id: str) -> tuple[str, ...]:
+    for r in records:
+        if r.object_id == object_id:
+            return r.original_colors
+    return ()
 
 
 def summarise_screen(
@@ -208,6 +249,10 @@ def summarise_screen(
             "mean_attack_shift": (sum(shifts) / len(shifts)) if shifts else None,
             "n_with_deltas": len(shifts),
         },
+        "n_objects_multicolor": sum(
+            1 for outs in by_object.values() for o in outs[:1]
+            if len(_record_colors(records, o.object_id)) > 1
+        ),
         "per_layout": per_layout,
         "answer_histogram_incongruent": dict(
             Counter(o.parsed_incongruent for o in outcomes).most_common()
