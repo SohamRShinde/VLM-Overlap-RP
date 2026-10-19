@@ -79,8 +79,9 @@ def load_notes_config(path: str | Path = "configs/notes.json") -> dict:
         NoteSpec(
             name=l["name"],
             rel_width=l["rel_width"],
-            anchor=tuple(l["anchor"]),
+            anchor=tuple(l.get("anchor", (0.5, 0.5))),
             rotation_deg=l.get("rotation_deg", 0.0),
+            mode=l.get("mode", "fixed"),
         )
         for l in cfg["layouts"]
     ]
@@ -286,12 +287,18 @@ def run_screen(
         )
 
         for spec in specs:
+            neutral_render = render_note(
+                image, texts["neutral"], spec, bbox=entry.object_bbox
+            )
+            attack_render = render_note(
+                image, texts["incongruent"], spec, bbox=entry.object_bbox
+            )
             neutral_answer, neutral_logits = answer_and_color_logits(
-                model, processor, render_note(image, texts["neutral"], spec).image,
+                model, processor, neutral_render.image,
                 prompt, token_ids, config.max_new_tokens,
             )
             attack_answer, attack_logits = answer_and_color_logits(
-                model, processor, render_note(image, texts["incongruent"], spec).image,
+                model, processor, attack_render.image,
                 prompt, token_ids, config.max_new_tokens,
             )
             cf = entry.counterfactual_color
@@ -312,6 +319,8 @@ def run_screen(
                     reference_color=ref_neutral,
                     color_logits_neutral=neutral_logits,
                     color_logits_incongruent=attack_logits,
+                    note_area_frac=attack_render.area_frac,
+                    object_occlusion=attack_render.object_occlusion(entry.object_bbox),
                 )
             )
 

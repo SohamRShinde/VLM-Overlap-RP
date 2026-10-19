@@ -159,6 +159,11 @@ class ObjectEntry:
         Every colour that counts as correct (``correct_answer``).
     counterfactual_color:
         The colour the note claims (``incorrect_answer``).
+    object_bbox:
+        ``(x0, y0, x1, y1)`` in relative coordinates, from diffing the original
+        and counterfactual images at manifest time
+        (``notes.object_bbox_from_pair``). ``None`` when the diff was
+        uninformative; placement then falls back to a fixed anchor.
     """
 
     object_id: str
@@ -166,6 +171,7 @@ class ObjectEntry:
     original_colors: tuple[str, ...]
     counterfactual_color: str
     object_name: str = ""
+    object_bbox: tuple[float, float, float, float] | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "original_colors", parse_color_list(self.original_colors))
@@ -174,6 +180,16 @@ class ObjectEntry:
         )
         if not self.object_name:
             object.__setattr__(self, "object_name", self.object_id)
+        if self.object_bbox is not None:
+            box = tuple(float(v) for v in self.object_bbox)
+            if len(box) != 4:
+                raise ValueError(f"object {self.object_id!r}: object_bbox needs 4 values")
+            if not (0.0 <= box[0] < box[2] <= 1.0 and 0.0 <= box[1] < box[3] <= 1.0):
+                raise ValueError(
+                    f"object {self.object_id!r}: object_bbox {box} is not a valid "
+                    "relative box (expected 0 <= x0 < x1 <= 1, 0 <= y0 < y1 <= 1)"
+                )
+            object.__setattr__(self, "object_bbox", box)
         if self.counterfactual_color in self.original_colors:
             raise ValueError(
                 f"object {self.object_id!r}: counterfactual colour "
@@ -244,6 +260,7 @@ def load_manifest(path: str | Path, require_images: bool = True) -> list[ObjectE
                 original_colors=_colors_field(item, i),
                 counterfactual_color=item["counterfactual_color"],
                 object_name=str(item.get("object_name", "")),
+                object_bbox=item.get("object_bbox"),
             )
         except (ValueError, TypeError) as exc:
             raise ValueError(f"{p}: entry {i} ({oid!r}): {exc}") from exc

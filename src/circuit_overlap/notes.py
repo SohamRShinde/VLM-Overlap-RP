@@ -26,6 +26,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 __all__ = [
     "NoteSpec",
+    "object_bbox_from_pair",
+    "resolve_anchor",
     "NoteRender",
     "FONT_CANDIDATES",
     "render_note",
@@ -63,6 +65,16 @@ class NoteSpec:
     rotation_deg:
         Counter-clockwise tilt. The mask stays exact: it is read from the
         rotated alpha channel.
+    mode:
+        How ``anchor`` is interpreted, given an object bounding box:
+
+        ``"fixed"``   use ``anchor`` as-is (frame-relative).
+        ``"on"``      centre the note on the object.
+        ``"beside"``  place the note in the emptiest corner, clear of the object.
+
+        ``"on"`` and ``"beside"`` fall back to ``anchor`` when no box is known.
+        This replaces the centre-vs-corner approximation of D63: an object is
+        not always in the middle of its frame.
     """
 
     rel_width: float = 0.34
@@ -74,6 +86,7 @@ class NoteSpec:
     border_color: tuple[int, int, int] | None = (210, 185, 60)
     pad_frac: float = 0.14      # inner margin, fraction of note height
     font_path: str | None = None
+    mode: str = "fixed"
     name: str = "unnamed"
 
     def __post_init__(self) -> None:
@@ -86,6 +99,8 @@ class NoteSpec:
             raise ValueError(f"anchor must lie in [0, 1]^2, got {self.anchor}")
         if not 0.0 <= self.pad_frac < 0.5:
             raise ValueError(f"pad_frac must be in [0, 0.5), got {self.pad_frac}")
+        if self.mode not in ("fixed", "on", "beside"):
+            raise ValueError(f"mode must be fixed/on/beside, got {self.mode!r}")
 
 
 @dataclass(frozen=True)
@@ -120,6 +135,88 @@ class NoteRender:
         """Note area as a fraction of the image -- the size axis of plan 3.7."""
         return float(self.mask.mean())
 
+    def object_occlusion(self, bbox: tuple[float, float, float, float] | None) -> float:
+        """Fraction of the object's box the note covers.
+
+        The number that matters for the T condition: a note that hides the
+        object removes the colour evidence, so the model following the note is
+        not *override* but absence of evidence. Keep it low, report it as the
+        size covariate in the plan 3.7 spatial analysis, and treat high-occlusion
+        layouts as a separate stratum rather than pooling them.
+        """
+        if bbox is None:
+            return float("nan")
+        h, w = self.mask.shape
+        x0, y0, x1, y1 = bbox
+        c0, r0 = int(x0 * w), int(y0 * h)
+        c1, r1 = max(int(x1 * w), c0 + 1), max(int(y1 * h), r0 + 1)
+        region = self.mask[r0:r1, c0:c1]
+        return float(region.mean()) if region.size else float("nan")
+
+
+def object_bbox_from_pair(
+    original: Image.Image, counterfact: Image.Image, threshold: int = 16
+) -> tuple[float, float, float, float] | None:
+    """Approximate the object's box by diffing the two Visual-Counterfact images.
+
+    The counterfactual image recolours the object and leaves the rest of the
+    scene alone, so the pixels that differ are, to a good approximation, the
+    object. That gives a free object localisation with no segmentation model --
+    and it is what makes "on the object" and "beside the object" (plan 3.7)
+    real rather than a guess about the object being centred.
+
+    Returns ``(x0, y0, x1, y1)`` in **relative** coordinates, or ``None`` when
+    the diff is empty (identical images) or covers almost the whole frame
+    (a global recolour or a resize mismatch), in which cases the box carries no
+    information and the caller should fall back to a fixed anchor.
+    """
+    a = np.asarray(original.convert("RGB"), dtype=np.int16)
+    b = np.asarray(counterfact.convert("RGB"), dtype=np.int16)
+    if a.shape != b.shape:
+        return None
+    diff = np.abs(a - b).max(axis=-1) >= threshold
+    if not diff.any() or diff.mean() > 0.9:
+        return None
+    rows = np.flatnonzero(diff.any(axis=1))
+    cols = np.flatnonzero(diff.any(axis=0))
+    h, w = diff.shape
+    return (
+        float(cols[0] / w), float(rows[0] / h),
+        float((cols[-1] + 1) / w), float((rows[-1] + 1) / h),
+    )
+
+
+def resolve_anchor(
+    spec: NoteSpec,
+    image_size: tuple[int, int],
+    bbox: tuple[float, float, float, float] | None,
+) -> tuple[float, float]:
+    """Anchor for ``spec``, given the object box (relative coords) if known."""
+    if spec.mode == "fixed" or bbox is None:
+        return spec.anchor
+
+    x0, y0, x1, y1 = bbox
+    if spec.mode == "on":
+        return ((x0 + x1) / 2.0, (y0 + y1) / 2.0)
+
+    # "beside": the corner whose distance from the object box is greatest, with
+    # the note nudged inside the frame by half its own size.
+    w, h = image_size
+    note_w = spec.rel_width
+    note_h = spec.rel_width * spec.aspect * (w / h if h else 1.0)
+    candidates = [
+        (note_w / 2, note_h / 2), (1 - note_w / 2, note_h / 2),
+        (note_w / 2, 1 - note_h / 2), (1 - note_w / 2, 1 - note_h / 2),
+    ]
+
+    def clearance(point):
+        cx, cy = point
+        dx = max(x0 - (cx + note_w / 2), (cx - note_w / 2) - x1, 0.0)
+        dy = max(y0 - (cy + note_h / 2), (cy - note_h / 2) - y1, 0.0)
+        return (dx * dx + dy * dy) ** 0.5
+
+    return max(candidates, key=clearance)
+
 
 def _load_font(size_px: int, font_path: str | None) -> tuple[ImageFont.ImageFont, str]:
     paths = (font_path,) if font_path else FONT_CANDIDATES
@@ -149,12 +246,22 @@ def _fit_font(
     return best  # type: ignore[return-value]  # loop always runs at least once
 
 
-def render_note(image: Image.Image, text: str, spec: NoteSpec) -> NoteRender:
+def render_note(
+    image: Image.Image,
+    text: str,
+    spec: NoteSpec,
+    bbox: tuple[float, float, float, float] | None = None,
+) -> NoteRender:
     """Paste one note onto ``image`` and return the image plus its exact mask.
 
     The input image is not modified. The note is drawn into an RGBA tile and
     composited, so the mask is the tile's alpha channel in image coordinates --
     correct even under rotation, and never an approximation of what was drawn.
+
+    bbox:
+        The object's box in relative coordinates (see ``object_bbox_from_pair``),
+        used when ``spec.mode`` is ``"on"`` or ``"beside"``. Pass it whenever it
+        is known: without it, placement falls back to ``spec.anchor``.
     """
     if not isinstance(text, str) or not text:
         raise ValueError("text must be a non-empty string")
@@ -185,8 +292,9 @@ def render_note(image: Image.Image, text: str, spec: NoteSpec) -> NoteRender:
         tile = tile.rotate(spec.rotation_deg, expand=True, resample=Image.BICUBIC)
 
     tw, th = tile.size
-    cx = int(round(spec.anchor[0] * W))
-    cy = int(round(spec.anchor[1] * H))
+    anchor = resolve_anchor(spec, (W, H), bbox)
+    cx = int(round(anchor[0] * W))
+    cy = int(round(anchor[1] * H))
     # Keep the note inside the frame: an off-image note would make the mask and
     # the attack itself depend on the image size.
     x0 = int(np.clip(cx - tw // 2, 0, max(0, W - tw)))

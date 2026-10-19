@@ -71,6 +71,11 @@ class ObjectRecord:
     # other logit-difference convention recomputable without a second GPU pass.
     color_logits_neutral: dict[str, float] | None = None
     color_logits_incongruent: dict[str, float] | None = None
+    # Spatial covariates for plan 3.7. object_occlusion is the fraction of the
+    # object's box the note covers: high values mean the attack may be winning
+    # by hiding the evidence rather than by overriding it.
+    note_area_frac: float | None = None
+    object_occlusion: float | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "original_colors", parse_color_list(self.original_colors))
