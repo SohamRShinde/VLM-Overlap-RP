@@ -1,6 +1,6 @@
 # STATE.md — One Circuit or Two? (VLM circuit overlap)
 
-**Last updated:** 2026-10-19 (chat 2: Lietzow repo read; prompt, checkpoints, loader filters and Δ convention pinned)
+**Last updated:** 2026-10-19 (chat 2: Lietzow repo read; head lists transcribed; 4-bit decided)
 **Phase:** Pre-experiment. Code written and CPU-tested; **no GPU run, no results.** Plan of record: `docs/plan_v2.md` (v2.1, 16 Oct 2026), except its venue claim (see blocker 1).
 
 ## Status
@@ -14,7 +14,7 @@
 
 ## Blockers
 1. **No AAAI-27 venue chosen.** The uploaded `AIR-FM.md` is the **AAAI-2026** edition of that workshop (deadline 23 Oct 2025, 4 pages) and AIR-FM is not on the AAAI-27 list. plan_v2.1 section 0.8 proposed GSR-VLM, but that is **a candidate, not a decision** (D01, reopened 2026-10-18). Until a workshop is picked, its deadline, page limit, template, anonymity rules and archival status are all unknown, and plan section 9's 4-vs-6-page branch cannot be resolved. The AAAI general workshop deadline (20 Nov 2026) is the planning date in the meantime.
-2. ~~Lietzow repo not yet inspected~~ **RESOLVED 2026-10-19.** Cloned `github.com/nlietzow/vision-default-prior-override` (MIT, Copyright 2026 Niclas Lietzow, commit `145b453`). Answers below. One sub-item remains: **their head lists are not in the repo** -- `data/` is git-ignored and `knockout_targets.py` reads `data/classify_attn_heads.json`, which is not published. Head lists must still be transcribed from the paper's Tables 5-7 into `configs/heads_*.json` by hand.
+2. ~~Lietzow repo not yet inspected~~ **RESOLVED 2026-10-19.** Cloned `github.com/nlietzow/vision-default-prior-override` (MIT, Copyright 2026 Niclas Lietzow, commit `145b453`). Answers below. Their head lists are **not** in the repo (`data/` is git-ignored, and `knockout_targets.py` reads an unpublished `data/classify_attn_heads.json`), so Tables 5-7 were transcribed by hand into `configs/heads_lietzow_*.json` on 2026-10-19 (five models) and are validated by `heads.load_head_set` (D66).
 
 ## What the Lietzow repo settled (2026-10-19)
 | Question | Answer | Source in their repo |
@@ -29,6 +29,8 @@
 | Conflicting subset | Examples whose top-1 prediction differs between the two prompts | README, `--stage inference` |
 | Head indexing | `{"layer": int, "head": int}`, 0-based, ablation zeroes `o_proj` input slice `[head*head_dim : (head+1)*head_dim]` at the last token via a pre-hook | `interventions.py::head_knockout` |
 | 493 vs 467 | Their loader silently drops rows that fail pydantic validation: **parenthetical names** ("apple (fruit)"), **plural names**, and **counterfactual colour also in `correct_answer`** (this last is exactly radish and spider, per their README). So the paper's counts are post-filter | `types/models.py`, `utils/load_examples.py`, README "Dataset" |
+| Image grid | `min_pixels = max_pixels = 1280*28*28` (~1280 image tokens), area pinned, shape follows the aspect ratio | `vlm/qwen.py` |
+| 4-bit config | nf4, double quantisation, compute dtype bf16 where supported else fp16 | `vlm/qwen.py` |
 | Dataset access | Needs an `HF_TOKEN` | README "Dataset" |
 | Licence | MIT -- their code may be reused with attribution | `LICENSE` |
 

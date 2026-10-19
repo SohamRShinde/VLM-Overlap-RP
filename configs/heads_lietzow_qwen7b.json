@@ -1,0 +1,144 @@
+{
+  "_source": "Lietzow et al. 2026, arXiv 2606.28273, Tables 5-7. Transcribed by the user on 2026-10-19 and pasted into this session. NOT available in their repo: data/ is git-ignored there, so knockout_targets.py cannot be used.",
+  "_warning": "Do not edit by hand from memory. Heads are data; change them only from the paper.",
+  "paper_model_name": "Qwen-VL 7B",
+  "checkpoint": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "contrast": "prior_circuit (P): Prior prompt on the counterfactual image vs Visual prompt",
+  "index_base": 0,
+  "index_convention": "[layer, head], both 0-based. Confirmed against their interventions.py, which ablates the o_proj input slice [head*head_dim : (head+1)*head_dim].",
+  "promoting": [
+    [
+      17,
+      21
+    ],
+    [
+      18,
+      8
+    ],
+    [
+      18,
+      9
+    ],
+    [
+      18,
+      24
+    ],
+    [
+      19,
+      22
+    ],
+    [
+      19,
+      23
+    ],
+    [
+      19,
+      24
+    ],
+    [
+      20,
+      1
+    ],
+    [
+      20,
+      3
+    ],
+    [
+      20,
+      5
+    ],
+    [
+      21,
+      5
+    ],
+    [
+      21,
+      19
+    ],
+    [
+      22,
+      1
+    ],
+    [
+      22,
+      13
+    ],
+    [
+      23,
+      6
+    ],
+    [
+      23,
+      11
+    ],
+    [
+      24,
+      21
+    ],
+    [
+      24,
+      27
+    ],
+    [
+      26,
+      24
+    ],
+    [
+      26,
+      25
+    ],
+    [
+      26,
+      26
+    ]
+  ],
+  "suppressing": [
+    [
+      18,
+      7
+    ],
+    [
+      20,
+      2
+    ],
+    [
+      20,
+      21
+    ],
+    [
+      21,
+      14
+    ],
+    [
+      22,
+      25
+    ],
+    [
+      25,
+      25
+    ],
+    [
+      26,
+      22
+    ],
+    [
+      27,
+      3
+    ]
+  ],
+  "counts_reported": {
+    "promoting": 21,
+    "suppressing": 8
+  },
+  "single_head_prior_flip_pct": {
+    "L20H5": 9.4,
+    "L23H6": 7.1
+  },
+  "group_ablation_flip_pct": {
+    "prior": 68.4,
+    "visual": 2.4
+  },
+  "n_correctly_conflicting": 212,
+  "n_layers": null,
+  "n_heads_per_layer": null
+}

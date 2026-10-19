@@ -54,14 +54,18 @@ PRIOR_PROMPT = "What color is {a_object} usually? " + ANSWER_SUFFIX
 
 @dataclass(frozen=True)
 class ScreenConfig:
-    checkpoint: str = "Qwen/Qwen2.5-VL-3B-Instruct"  # [VERIFY] blocker 2
-    # min_pixels == max_pixels pins the image grid so masks map to tokens (3.7).
-    # 448x448 -> 16x16 = 256 image tokens. Do not lower this without checking
-    # the note is still legible: at 224x224 the note's text is a few pixels tall,
-    # and an unreadable note would look exactly like a model that resists the
-    # attack -- a false negative on the kill-test. Raising it costs GPU time.
-    pixels: int = 448 * 448
+    checkpoint: str = "Qwen/Qwen2.5-VL-3B-Instruct"  # verified in their vlm/qwen.py
+    # min_pixels == max_pixels pins the image *area*, as Lietzow do
+    # (vlm/qwen.py: 1280 * 28 * 28). The side lengths still follow the aspect
+    # ratio, both multiples of 28, so the token grid varies per image -- use
+    # tokens.token_grid_shape on the resized image rather than assuming a square.
+    # Matching their budget also keeps the note legible: ~1280 image tokens
+    # rather than the 256 of a 448x448 grid (D62).
+    pixels: int = 1280 * 28 * 28
     max_new_tokens: int = 8
+    # 4-bit, matching their default (settings.load_in_4bit = True) so the
+    # replication gate compares like with like (D10, decided 2026-10-19).
+    load_in_4bit: bool = True
     dtype: str = "float16"
     seed: int = 0
     prompt_template: str = VISUAL_PROMPT
@@ -123,18 +127,52 @@ def color_first_token_ids(
 
 
 def load_model(config: ScreenConfig):
-    """Load Qwen2.5-VL and its processor with a pinned image grid."""
-    import torch
-    from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
+    """Load Qwen2.5-VL and its processor, mirroring Lietzow's loader.
 
-    dtype = getattr(torch, config.dtype)
+    Their 4-bit setup (``vlm/qwen.py``): nf4, double quantisation, and a compute
+    dtype of bfloat16 **where the GPU supports it, float16 otherwise**. A T4
+    does not support bf16, so on Kaggle the compute dtype will be fp16 while
+    their runs were most likely bf16 -- a residual difference to note in
+    RESULTS.md rather than a bug.
+    """
+    import torch
+    from transformers import (
+        AutoProcessor,
+        BitsAndBytesConfig,
+        Qwen2_5_VLForConditionalGeneration,
+    )
+
+    compute_dtype = (
+        torch.bfloat16
+        if torch.cuda.is_available() and torch.cuda.is_bf16_supported()
+        else getattr(torch, config.dtype)
+    )
+    quantization_config = None
+    dtype = compute_dtype
+    if config.load_in_4bit:
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=compute_dtype,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        )
+        dtype = None
+
     processor = AutoProcessor.from_pretrained(
-        config.checkpoint, min_pixels=config.pixels, max_pixels=config.pixels
+        config.checkpoint,
+        use_fast=True,
+        min_pixels=config.pixels,
+        max_pixels=config.pixels,
     )
     model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-        config.checkpoint, torch_dtype=dtype, device_map="auto"
-    )
-    model.eval()
+        config.checkpoint,
+        dtype=dtype,
+        device_map="auto",
+        quantization_config=quantization_config,
+        low_cpu_mem_usage=True,
+    ).eval()
+    for param in model.parameters():
+        param.requires_grad = False
     return model, processor
 
 

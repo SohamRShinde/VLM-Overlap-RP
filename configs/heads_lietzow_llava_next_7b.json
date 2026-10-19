@@ -1,0 +1,180 @@
+{
+  "_source": "Lietzow et al. 2026, arXiv 2606.28273, Tables 5-7. Transcribed by the user on 2026-10-19 and pasted into this session. NOT available in their repo: data/ is git-ignored there, so knockout_targets.py cannot be used.",
+  "_warning": "Do not edit by hand from memory. Heads are data; change them only from the paper.",
+  "paper_model_name": "LLaVA 7B / LLaVA-NeXT 7B",
+  "checkpoint": "llava-hf/llava-v1.6-mistral-7b-hf",
+  "contrast": "prior_circuit (P): Prior prompt on the counterfactual image vs Visual prompt",
+  "index_base": 0,
+  "index_convention": "[layer, head], both 0-based. Confirmed against their interventions.py, which ablates the o_proj input slice [head*head_dim : (head+1)*head_dim].",
+  "promoting": [
+    [
+      13,
+      27
+    ],
+    [
+      15,
+      7
+    ],
+    [
+      16,
+      0
+    ],
+    [
+      16,
+      1
+    ],
+    [
+      16,
+      10
+    ],
+    [
+      17,
+      0
+    ],
+    [
+      17,
+      5
+    ],
+    [
+      17,
+      21
+    ],
+    [
+      18,
+      8
+    ],
+    [
+      18,
+      10
+    ],
+    [
+      18,
+      12
+    ],
+    [
+      19,
+      9
+    ],
+    [
+      20,
+      21
+    ],
+    [
+      22,
+      20
+    ],
+    [
+      24,
+      21
+    ],
+    [
+      24,
+      22
+    ],
+    [
+      28,
+      13
+    ],
+    [
+      29,
+      2
+    ],
+    [
+      29,
+      12
+    ],
+    [
+      29,
+      14
+    ],
+    [
+      30,
+      29
+    ],
+    [
+      31,
+      22
+    ],
+    [
+      31,
+      25
+    ],
+    [
+      31,
+      27
+    ]
+  ],
+  "suppressing": [
+    [
+      14,
+      14
+    ],
+    [
+      16,
+      2
+    ],
+    [
+      16,
+      3
+    ],
+    [
+      17,
+      24
+    ],
+    [
+      18,
+      9
+    ],
+    [
+      18,
+      11
+    ],
+    [
+      18,
+      28
+    ],
+    [
+      21,
+      6
+    ],
+    [
+      22,
+      29
+    ],
+    [
+      24,
+      20
+    ],
+    [
+      28,
+      14
+    ],
+    [
+      29,
+      0
+    ],
+    [
+      29,
+      13
+    ],
+    [
+      31,
+      20
+    ]
+  ],
+  "counts_reported": {
+    "promoting": 24,
+    "suppressing": 14
+  },
+  "single_head_prior_flip_pct": {
+    "L31H27": 26.2,
+    "L31H22": 22.5
+  },
+  "group_ablation_flip_pct": {
+    "prior": 75.0,
+    "visual": 7.5
+  },
+  "n_correctly_conflicting": 80,
+  "n_layers": null,
+  "n_heads_per_layer": null
+}

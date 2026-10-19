@@ -1,0 +1,97 @@
+{
+  "_source": "Lietzow et al. 2026, arXiv 2606.28273, Tables 5-7. Transcribed by the user on 2026-10-19 and pasted into this session. NOT available in their repo: data/ is git-ignored there, so knockout_targets.py cannot be used.",
+  "_warning": "Do not edit by hand from memory. Heads are data; change them only from the paper.",
+  "paper_model_name": "PG 10B / PaliGemma 10B",
+  "checkpoint": "google/paligemma2-10b-mix-448",
+  "contrast": "prior_circuit (P): Prior prompt on the counterfactual image vs Visual prompt",
+  "index_base": 0,
+  "index_convention": "[layer, head], both 0-based. Confirmed against their interventions.py, which ablates the o_proj input slice [head*head_dim : (head+1)*head_dim].",
+  "promoting": [
+    [
+      27,
+      15
+    ],
+    [
+      32,
+      11
+    ],
+    [
+      33,
+      4
+    ],
+    [
+      36,
+      1
+    ],
+    [
+      36,
+      2
+    ],
+    [
+      37,
+      12
+    ],
+    [
+      39,
+      0
+    ],
+    [
+      39,
+      2
+    ],
+    [
+      39,
+      7
+    ],
+    [
+      39,
+      13
+    ],
+    [
+      40,
+      6
+    ],
+    [
+      40,
+      10
+    ]
+  ],
+  "suppressing": [
+    [
+      30,
+      8
+    ],
+    [
+      31,
+      7
+    ],
+    [
+      32,
+      10
+    ],
+    [
+      40,
+      7
+    ],
+    [
+      40,
+      11
+    ]
+  ],
+  "counts_reported": {
+    "promoting": 12,
+    "suppressing": 5
+  },
+  "single_head_prior_flip_pct": {
+    "L40H6": 18.1,
+    "L37H12": 10.2
+  },
+  "group_ablation_flip_pct": {
+    "prior": 88.7,
+    "visual": 1.7
+  },
+  "n_correctly_conflicting": 177,
+  "n_layers": null,
+  "n_heads_per_layer": null,
+  "_note": "Table 7 labels these two heads 'PaliGemma 7B', a size that does not exist in the paper's model set. Both (L40H6, L37H12) appear in this model's Table 5 promoting list and in no other, so they are recorded here as PaliGemma 10B. [VERIFY] against the PDF."
+}

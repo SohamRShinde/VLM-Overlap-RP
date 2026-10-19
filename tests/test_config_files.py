@@ -37,14 +37,14 @@ def test_data_config_records_who_verified_the_dataset():
     assert any("493" in q for q in ds.get("open_questions", []))
 
 
-def test_screen_config_pins_a_grid_that_divides_into_tokens():
-    """A grid that is not a multiple of 28 would break the mask mapping."""
-    import math
-
-    from circuit_overlap.tokens import token_grid_shape
+def test_screen_config_matches_lietzows_pixel_budget():
+    """They pin the image *area* at 1280 merged cells (vlm/qwen.py). A smaller
+    budget renders the note's text too small to read, which would look like a
+    robust model rather than an illegible note."""
     from circuit_overlap.t_screen import ScreenConfig
 
-    side = int(math.isqrt(ScreenConfig().pixels))
-    assert side * side == ScreenConfig().pixels
-    rows, cols = token_grid_shape(side, side)
-    assert rows == cols >= 16, "too coarse a grid makes note text unreadable"
+    cfg = ScreenConfig()
+    cell = 28 * 28
+    assert cfg.pixels % cell == 0
+    assert cfg.pixels // cell == 1280
+    assert cfg.load_in_4bit is True, "D10: 4-bit, matching Lietzow's default"
