@@ -32,16 +32,24 @@ from .screen import ObjectRecord, parse_color_word, summarise_screen
 
 __all__ = [
     "VISUAL_PROMPT",
+    "PRIOR_PROMPT",
+    "ANSWER_SUFFIX",
     "ScreenConfig",
     "load_notes_config",
-    "single_first_token_ids",
+    "color_first_token_ids",
+    "best_accepted_color",
     "load_model",
     "answer_and_color_logits",
     "run_screen",
 ]
 
-# [VERIFY] against Lietzow's repo before the replication gate (D22).
-VISUAL_PROMPT = "What color is this {object} here?"
+# Verified against Lietzow's repo (src/vdpo/runner/core.py::_get_question;
+# MIT, commit 145b453, read 2026-10-19). The answer-format suffix is part of
+# the prompt in both modes -- our first version omitted it.
+ANSWER_SUFFIX = "Respond with the color name only."
+VISUAL_PROMPT = "What color is this {object} here? " + ANSWER_SUFFIX
+# Prior mode takes the indefinite article from inflect: "a cow" / "an apple".
+PRIOR_PROMPT = "What color is {a_object} usually? " + ANSWER_SUFFIX
 
 
 @dataclass(frozen=True)
@@ -79,31 +87,39 @@ def load_notes_config(path: str | Path = "configs/notes.json") -> dict:
     }
 
 
-def single_first_token_ids(
-    tokenizer, words: Iterable[str], prefix: str = " "
-) -> tuple[dict[str, int], list[str]]:
-    """First-token id per word, plus the words that fail the D26 restriction.
+def color_first_token_ids(
+    tokenizer, colors: Iterable[str]
+) -> tuple[dict[str, list[int]], list[str]]:
+    """First-token ids per colour, following Lietzow's convention.
 
-    A word fails if it does not survive as a single token, or if it shares its
-    first token with another word -- in either case logit(c_o) - logit(c_cf) is
-    not measuring what it claims to.
+    They tokenise **both** case variants of a colour ("Blue" and "blue") with
+    ``add_special_tokens=False`` and **no leading space** -- the answer opens
+    the assistant turn, so nothing precedes it -- and keep the first token id of
+    each (``core.py::get_answer_token_ids``). A colour's logit is the max over
+    its variants.
+
+    Returns ``(ids, collisions)``. A collision is a token id claimed by two
+    different colours, which makes their logit difference meaningless; drop
+    those colours, or the objects using them, before running (D26).
     """
-    ids: dict[str, int] = {}
-    multi: list[str] = []
-    for w in words:
-        pieces = tokenizer(prefix + w, add_special_tokens=False)["input_ids"]
-        if not pieces:
-            multi.append(w)
-            continue
-        ids[w] = int(pieces[0])
-        if len(pieces) > 1:
-            multi.append(w)
-    seen: dict[int, str] = {}
-    for w, i in ids.items():
-        if i in seen:
-            multi.extend([w, seen[i]])
-        seen[i] = w
-    return ids, sorted(set(multi))
+    ids: dict[str, list[int]] = {}
+    for color in colors:
+        base = color.strip()
+        token_ids: set[int] = set()
+        for variant in {base.capitalize(), base.lower()}:
+            pieces = tokenizer(variant, add_special_tokens=False)["input_ids"]
+            if pieces:
+                token_ids.add(int(pieces[0]))
+        if not token_ids:
+            raise ValueError(f"colour {color!r} produced no tokens")
+        ids[base] = sorted(token_ids)
+
+    owners: dict[int, list[str]] = {}
+    for color, token_ids in ids.items():
+        for t in token_ids:
+            owners.setdefault(t, []).append(color)
+    collisions = sorted({c for cs in owners.values() if len(cs) > 1 for c in cs})
+    return ids, collisions
 
 
 def load_model(config: ScreenConfig):
@@ -123,7 +139,7 @@ def load_model(config: ScreenConfig):
 
 
 def answer_and_color_logits(
-    model, processor, image, prompt: str, color_token_ids: dict[str, int],
+    model, processor, image, prompt: str, color_token_ids: dict[str, list[int]],
     max_new_tokens: int = 8,
 ) -> tuple[str, dict[str, float]]:
     """Greedy answer plus the first-token logit of every colour word.
@@ -161,28 +177,33 @@ def answer_and_color_logits(
         )
 
     first_logits = out.scores[0][0].float()
-    color_logits = {c: float(first_logits[i]) for c, i in color_token_ids.items()}
+    color_logits = {
+        c: float(max(first_logits[i] for i in ids)) for c, ids in color_token_ids.items()
+    }
     generated = out.sequences[0, inputs["input_ids"].shape[1] :]
     answer = processor.tokenizer.decode(generated, skip_special_tokens=True).strip()
     return answer, color_logits
 
 
-def choose_reference_color(
-    answer: str, original_colors: tuple[str, ...], vocabulary: Sequence[str]
+def best_accepted_color(
+    color_logits: dict[str, float], original_colors: Sequence[str]
 ) -> str:
-    """The c_o used in Delta when several colours are acceptable.
+    """The accepted colour with the highest first-token logit in this run.
 
-    Prefers the colour the model itself gave on the *neutral* note, provided it
-    is one of the accepted answers: that is the belief the attack has to
-    overturn, so the shift in Delta measures the attack rather than an arbitrary
-    choice between two correct colours. Falls back to the first accepted colour
-    when the neutral answer is unparseable or wrong, and the fallback is
-    recorded in the result row either way.
+    Lietzow score a run as ``max over correct answers`` vs ``max over the
+    incorrect answer`` (``runner/inference.py``), precisely because
+    ``correct_answer`` lists several acceptable colours. Delta = logit(best
+    accepted) - logit(c_cf) is that difference, so the reference colour is
+    whichever accepted colour the model currently likes best, chosen per run.
+
+    Records also store every colour's logit, so the alternative convention --
+    fix the reference on the neutral run and reuse it for the attacked run --
+    is recomputable offline without another GPU pass.
     """
-    parsed = parse_color_word(answer, vocabulary)
-    if parsed is not None and parsed in original_colors:
-        return parsed
-    return original_colors[0]
+    present = [c for c in original_colors if c in color_logits]
+    if not present:
+        raise KeyError(f"none of {tuple(original_colors)} is in the colour logits")
+    return max(present, key=lambda c: color_logits[c])
 
 
 def run_screen(
@@ -206,10 +227,10 @@ def run_screen(
     # not just the placeholder list in configs/notes.json.
     vocab = sorted(set(notes_config["color_vocabulary"]) | set(collect_color_vocabulary(entries)))
     specs = notes_config["specs"]
-    token_ids, bad = single_first_token_ids(processor.tokenizer, vocab)
-    if bad:
+    token_ids, collisions = color_first_token_ids(processor.tokenizer, vocab)
+    if collisions:
         raise ValueError(
-            f"colour words violating D26 (not a unique single first token): {bad}. "
+            f"colour words sharing a first token (D26): {collisions}. "
             "Drop the affected objects, or the words from configs/notes.json, "
             "before running -- the logit difference is undefined for them."
         )
@@ -231,15 +252,14 @@ def run_screen(
                 model, processor, render_note(image, texts["neutral"], spec).image,
                 prompt, token_ids, config.max_new_tokens,
             )
-            # Pick c_o only after the neutral run, then score both runs with it.
-            reference = choose_reference_color(
-                neutral_answer, entry.original_colors, vocab
-            )
             attack_answer, attack_logits = answer_and_color_logits(
                 model, processor, render_note(image, texts["incongruent"], spec).image,
                 prompt, token_ids, config.max_new_tokens,
             )
             cf = entry.counterfactual_color
+            # Lietzow's convention: max over the accepted colours, per run.
+            ref_neutral = best_accepted_color(neutral_logits, entry.original_colors)
+            ref_attack = best_accepted_color(attack_logits, entry.original_colors)
             records.append(
                 ObjectRecord(
                     object_id=entry.object_id,
@@ -248,10 +268,12 @@ def run_screen(
                     counterfactual_color=cf,
                     answer_neutral=neutral_answer,
                     answer_incongruent=attack_answer,
-                    delta_neutral=neutral_logits[reference] - neutral_logits[cf],
-                    delta_incongruent=attack_logits[reference] - attack_logits[cf],
+                    delta_neutral=neutral_logits[ref_neutral] - neutral_logits[cf],
+                    delta_incongruent=attack_logits[ref_attack] - attack_logits[cf],
                     layout=spec.name,
-                    reference_color=reference,
+                    reference_color=ref_neutral,
+                    color_logits_neutral=neutral_logits,
+                    color_logits_incongruent=attack_logits,
                 )
             )
 

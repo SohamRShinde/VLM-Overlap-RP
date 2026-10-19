@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import ast
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -43,6 +44,7 @@ from typing import Any, Iterable
 __all__ = [
     "ObjectEntry",
     "parse_color_list",
+    "lietzow_object_name",
     "load_manifest",
     "check_colors_in_vocabulary",
     "collect_color_vocabulary",
@@ -92,14 +94,56 @@ def parse_color_list(value: Any) -> tuple[str, ...]:
     for item in items:
         if not isinstance(item, str):
             raise TypeError(f"colour entries must be strings, got {item!r}")
-        word = item.strip().lower()
+        word = " ".join(item.strip().lower().split())
         if not word:
             continue
+        # Lietzow fold grey/gray into one colour (models.py::_sanitize_color_name);
+        # keeping both would split the logit mass across two spellings.
+        if word == "grey":
+            word = "gray"
         if word not in out:
             out.append(word)
     if not out:
         raise ValueError(f"colour field has no usable words: {value!r}")
     return tuple(out)
+
+
+_OBJECT_EXTRA = re.compile(r"^(.+?)(?: \((.+)\))?$")
+
+
+def lietzow_object_name(name: str, is_plural=None) -> str:
+    """Normalise an object name, rejecting the rows Lietzow's loader drops.
+
+    Their ``load_examples`` wraps ``model_validate`` in
+    ``contextlib.suppress(ValueError)``, so any row failing validation vanishes
+    silently -- which is how the Hub's 493 rows become the 469/467 in the paper.
+    Two validators do the work (``models.py::_validate_object_name``):
+
+    * a name carrying parenthetical extra information ("apple (fruit)") is rejected;
+    * a plural name is rejected.
+
+    is_plural:
+        Callable ``str -> bool``. Pluralisation needs ``inflect``, which this
+        package does not depend on, so the caller injects it:
+        ``eng = inflect.engine(); is_plural=lambda n: bool(eng.singular_noun(n))``.
+        Omit it to apply only the parenthetical rule.
+
+    Returns the cleaned, lowercase name -- the form that goes into the prompt
+    (``core.py::_get_question`` lowercases before formatting).
+    """
+    cleaned = " ".join(str(name).lower().replace("_", " ").split())
+    if not cleaned:
+        raise ValueError("empty object name")
+    match = _OBJECT_EXTRA.match(cleaned)
+    if not match:
+        raise ValueError(f"could not parse object name: {name!r}")
+    word, extra = match.groups()
+    if extra:
+        raise ValueError(f"object name {cleaned!r} contains extra information")
+    word = word.strip()
+    if is_plural is not None and is_plural(word):
+        raise ValueError(f"object name {word!r} is plural")
+    return word
 
 
 @dataclass(frozen=True)

@@ -1,6 +1,6 @@
 # STATE.md — One Circuit or Two? (VLM circuit overlap)
 
-**Last updated:** 2026-10-18 (chat 2: repo, scaffolding, T-screen code, dataset schema verified)
+**Last updated:** 2026-10-19 (chat 2: Lietzow repo read; prompt, checkpoints, loader filters and Δ convention pinned)
 **Phase:** Pre-experiment. Code written and CPU-tested; **no GPU run, no results.** Plan of record: `docs/plan_v2.md` (v2.1, 16 Oct 2026), except its venue claim (see blocker 1).
 
 ## Status
@@ -14,16 +14,32 @@
 
 ## Blockers
 1. **No AAAI-27 venue chosen.** The uploaded `AIR-FM.md` is the **AAAI-2026** edition of that workshop (deadline 23 Oct 2025, 4 pages) and AIR-FM is not on the AAAI-27 list. plan_v2.1 section 0.8 proposed GSR-VLM, but that is **a candidate, not a decision** (D01, reopened 2026-10-18). Until a workshop is picked, its deadline, page limit, template, anonymity rules and archival status are all unknown, and plan section 9's 4-vs-6-page branch cannot be resolved. The AAAI general workshop deadline (20 Nov 2026) is the planning date in the meantime.
-2. Lietzow repo not yet inspected: exact checkpoints, prompt string, V-contrast prompt, index base.
+2. ~~Lietzow repo not yet inspected~~ **RESOLVED 2026-10-19.** Cloned `github.com/nlietzow/vision-default-prior-override` (MIT, Copyright 2026 Niclas Lietzow, commit `145b453`). Answers below. One sub-item remains: **their head lists are not in the repo** -- `data/` is git-ignored and `knockout_targets.py` reads `data/classify_attn_heads.json`, which is not published. Head lists must still be transcribed from the paper's Tables 5-7 into `configs/heads_*.json` by hand.
+
+## What the Lietzow repo settled (2026-10-19)
+| Question | Answer | Source in their repo |
+|---|---|---|
+| Visual prompt | `What color is this {object} here? Respond with the color name only.` -- "here" **is** present, and there is an **answer-format suffix** the paper's prose omits | `src/vdpo/runner/core.py::_get_question` |
+| Prior prompt | `What color is {a/an object} usually? Respond with the color name only.` (article from `inflect`) | same |
+| Checkpoints | `Qwen/Qwen2.5-VL-{3B,7B}-Instruct`, `google/paligemma2-{size}-mix-448`, `llava-hf/llava-v1.6-mistral-7b-hf` | `src/vdpo/vlm/*.py` |
+| Precision | **4-bit by default** (`LOAD_IN_4BIT=true`); README offers full precision as an opt-in | `settings.py`, README "Hardware" |
+| Answer tokens | First token of **both** case variants ("Blue", "blue"), **no leading space**; a colour's logit is the max over variants | `core.py::get_answer_token_ids` |
+| Scoring | `max over correct_answer tokens` vs `max over incorrect_answer tokens` | `runner/inference.py` |
+| Δ for patching | **Not** the colour pair: the logit difference between the **argmax token of the source run and of the target run**, and examples whose two argmax tokens coincide are skipped | `runner/patching_last_token_attn_heads.py` |
+| Conflicting subset | Examples whose top-1 prediction differs between the two prompts | README, `--stage inference` |
+| Head indexing | `{"layer": int, "head": int}`, 0-based, ablation zeroes `o_proj` input slice `[head*head_dim : (head+1)*head_dim]` at the last token via a pre-hook | `interventions.py::head_knockout` |
+| 493 vs 467 | Their loader silently drops rows that fail pydantic validation: **parenthetical names** ("apple (fruit)"), **plural names**, and **counterfactual colour also in `correct_answer`** (this last is exactly radish and spider, per their README). So the paper's counts are post-filter | `types/models.py`, `utils/load_examples.py`, README "Dataset" |
+| Dataset access | Needs an `HF_TOKEN` | README "Dataset" |
+| Licence | MIT -- their code may be reused with attribution | `LICENSE` |
 
 ## Open questions (from audit)
-- [ ] Exact Visual prompt: Lietzow §3.1 has "What color is this {object} here?"; their Table 1 caption has "What color is this strawberry?" (no "here"). Check repo.
+- [x] ~~Exact Visual prompt~~ **resolved 2026-10-19** (see table above; note the answer-format suffix, absent from both the paper's §3.1 and its Table 1 caption).
 - [x] ~~Visual-Counterfact column names~~ **resolved 2026-10-18:** `object`, `correct_answer` (stringified list), `incorrect_answer`, `original_image`, `counterfact_image`.
-- [ ] **Visual-Counterfact size, still open.** The Hub's `color` split has **493 rows**, matching Nooralahzadeh; Lietzow say 469 objects, 467 after dropping radish and spider. Three candidate explanations, in order of likelihood, all cheap to check (see `notebooks/t_screen.ipynb` cell 2b): (a) 493 *rows* but fewer unique `object` values -- count `len(set(ds["object"]))`; (b) Lietzow used an earlier Hub revision -- list the dataset's commit history and load the revision dated before their submission; (c) Lietzow applied a filter they do not describe -- check their repo's loading code. Resolve before the replication gate: a head-set mismatch would otherwise be unattributable between dataset and pipeline.
+- [ ] **Visual-Counterfact size: mechanism found, numbers not yet confirmed.** It was explanation (c): undocumented filtering. Their loader drops invalid rows silently, so 493 Hub rows become 469 valid objects and 467 after the colour-overlap rule. `notebooks/t_screen.ipynb` cell 2 now applies the same three rules and prints the drop counts -- **confirm the cascade actually lands on 469/467** on the current Hub revision before the replication gate.
 - [ ] Dataset licence: not shown on the viewer page. Check the dataset card before publishing.
-- [ ] Exact checkpoints: Lietzow writes "Qwen-VL-2.5 (3B, 7B)" citing the Qwen2-VL paper, and "PaliGemma (3B, 10B) with a Gemma 2 backbone" citing PaliGemma 2. Instruct/mix/pt and resolution not stated.
-- [ ] Layer index base: paper uses L{l}H{h}; H0 appears (heads 0-based); layer base not stated.
-- [ ] V contrast (Lietzow App. F): which prompt is held fixed? Not stated.
+- [x] ~~Exact checkpoints~~ **resolved 2026-10-19** (see table above).
+- [x] ~~Layer index base~~ **resolved 2026-10-19:** 0-based layer and head indices, matching D30/D60.
+- [ ] V contrast: their `ContrastSpec`s are in `src/vdpo/types/contrast.py` (`PRIOR_CIRCUIT_CONTRAST`, visual variant) -- read it to settle which prompt is held fixed. Not yet read.
 - [ ] Lietzow "61% of V-classified heads also classified under P": pooled over models? promoting+suppressing? It is a containment fraction, not Jaccard.
 - [ ] Is Qwen2.5-VL-3B susceptible to typographic notes at all? No uploaded paper tests Qwen2.5-VL or PaliGemma on typographic attacks (SCAM evaluates neither).
 - [ ] Last-token risk for image-varying contrasts (V, T): Nooralahzadeh et al. report last-token residual patching leaves 90–98% of outputs unchanged on image-variant contrasts. Does last-token head patching give usable restoration for T?

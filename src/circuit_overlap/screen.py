@@ -52,9 +52,9 @@ class ObjectRecord:
         Every acceptable colour (``correct_answer``). A bare string is accepted
         and wrapped, so single-colour objects stay easy to write by hand.
     reference_color:
-        The single colour used as c_o in ``delta_*``. There can be several
-        acceptable colours but only one logit difference, so the run records
-        which one it used -- normally the model's own neutral-note answer.
+        The accepted colour used as c_o in ``delta_neutral`` -- the one with the
+        highest first-token logit in the neutral run, which is Lietzow's
+        "max over correct answers" convention (D29).
     """
 
     object_id: str
@@ -67,6 +67,10 @@ class ObjectRecord:
     layout: str = "unnamed"
     reference_color: str | None = None
     object_name: str = ""
+    # First-token logit of every colour word, per run. Keeping these makes any
+    # other logit-difference convention recomputable without a second GPU pass.
+    color_logits_neutral: dict[str, float] | None = None
+    color_logits_incongruent: dict[str, float] | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "original_colors", parse_color_list(self.original_colors))
