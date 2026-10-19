@@ -85,3 +85,65 @@ def test_end_to_end_a_rendered_note_lands_on_plausible_tokens():
     # Centred note -> selected tokens are centred too.
     rows, cols = np.nonzero(grid)
     assert 1 <= rows.mean() <= 6 and 1 <= cols.mean() <= 6
+
+
+# --- the processor resizes: map onto the grid the model actually sees -------
+
+
+def test_merged_grid_from_grid_thw():
+    from circuit_overlap.tokens import merged_grid_from_grid_thw
+
+    # Observed on Kaggle for a 440x612 input at the pinned pixel budget.
+    assert merged_grid_from_grid_thw([[1, 62, 86]]) == (31, 43)
+    assert merged_grid_from_grid_thw(np.array([[1, 4, 6]])) == (2, 3)
+
+
+def test_merged_grid_rejects_odd_patch_counts_and_batches():
+    from circuit_overlap.tokens import merged_grid_from_grid_thw
+
+    with pytest.raises(ValueError, match="merge_size"):
+        merged_grid_from_grid_thw([[1, 63, 86]])
+    with pytest.raises(ValueError, match="one image"):
+        merged_grid_from_grid_thw([[1, 4, 6], [1, 4, 6]])
+
+
+def test_coverage_on_grid_handles_a_mask_at_any_resolution():
+    from circuit_overlap.tokens import coverage_on_grid
+
+    # 440x612 is not a multiple of 28: the plain path cannot handle it.
+    mask = np.zeros((440, 612), dtype=bool)
+    mask[:220, :] = True                       # exactly the top half
+    cov = coverage_on_grid(mask, 31, 43)
+    assert cov.shape == (31, 43)
+    assert cov[:15].mean() == pytest.approx(1.0, abs=0.02)
+    assert cov[16:].mean() == pytest.approx(0.0, abs=0.02)
+
+
+def test_grid_mapping_selects_about_the_right_share_of_tokens():
+    from circuit_overlap.tokens import mask_to_token_indices_on_grid
+
+    mask = np.zeros((440, 612), dtype=bool)
+    mask[:220, :306] = True                    # one quarter of the frame
+    idx, grid = mask_to_token_indices_on_grid(mask, 31, 43, return_grid=True)
+    assert grid.shape == (31, 43)
+    assert 0.2 < idx.size / grid.size < 0.3
+
+
+def test_grid_mapping_rejects_a_zero_threshold():
+    from circuit_overlap.tokens import mask_to_token_indices_on_grid
+
+    with pytest.raises(ValueError):
+        mask_to_token_indices_on_grid(np.zeros((40, 40), bool), 4, 4, threshold=0.0)
+
+
+def test_end_to_end_rendered_note_maps_onto_a_resized_grid():
+    """The real path: note drawn at source resolution, mapped to the model's grid."""
+    from circuit_overlap.notes import NoteSpec, render_note
+    from circuit_overlap.tokens import mask_to_token_indices_on_grid
+
+    img = Image.new("RGB", (612, 440), (40, 90, 40))     # not a multiple of 28
+    r = render_note(img, "blue", NoteSpec(rel_width=0.3, anchor=(0.5, 0.5)))
+    idx, grid = mask_to_token_indices_on_grid(r.mask, 31, 43, return_grid=True)
+    assert 0 < idx.size < grid.size
+    rows, cols = np.nonzero(grid)
+    assert 5 < rows.mean() < 25 and 10 < cols.mean() < 33

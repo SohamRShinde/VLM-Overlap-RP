@@ -70,15 +70,39 @@ def test_object_name_rejects_parenthetical_extra_information():
         lietzow_object_name("apple (fruit)")
 
 
-def test_object_name_rejects_plurals_when_inflect_is_supplied():
+def test_plural_test_receives_the_capitalized_name():
+    """Their _sanitize_object_name capitalizes before the plural check."""
     from circuit_overlap.data import lietzow_object_name
 
-    fake_plurals = {"strawberries", "cows"}
-    is_plural = lambda n: n in fake_plurals  # noqa: E731
-    assert lietzow_object_name("cow", is_plural=is_plural) == "cow"
-    with pytest.raises(ValueError, match="plural"):
-        lietzow_object_name("cows", is_plural=is_plural)
-    # Without the callable the plural rule is simply not applied.
+    seen = []
+    lietzow_object_name("fire_truck", is_plural=lambda n: seen.append(n) or False)
+    assert seen == ["Fire truck"]
+
+
+def test_plural_rule_keeps_words_inflect_returns_unchanged():
+    """deer, sheep, moose, goldfish, mackerel, 'anemone fish': singular_noun
+    returns the word itself, so Lietzow keep them. Checking truthiness alone
+    would drop all six and cost 6 objects against their 469."""
+    from circuit_overlap.data import lietzow_object_name
+
+    class FakeEngine:
+        # Mirrors inflect 7.5.0 on the real data (observed 2026-10-19).
+        table = {"Deer": "Deer", "Sheep": "Sheep", "Beans": "Bean", "Bus": "Bu"}
+
+        def singular_noun(self, word):
+            return self.table.get(word, False)
+
+    eng = FakeEngine()
+    assert lietzow_object_name("deer", inflect_engine=eng) == "deer"
+    assert lietzow_object_name("sheep", inflect_engine=eng) == "sheep"
+    for plural in ("beans", "bus"):
+        with pytest.raises(ValueError, match="plural"):
+            lietzow_object_name(plural, inflect_engine=eng)
+
+
+def test_plural_rule_is_skipped_without_an_engine():
+    from circuit_overlap.data import lietzow_object_name
+
     assert lietzow_object_name("cows") == "cows"
 
 
@@ -87,3 +111,20 @@ def test_object_name_rejects_empty():
 
     with pytest.raises(ValueError):
         lietzow_object_name("   ")
+
+
+
+def test_require_list_rejects_a_bare_string_as_lietzow_do():
+    """correct_answer is typed list[str]; a bare string fails their validation
+    and the row disappears. Suspected cause of the last 2 objects of the
+    493 -> 469 -> 467 cascade."""
+    assert parse_color_list("red", require_list=False) == ("red",)
+    with pytest.raises(ValueError, match="bare string"):
+        parse_color_list("red", require_list=True)
+    # A stringified list is still fine under the strict rule.
+    assert parse_color_list("['red']", require_list=True) == ("red",)
+
+
+def test_a_stringified_non_list_is_rejected():
+    with pytest.raises(ValueError, match="not a list"):
+        parse_color_list("{'red': 1}")

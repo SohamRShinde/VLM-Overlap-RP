@@ -51,7 +51,7 @@ __all__ = [
 ]
 
 
-def parse_color_list(value: Any) -> tuple[str, ...]:
+def parse_color_list(value: Any, require_list: bool = False) -> tuple[str, ...]:
     """Normalise a colour field to a tuple of lowercase colour words.
 
     Handles every shape Visual-Counterfact and a hand-written manifest can
@@ -69,6 +69,14 @@ def parse_color_list(value: Any) -> tuple[str, ...]:
     first element is a stable "primary" colour. Raises on an empty or
     unparseable field rather than returning an empty tuple, which would
     silently make an object impossible to score.
+
+    require_list:
+        Reject a bare string such as ``"red"``. Lietzow's ``correct_answer``
+        field is typed ``list[str]`` and their ``parse_correct_answer`` only
+        converts strings that ``literal_eval`` into one, so a bare string makes
+        the whole row fail validation and disappear. Pass ``True`` when
+        reproducing their object set; leave it ``False`` for a hand-written
+        manifest, where a single colour is a reasonable thing to write.
     """
     if value is None:
         raise ValueError("colour field is None")
@@ -77,12 +85,19 @@ def parse_color_list(value: Any) -> tuple[str, ...]:
         text = value.strip()
         if not text:
             raise ValueError("colour field is empty")
-        if text.startswith("[") or text.startswith("("):
+        if text[0] in "[({":  # a literal was intended; "{" catches dicts/sets
             try:
                 parsed = ast.literal_eval(text)
             except (ValueError, SyntaxError) as exc:
                 raise ValueError(f"cannot parse colour list {value!r}") from exc
+            if not isinstance(parsed, (list, tuple)):
+                raise ValueError(f"colour field is not a list: {value!r}")
             items: Iterable[Any] = parsed
+        elif require_list:
+            raise ValueError(
+                f"colour field {value!r} is a bare string, not a list; Lietzow's "
+                "loader drops such rows (correct_answer is typed list[str])"
+            )
         else:
             items = [text]
     elif isinstance(value, (list, tuple, set, frozenset)):
@@ -111,7 +126,7 @@ def parse_color_list(value: Any) -> tuple[str, ...]:
 _OBJECT_EXTRA = re.compile(r"^(.+?)(?: \((.+)\))?$")
 
 
-def lietzow_object_name(name: str, is_plural=None) -> str:
+def lietzow_object_name(name: str, inflect_engine=None, is_plural=None) -> str:
     """Normalise an object name, rejecting the rows Lietzow's loader drops.
 
     Their ``load_examples`` wraps ``model_validate`` in
@@ -122,11 +137,23 @@ def lietzow_object_name(name: str, is_plural=None) -> str:
     * a name carrying parenthetical extra information ("apple (fruit)") is rejected;
     * a plural name is rejected.
 
+    inflect_engine:
+        An ``inflect.engine()``. This package does not depend on inflect, so the
+        caller injects it. Their exact test is applied here, and both halves
+        matter:
+
+        * the name is **capitalized first** (their ``_sanitize_object_name``
+          returns ``"Deer"``), and
+        * a word counts as plural only when ``singular_noun`` returns something
+          **different** from it.
+
+        Checked on the real data (2026-10-19): deer, sheep, moose, goldfish,
+        mackerel and "anemone fish" come back unchanged, so they are kept.
+        Testing truthiness alone drops all six and costs 6 objects.
     is_plural:
-        Callable ``str -> bool``. Pluralisation needs ``inflect``, which this
-        package does not depend on, so the caller injects it:
-        ``eng = inflect.engine(); is_plural=lambda n: bool(eng.singular_noun(n))``.
-        Omit it to apply only the parenthetical rule.
+        Test override taking the **capitalized** name, for tests that must not
+        depend on inflect. Omit both arguments to apply only the parenthetical
+        rule.
 
     Returns the cleaned, lowercase name -- the form that goes into the prompt
     (``core.py::_get_question`` lowercases before formatting).
@@ -141,7 +168,15 @@ def lietzow_object_name(name: str, is_plural=None) -> str:
     if extra:
         raise ValueError(f"object name {cleaned!r} contains extra information")
     word = word.strip()
-    if is_plural is not None and is_plural(word):
+    sanitized = word.capitalize()  # their _sanitize_object_name
+    if is_plural is not None:
+        plural = bool(is_plural(sanitized))
+    elif inflect_engine is not None:
+        singular = inflect_engine.singular_noun(sanitized)
+        plural = bool(singular) and singular != sanitized
+    else:
+        plural = False
+    if plural:
         raise ValueError(f"object name {word!r} is plural")
     return word
 
