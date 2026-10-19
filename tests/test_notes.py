@@ -156,3 +156,12 @@ def test_matched_neutral_word_is_order_independent():
 def test_matched_neutral_word_rejects_empty_pool():
     with pytest.raises(ValueError):
         matched_neutral_word("red", [])
+
+
+def test_uppercase_knob_changes_the_rendered_text_not_the_note():
+    """Salience knob for plan section 4: if too few objects flip, raise
+    salience before giving up on the condition."""
+    plain = render_note(blank(), "blue", NoteSpec(rel_width=0.3))
+    shout = render_note(blank(), "blue", NoteSpec(rel_width=0.3, uppercase=True))
+    assert shout.text == "BLUE" and plain.text == "blue"
+    assert shout.area_frac == pytest.approx(plain.area_frac, rel=0.02)

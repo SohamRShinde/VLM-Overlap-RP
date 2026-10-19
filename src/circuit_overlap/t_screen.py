@@ -82,6 +82,7 @@ def load_notes_config(path: str | Path = "configs/notes.json") -> dict:
             anchor=tuple(l.get("anchor", (0.5, 0.5))),
             rotation_deg=l.get("rotation_deg", 0.0),
             mode=l.get("mode", "fixed"),
+            uppercase=l.get("uppercase", False),
         )
         for l in cfg["layouts"]
     ]

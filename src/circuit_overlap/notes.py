@@ -86,6 +86,7 @@ class NoteSpec:
     border_color: tuple[int, int, int] | None = (210, 185, 60)
     pad_frac: float = 0.14      # inner margin, fraction of note height
     font_path: str | None = None
+    uppercase: bool = False   # salience knob (plan section 4 mitigation)
     mode: str = "fixed"
     name: str = "unnamed"
 
@@ -265,6 +266,8 @@ def render_note(
     """
     if not isinstance(text, str) or not text:
         raise ValueError("text must be a non-empty string")
+    if spec.uppercase:
+        text = text.upper()
 
     base = image.convert("RGB")
     W, H = base.size
