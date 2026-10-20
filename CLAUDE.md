@@ -25,9 +25,11 @@ reopened). Do not state a venue, page limit, or framing as settled.
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
 - **Next: the replication gate** (plan section 4 step 2), starting with
-  `notebooks/replication_flip_rate.ipynb`, which still has `[FILL IN]` cells
-  for building the conflicting subset. Pass criteria: DECISIONS.md D40; target
-  numbers in `configs/heads_lietzow_qwen3b.json` and plan Appendix B.
+  `notebooks/replication_flip_rate.ipynb`. Its `[FILL IN]` cells were filled
+  on 20 Oct (conflicting subset by first-token top-1, a re-implemented
+  `head_knockout`, checkpointed loops) but it has **not produced a result
+  yet**. Pass criteria: DECISIONS.md D40; target numbers in
+  `configs/heads_lietzow_qwen3b.json` and plan Appendix B.
 - No circuit discovery has been run. Nothing has been patched or ablated.
 
 ## Two people, one repo
@@ -37,6 +39,49 @@ Two of us work on this from separate machines through the same GitHub repo.
   stale code. This has caused several confusing failures.
 - Both of us edit `docs/`. Keep edits additive and commit doc changes on their
   own where practical, so conflicts stay trivial.
+
+Each of us also runs a Claude Code session against this repo. These rules
+apply to both people and both sessions:
+
+- **Start every session with `git fetch && git status -sb`.** If the branch is
+  behind, `git pull --ff-only` before reading or editing anything. A session
+  that works on a stale checkout re-diagnoses bugs the other person already
+  fixed, and its edits conflict on push (this happened on 20 Oct: 10 commits
+  behind, see gotchas).
+- **Before every push:** `git pull --rebase`, then `.venv/bin/python -m pytest`,
+  then push. Never force-push `main`, and never rewrite pushed history.
+- **One owner per notebook at a time.** `.ipynb` files are JSON and merge
+  badly. Do not edit the other person's notebook; ask them, or change `src/`
+  instead. Current owners (GitHub handles):
+
+  | Notebook | Owner |
+  |---|---|
+  | `notebooks/t_screen.ipynb` | @SohamRShinde |
+  | `notebooks/replication_flip_rate.ipynb` | @DevParmar-Hub |
+
+  Update this table in the same commit when ownership changes. Commit
+  notebooks with **outputs cleared**; results go to `results/`, not cell
+  output.
+- **Shared code in `src/` is used by both notebooks**, so a change there can
+  silently change the other person's next run (cell 1 pulls `origin/main`).
+  Before renaming, removing, or changing the behaviour of a public function,
+  grep `notebooks/` for its callers. If the other person's notebook needs a
+  new name, add it to that notebook's cell-1 freshness check. Behaviour
+  changes to code the other person is running go on a branch with a PR they
+  review; tested additions and fixes can go straight to `main`.
+- **Never push to `main` during the other person's Save & Run All without
+  telling them** if it touches code their notebook imports -- a re-run of
+  cell 1 picks it up. Record the commit hash cell 1 prints with every result.
+- **`DECISIONS.md` IDs collide.** Pull immediately before taking the next
+  D-number, and push the decision promptly. On a conflict, the later commit
+  renumbers and fixes its references.
+- **Results files are per experiment and never overwritten by the other
+  person.** Name them `results/<experiment>_<model>.json`; append rows to
+  `RESULTS.md`, never reorder or rewrite another person's rows.
+- **Kaggle output paths are per notebook.** `t_screen.ipynb` uses
+  `/kaggle/working/vc_color` and `/kaggle/working/t_screen_*`;
+  `replication_flip_rate.ipynb` uses `/kaggle/working/replication/`. A new
+  notebook gets its own prefix.
 
 ## Setup
 - Models: Qwen2.5-VL-3B-Instruct (primary), PaliGemma-3B. **4-bit nf4**,
@@ -128,3 +173,29 @@ python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
   colour is also correct, which is how 493 Hub rows become their 469/467.
   `data.lietzow_object_name` reproduces it. Which revision to pin is still open
   (D20a).
+
+## Claude's own mistakes (20 Oct 2026, replication notebook)
+Recorded so neither session repeats them.
+- **Worked on a checkout 10 commits behind `origin/main`.** The session
+  diagnosed a 16-hour Kaggle run from stale code and missed the likely cause
+  (emulated bf16, already fixed upstream as `native_bf16`), then wrote cells
+  using `torch.cuda.is_bf16_supported()` despite the gotcha above. Fix: fetch
+  first, and read the gotchas before writing GPU code.
+- **Wrong runtime estimate, no checkpointing.** It said "a few minutes" for
+  ~940 generations and gave a loop that kept results only in memory. The run
+  took 16+ h, the session died, and everything was lost. Fix: time one
+  forward pass first (the replication notebook's section 1b does), multiply
+  out, say the total, and checkpoint every long loop (D44) from the start.
+- **Gave untested code as if finished.** The first conflicting-subset cell
+  matched generated text against colour names, which breaks on answers like
+  "The color is red" and costs 8 decode steps per answer. Top-1 comparisons
+  use the argmax of the first answer-token logits from one forward pass.
+  Label any cell that has not run on the real model as untested.
+- **Notebooks drifted apart.** `replication_flip_rate.ipynb` had no
+  `pip install bitsandbytes` cell while `t_screen.ipynb` did, and installing
+  it into a kernel that had already imported transformers does nothing until
+  the kernel restarts (transformers caches the check). New notebooks copy the
+  install cell, and the fix for a fresh install is a restart, not a re-install.
+- **`head_knockout` is re-implemented, not Lietzow's file** (D65 says reuse
+  theirs). Diff it against `src/vdpo/interventions.py` before citing a flip
+  rate from it.
