@@ -37,6 +37,7 @@ from .data import parse_color_list
 __all__ = [
     "ObjectRecord",
     "records_from_checkpoint",
+    "vocabulary_from_records",
     "Outcome",
     "parse_color_word",
     "classify",
@@ -129,6 +130,29 @@ def records_from_checkpoint(path: str | Path) -> list[ObjectRecord]:
         payload = json.loads(line)
         records.extend(ObjectRecord(**r) for r in payload["records"])
     return records
+
+
+def vocabulary_from_records(records: Sequence[ObjectRecord]) -> list[str]:
+    """The colour vocabulary a run used, read back from its own records.
+
+    Recovery must not depend on the dataset or the model: re-deriving the
+    vocabulary would mean re-downloading 493 rows of images to recover a run
+    that already finished. Every record carries its accepted colours, its
+    counterfactual colour, and the keys of the colour-logit dictionaries, which
+    together are exactly the vocabulary that was scored.
+    """
+    words: set[str] = set()
+    for r in records:
+        words.update(r.original_colors)
+        words.add(r.counterfactual_color)
+        for logits in (
+            r.color_logits_neutral,
+            r.color_logits_incongruent,
+            r.color_logits_congruent,
+        ):
+            if logits:
+                words.update(logits)
+    return sorted(w for w in words if w)
 
 
 def parse_color_word(text: str, vocabulary: Iterable[str]) -> str | None:

@@ -379,3 +379,33 @@ def test_records_from_checkpoint_round_trips(tmp_path):
     assert restored[0].delta_congruent == pytest.approx(1.5)
     # And it summarises exactly as the live records would.
     assert summarise_screen(restored, VOCAB, min_usable=1)["n_objects"] == 2
+
+
+def test_vocabulary_from_records_recovers_what_was_scored():
+    """Recovery must not need the dataset or the model back."""
+    from circuit_overlap.screen import vocabulary_from_records
+
+    records = [
+        ObjectRecord(
+            object_id="cow", original_colors=("brown", "white"),
+            counterfactual_color="blue", answer_neutral="Brown.",
+            answer_incongruent="Blue.",
+            color_logits_neutral={"brown": 1.0, "white": 0.5, "blue": -2.0,
+                                  "gold": -9.0},
+        ),
+        ObjectRecord(
+            object_id="berry", original_colors=("red",),
+            counterfactual_color="green", answer_neutral="Red.",
+            answer_incongruent="Green.",
+        ),
+    ]
+    # Includes colours only present as logit keys: that is the scored set.
+    assert vocabulary_from_records(records) == [
+        "blue", "brown", "gold", "green", "red", "white"
+    ]
+
+
+def test_vocabulary_from_records_is_empty_for_no_records():
+    from circuit_overlap.screen import vocabulary_from_records
+
+    assert vocabulary_from_records([]) == []
