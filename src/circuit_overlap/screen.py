@@ -24,9 +24,11 @@ Pure logic on strings and floats -- no model, no torch. The GPU side lives in
 
 from __future__ import annotations
 
+import json
 import math
 import re
 from collections import Counter
+from pathlib import Path
 from dataclasses import asdict, dataclass
 from typing import Iterable, Sequence
 
@@ -34,6 +36,7 @@ from .data import parse_color_list
 
 __all__ = [
     "ObjectRecord",
+    "records_from_checkpoint",
     "Outcome",
     "parse_color_word",
     "classify",
@@ -109,6 +112,23 @@ class Outcome:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+def records_from_checkpoint(path: str | Path) -> list[ObjectRecord]:
+    """Rebuild records from a ``run_screen`` checkpoint file.
+
+    The checkpoint holds one JSON line per object, written as that object
+    finished. This recovers a completed run whose summary or save step failed
+    -- which is the whole point of writing it (D44): the GPU hours are spent,
+    and nothing downstream should depend on a kernel still being alive.
+    """
+    records: list[ObjectRecord] = []
+    for line in Path(path).read_text().splitlines():
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        records.extend(ObjectRecord(**r) for r in payload["records"])
+    return records
 
 
 def parse_color_word(text: str, vocabulary: Iterable[str]) -> str | None:

@@ -349,3 +349,33 @@ def test_a_noisy_congruent_baseline_raises_the_bar_and_excludes_objects():
     # attack's 4.0 does not clear it.
     assert cont["baseline_threshold_p95_congruent"] == pytest.approx(9.0, abs=0.1)
     assert cont["n_objects_shifted"] == 0
+
+
+# --- recovering a run from its checkpoint ---------------------------------
+
+
+def test_records_from_checkpoint_round_trips(tmp_path):
+    """A completed run must survive a failure in the summary or save step:
+    the GPU hours are already spent (D44)."""
+    from dataclasses import asdict
+
+    from circuit_overlap.screen import records_from_checkpoint
+
+    originals = [rec_c(oid="a", **{"layout": "on_object_small"}),
+                 rec_c(oid="a", **{"layout": "beside_object"}),
+                 rec_c(oid="b")]
+    ckpt = tmp_path / "ckpt.jsonl"
+    with ckpt.open("w") as f:
+        for oid in ("a", "b"):
+            rows = [r for r in originals if r.object_id == oid]
+            f.write(json.dumps({"object_id": oid,
+                                "records": [asdict(r) for r in rows]}) + "\n")
+        f.write("\n")                      # a blank line must not break it
+
+    restored = records_from_checkpoint(ckpt)
+    assert len(restored) == 3
+    assert [r.object_id for r in restored] == ["a", "a", "b"]
+    assert restored[0].original_colors == ("red",)     # tuple survives the JSON round trip
+    assert restored[0].delta_congruent == pytest.approx(1.5)
+    # And it summarises exactly as the live records would.
+    assert summarise_screen(restored, VOCAB, min_usable=1)["n_objects"] == 2
