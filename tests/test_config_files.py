@@ -48,3 +48,16 @@ def test_screen_config_matches_lietzows_pixel_budget():
     assert cfg.pixels % cell == 0
     assert cfg.pixels // cell == 1280
     assert cfg.load_in_4bit is True, "D10: 4-bit, matching Lietzow's default"
+
+
+def test_native_bf16_requires_ampere_not_emulation():
+    """torch.cuda.is_bf16_supported() says True on a T4 (sm_75) because it
+    counts emulation; emulated bf16 is much slower than fp16, and the first
+    full screen ran at 8.4 s/generation because of it."""
+    from circuit_overlap.t_screen import native_bf16
+
+    assert native_bf16((7, 5)) is False      # T4, Turing
+    assert native_bf16((8, 0)) is True       # A100, Ampere
+    assert native_bf16((8, 9)) is True       # L4
+    assert native_bf16((9, 0)) is True       # H100
+    assert native_bf16(None) is False        # no CUDA

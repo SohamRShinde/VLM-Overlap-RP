@@ -138,14 +138,33 @@ def color_first_token_ids(
     return ids, collisions
 
 
+def native_bf16(capability: tuple[int, int] | None) -> bool:
+    """Whether bf16 is a *hardware* dtype on a device of this compute capability.
+
+    ``torch.cuda.is_bf16_supported()`` answers True on Turing (T4, sm_75)
+    because it counts **emulation**, and emulated bf16 is much slower than
+    fp16. Observed 2026-10-19: a T4 reported bf16 support, the 4-bit compute
+    dtype was set to bfloat16, and the screen ran at 8.4 s/generation.
+
+    Native bf16 starts with Ampere (sm_80).
+    """
+    if capability is None:
+        return False
+    return capability[0] >= 8
+
+
 def load_model(config: ScreenConfig):
     """Load Qwen2.5-VL and its processor, mirroring Lietzow's loader.
 
     Their 4-bit setup (``vlm/qwen.py``): nf4, double quantisation, and a compute
-    dtype of bfloat16 **where the GPU supports it, float16 otherwise**. A T4
-    does not support bf16, so on Kaggle the compute dtype will be fp16 while
-    their runs were most likely bf16 -- a residual difference to note in
-    RESULTS.md rather than a bug.
+    dtype of bfloat16 where the GPU supports it, float16 otherwise.
+
+    We deviate from their code in one place, deliberately: they gate on
+    ``torch.cuda.is_bf16_supported()``, which counts emulation and so returns
+    True on a T4. ``native_bf16`` requires real hardware support (Ampere or
+    newer), so a T4 computes in fp16. Their own runs were presumably on
+    Ampere+, where both tests agree. Record the compute dtype with every
+    result: it is a real difference from their setup.
     """
     import torch
     from transformers import (
@@ -154,10 +173,9 @@ def load_model(config: ScreenConfig):
         Qwen2_5_VLForConditionalGeneration,
     )
 
+    capability = torch.cuda.get_device_capability() if torch.cuda.is_available() else None
     compute_dtype = (
-        torch.bfloat16
-        if torch.cuda.is_available() and torch.cuda.is_bf16_supported()
-        else getattr(torch, config.dtype)
+        torch.bfloat16 if native_bf16(capability) else getattr(torch, config.dtype)
     )
     quantization_config = None
     dtype = compute_dtype
