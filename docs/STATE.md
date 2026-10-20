@@ -1,7 +1,7 @@
 # STATE.md — One Circuit or Two? (VLM circuit overlap)
 
 **Last updated:** 2026-10-19 (chat 2: Lietzow repo read; head lists transcribed; 4-bit decided)
-**Phase:** Pre-experiment. Code written and CPU-tested; **no GPU run, no results.** Plan of record: `docs/plan_v2.md` (v2.1, 16 Oct 2026), except its venue claim (see blocker 1).
+**Phase:** T-condition viability **established** (D41 gate passed, 286 usable objects of 469; see RESULTS.md). Per-record data from that run was lost to a closed session and must be regenerated. No circuit work yet. Plan of record: `docs/plan_v2.md` (v2.1, 16 Oct 2026), except its venue claim (see blocker 1).
 
 ## Status
 - Audit of plan_v2 against uploaded PDFs: **done** (chat 1). Lietzow head lists (plan App. A) match Lietzow Tables 5–7 exactly for Qwen-VL 3B, PaliGemma 3B, Qwen-VL 7B. All App. B numbers match.
@@ -10,7 +10,9 @@
 - **Section-3 metrics: done and CPU-tested.** `src/circuit_overlap/metrics.py` -- logit difference, restoration score, flip rate, Jaccard, containment, permutation null for J.
 - **T-screen code: written, CPU-tested, NOT RUN.** `notes.py` (overlay + exact mask), `tokens.py` (mask -> image tokens, 14px patch + 2x2 merge), `screen.py` (D27 rule, D41 gate, continuous fallback), `data.py` (manifest), `provenance.py` (result envelope), `t_screen.py` (GPU driver, never executed), `notebooks/t_screen.ipynb`. 104 CPU tests pass.
 - **Visual-Counterfact schema: verified on the Hub** (2026-10-18, user, dataset viewer). `mgolov/Visual-Counterfact`, `split="color"`, 493 rows. Columns are `object`, `correct_answer` (**a stringified list** of acceptable colours), `incorrect_answer`, `original_image`, `counterfact_image` -- not the names plan_v2 section 3.1 assumed. Handled in code (D29).
-- Replication gate, T screen on GPU: not started.
+- **T screen on GPU: run 2026-10-19/20, gate PASSED** (286 usable objects, 65.6% fool rate among eligible). Per-record JSON lost -- `run_screen` now checkpoints per object and includes the congruent variant, so the repeat is cheap to resume and also produces the D38 baseline.
+- Plan **risk 2 is retired**: Qwen2.5-VL-3B does not resist typographic notes.
+- Replication gate: not started.
 
 ## Blockers
 1. **No AAAI-27 venue chosen.** The uploaded `AIR-FM.md` is the **AAAI-2026** edition of that workshop (deadline 23 Oct 2025, 4 pages) and AIR-FM is not on the AAAI-27 list. plan_v2.1 section 0.8 proposed GSR-VLM, but that is **a candidate, not a decision** (D01, reopened 2026-10-18). Until a workshop is picked, its deadline, page limit, template, anonymity rules and archival status are all unknown, and plan section 9's 4-vs-6-page branch cannot be resolved. The AAAI general workshop deadline (20 Nov 2026) is the planning date in the meantime.

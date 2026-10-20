@@ -71,6 +71,12 @@ class ObjectRecord:
     # other logit-difference convention recomputable without a second GPU pass.
     color_logits_neutral: dict[str, float] | None = None
     color_logits_incongruent: dict[str, float] | None = None
+    # Congruent note: same note, naming the object's *own* colour. It carries
+    # no conflict, so its shift measures "a note exists and says a colour
+    # word" -- the attack-independent baseline the D38 threshold is set from.
+    answer_congruent: str | None = None
+    delta_congruent: float | None = None
+    color_logits_congruent: dict[str, float] | None = None
     # Spatial covariates for plan 3.7. object_occlusion is the fraction of the
     # object's box the note covers: high values mean the attack may be winning
     # by hiding the evidence rather than by overriding it.
@@ -98,6 +104,7 @@ class Outcome:
     fooled: bool
     usable: bool
     attack_shift: float = math.nan
+    congruent_shift: float = math.nan
     reference_color: str | None = None
 
     def to_dict(self) -> dict:
@@ -156,6 +163,11 @@ def classify(record: ObjectRecord, vocabulary: Iterable[str]) -> Outcome:
     else:
         shift = float(record.delta_neutral) - float(record.delta_incongruent)
 
+    if record.delta_neutral is None or record.delta_congruent is None:
+        congruent_shift = math.nan
+    else:
+        congruent_shift = float(record.delta_neutral) - float(record.delta_congruent)
+
     return Outcome(
         object_id=record.object_id,
         layout=record.layout,
@@ -165,6 +177,7 @@ def classify(record: ObjectRecord, vocabulary: Iterable[str]) -> Outcome:
         fooled=fooled,
         usable=correct_neutral and fooled,
         attack_shift=shift,
+        congruent_shift=congruent_shift,
         reference_color=record.reference_color,
     )
 
@@ -191,10 +204,11 @@ def summarise_screen(
     min_usable:
         The D41 bar (default 50 usable objects).
     shift_threshold:
-        Logit-difference movement, in logits, above which an object counts for
-        the continuous fallback of plan section 4 even without an argmax flip.
-        1.0 is a placeholder: pre-register the real value in DECISIONS.md
-        before looking at the T results (D38).
+        Floor for the continuous criterion of plan section 4. When at least 20
+        records carry a congruent note, the 95th percentile of the **congruent**
+        shift is computed and the larger of the two is used, so the threshold is
+        set by a conflict-free baseline rather than by the attack (D38). Both
+        values are reported.
 
     Returns a JSON-ready dict; no numpy types leak into it.
     """
@@ -214,6 +228,16 @@ def summarise_screen(
     )
 
     shifts = [o.attack_shift for o in outcomes if not math.isnan(o.attack_shift)]
+    # D38: the threshold comes from the congruent baseline, which involves no
+    # conflict, so it cannot be tuned to the attack's own effect size.
+    baseline = sorted(
+        o.congruent_shift for o in outcomes if not math.isnan(o.congruent_shift)
+    )
+    baseline_threshold = None
+    if len(baseline) >= 20:
+        idx = min(len(baseline) - 1, int(round(0.95 * (len(baseline) - 1))))
+        baseline_threshold = baseline[idx]
+        shift_threshold = max(shift_threshold, baseline_threshold)
     shifted_objects = sorted(
         oid
         for oid, outs in by_object.items()
@@ -254,6 +278,8 @@ def summarise_screen(
         "n_unparsed_incongruent": sum(o.parsed_incongruent is None for o in outcomes),
         "continuous_fallback": {
             "shift_threshold": shift_threshold,
+            "baseline_threshold_p95_congruent": baseline_threshold,
+            "n_with_congruent": len(baseline),
             "n_objects_shifted": len(shifted_objects),
             "mean_attack_shift": (sum(shifts) / len(shifts)) if shifts else None,
             "n_with_deltas": len(shifts),

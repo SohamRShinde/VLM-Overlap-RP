@@ -22,7 +22,8 @@ stays importable on a CPU box with neither installed.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+import time
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable, Sequence
 
@@ -32,6 +33,7 @@ from .screen import ObjectRecord, parse_color_word, summarise_screen
 
 __all__ = [
     "VISUAL_PROMPT",
+    "answer_and_color_logits_batch",
     "PRIOR_PROMPT",
     "ANSWER_SUFFIX",
     "ScreenConfig",
@@ -62,7 +64,15 @@ class ScreenConfig:
     # Matching their budget also keeps the note legible: ~1280 image tokens
     # rather than the 256 of a 448x448 grid (D62).
     pixels: int = 1280 * 28 * 28
-    max_new_tokens: int = 8
+    # One colour word is all we score, and the suffix asks for exactly that;
+    # 8 tokens spent decode steps for nothing.
+    max_new_tokens: int = 4
+    # Renders scored per forward pass. Every image gets the same pixel budget,
+    # so sequence lengths are identical and no padding is involved.
+    batch_size: int = 6
+    # D24 variants to run. "congruent" is required for the D38 threshold: it is
+    # the "a note exists and names a colour" baseline that carries no conflict.
+    variants: tuple[str, ...] = ("neutral", "incongruent", "congruent")
     # 4-bit, matching their default (settings.load_in_4bit = True) so the
     # replication gate compares like with like (D10, decided 2026-10-19).
     load_in_4bit: bool = True
@@ -178,51 +188,74 @@ def load_model(config: ScreenConfig):
     return model, processor
 
 
-def answer_and_color_logits(
-    model, processor, image, prompt: str, color_token_ids: dict[str, list[int]],
-    max_new_tokens: int = 8,
-) -> tuple[str, dict[str, float]]:
-    """Greedy answer plus the first-token logit of every colour word.
-
-    Returns the *whole* colour-logit dictionary rather than a single Delta,
-    because Visual-Counterfact's ``correct_answer`` can list several acceptable
-    colours (e.g. ``['brown', 'white']``) and the reference colour for
-    Delta = logit(c_o) - logit(c_cf) is only known after the model has answered.
-    Keeping all of them costs a dozen floats per generation and lets any pair be
-    recomputed later without a second GPU run.
-
-    ``scores[0]`` holds the logits that produced the first generated token --
-    the position the whole study intervenes on (plan 3.4).
-    """
-    import torch
-
+def _build_batch(processor, images, prompt: str):
     messages = [
-        {
-            "role": "user",
-            "content": [{"type": "image"}, {"type": "text", "text": prompt}],
-        }
+        {"role": "user",
+         "content": [{"type": "image"}, {"type": "text", "text": prompt}]}
     ]
     text = processor.apply_chat_template(
         messages, tokenize=False, add_generation_prompt=True
     )
-    inputs = processor(text=[text], images=[image], return_tensors="pt").to(model.device)
+    return processor(
+        text=[text] * len(images), images=list(images), padding=True,
+        return_tensors="pt",
+    )
+
+
+def answer_and_color_logits_batch(
+    model, processor, images, prompt: str, color_token_ids: dict[str, list[int]],
+    max_new_tokens: int = 4,
+) -> list[tuple[str, dict[str, float]]]:
+    """Score several renders of one prompt in a single generate pass.
+
+    Every image carries the same pixel budget, so the sequences have equal
+    length and the batch needs no padding -- which matters, because Qwen's
+    tokenizer pads on the right and right padding breaks generation. Unequal
+    lengths raise rather than silently producing garbage.
+
+    Returns one ``(answer, color_logits)`` per image, in order. ``scores[0]``
+    holds the logits that produced each row's first generated token: the
+    position the whole study intervenes on (plan 3.4).
+    """
+    import torch
+
+    inputs = _build_batch(processor, images, prompt).to(model.device)
+    lengths = inputs["attention_mask"].sum(dim=1)
+    if not bool((lengths == lengths[0]).all()):
+        raise ValueError(
+            "batched renders have unequal prompt lengths; pin the pixel budget "
+            "(min_pixels == max_pixels) or set batch_size=1"
+        )
 
     with torch.no_grad():
         out = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            do_sample=False,
-            output_scores=True,
-            return_dict_in_generate=True,
+            **inputs, max_new_tokens=max_new_tokens, do_sample=False,
+            output_scores=True, return_dict_in_generate=True,
         )
 
-    first_logits = out.scores[0][0].float()
-    color_logits = {
-        c: float(max(first_logits[i] for i in ids)) for c, ids in color_token_ids.items()
-    }
-    generated = out.sequences[0, inputs["input_ids"].shape[1] :]
-    answer = processor.tokenizer.decode(generated, skip_special_tokens=True).strip()
-    return answer, color_logits
+    first = out.scores[0].float()
+    prompt_len = inputs["input_ids"].shape[1]
+    results = []
+    for row in range(len(images)):
+        color_logits = {
+            c: float(max(first[row, i] for i in ids))
+            for c, ids in color_token_ids.items()
+        }
+        answer = processor.tokenizer.decode(
+            out.sequences[row, prompt_len:], skip_special_tokens=True
+        ).strip()
+        results.append((answer, color_logits))
+    return results
+
+
+def answer_and_color_logits(
+    model, processor, image, prompt: str, color_token_ids: dict[str, list[int]],
+    max_new_tokens: int = 4,
+) -> tuple[str, dict[str, float]]:
+    """Single-image wrapper over :func:`answer_and_color_logits_batch`."""
+    return answer_and_color_logits_batch(
+        model, processor, [image], prompt, color_token_ids, max_new_tokens
+    )[0]
 
 
 def best_accepted_color(
@@ -253,19 +286,24 @@ def run_screen(
     config: ScreenConfig | None = None,
     notes_config: dict | None = None,
     progress: bool = True,
+    checkpoint_path: str | Path | None = None,
 ) -> tuple[list[ObjectRecord], dict]:
     """Run the screen over a manifest and return records plus a summary.
 
-    Two generations per object per layout: neutral note and incongruent note.
-    The congruent and no-note baselines (D24) are secondary and are skipped
-    here to keep the kill-test cheap -- add them once the gate passes.
+    Renders ``config.variants`` for every layout and scores them in batches of
+    ``config.batch_size``.
+
+    checkpoint_path:
+        Append one JSON line per object as it finishes, and skip objects already
+        present when resuming. A 469-object run takes hours on a T4, so a lost
+        session must not cost the whole thing (plan section 5).
     """
     config = config or ScreenConfig()
     notes_config = notes_config or load_notes_config()
 
-    # The parser's dictionary must cover every colour the data actually uses,
-    # not just the placeholder list in configs/notes.json.
-    vocab = sorted(set(notes_config["color_vocabulary"]) | set(collect_color_vocabulary(entries)))
+    vocab = sorted(
+        set(notes_config["color_vocabulary"]) | set(collect_color_vocabulary(entries))
+    )
     specs = notes_config["specs"]
     token_ids, collisions = color_first_token_ids(processor.tokenizer, vocab)
     if collisions:
@@ -275,10 +313,24 @@ def run_screen(
             "before running -- the logit difference is undefined for them."
         )
 
+    done: set[str] = set()
     records: list[ObjectRecord] = []
-    for n, entry in enumerate(entries, 1):
-        if progress and n % 25 == 0:
-            print(f"  {n}/{len(entries)} objects", flush=True)
+    ckpt = Path(checkpoint_path) if checkpoint_path else None
+    if ckpt and ckpt.exists():
+        for line in ckpt.read_text().splitlines():
+            if not line.strip():
+                continue
+            payload = json.loads(line)
+            done.add(payload["object_id"])
+            records.extend(ObjectRecord(**r) for r in payload["records"])
+        if progress:
+            print(f"resuming: {len(done)} objects already in {ckpt}", flush=True)
+    elif ckpt:
+        ckpt.parent.mkdir(parents=True, exist_ok=True)
+
+    todo = [e for e in entries if e.object_id not in done]
+    started = time.time()
+    for n, entry in enumerate(todo, 1):
         image = entry.open_image()
         prompt = config.prompt_template.format(object=entry.object_name)
         texts = variant_texts(
@@ -286,27 +338,53 @@ def run_screen(
             entry.counterfactual_color,
             matched_neutral_word(entry.counterfactual_color, notes_config["neutral_words"]),
         )
+        wanted = [v for v in config.variants if texts.get(v)]
 
+        jobs = [(spec, v) for spec in specs for v in wanted]
+        renders = [
+            render_note(image, texts[v], spec, bbox=entry.object_bbox)
+            for spec, v in jobs
+        ]
+        step = max(1, config.batch_size)
+        scored: list[tuple[str, dict[str, float]]] = []
+        for start in range(0, len(renders), step):
+            chunk = renders[start : start + step]
+            scored.extend(
+                answer_and_color_logits_batch(
+                    model, processor, [r.image for r in chunk], prompt,
+                    token_ids, config.max_new_tokens,
+                )
+            )
+
+        got: dict[str, dict[str, tuple]] = {}
+        shown: dict[str, dict[str, object]] = {}
+        for (spec, variant), render, result in zip(jobs, renders, scored):
+            got.setdefault(spec.name, {})[variant] = result
+            shown.setdefault(spec.name, {})[variant] = render
+
+        cf = entry.counterfactual_color
+        object_records: list[ObjectRecord] = []
         for spec in specs:
-            neutral_render = render_note(
-                image, texts["neutral"], spec, bbox=entry.object_bbox
-            )
-            attack_render = render_note(
-                image, texts["incongruent"], spec, bbox=entry.object_bbox
-            )
-            neutral_answer, neutral_logits = answer_and_color_logits(
-                model, processor, neutral_render.image,
-                prompt, token_ids, config.max_new_tokens,
-            )
-            attack_answer, attack_logits = answer_and_color_logits(
-                model, processor, attack_render.image,
-                prompt, token_ids, config.max_new_tokens,
-            )
-            cf = entry.counterfactual_color
-            # Lietzow's convention: max over the accepted colours, per run.
+            per_variant = got[spec.name]
+            neutral_answer, neutral_logits = per_variant["neutral"]
+            attack_answer, attack_logits = per_variant["incongruent"]
             ref_neutral = best_accepted_color(neutral_logits, entry.original_colors)
             ref_attack = best_accepted_color(attack_logits, entry.original_colors)
-            records.append(
+            attack_render = shown[spec.name]["incongruent"]
+
+            congruent = per_variant.get("congruent")
+            if congruent is None:
+                congruent_answer = congruent_logits = delta_congruent = None
+            else:
+                congruent_answer, congruent_logits = congruent
+                ref_congruent = best_accepted_color(
+                    congruent_logits, entry.original_colors
+                )
+                delta_congruent = (
+                    congruent_logits[ref_congruent] - congruent_logits[cf]
+                )
+
+            object_records.append(
                 ObjectRecord(
                     object_id=entry.object_id,
                     object_name=entry.object_name,
@@ -320,10 +398,25 @@ def run_screen(
                     reference_color=ref_neutral,
                     color_logits_neutral=neutral_logits,
                     color_logits_incongruent=attack_logits,
+                    answer_congruent=congruent_answer,
+                    delta_congruent=delta_congruent,
+                    color_logits_congruent=congruent_logits,
                     note_area_frac=attack_render.area_frac,
                     object_occlusion=attack_render.object_occlusion(entry.object_bbox),
                 )
             )
+
+        records.extend(object_records)
+        if ckpt:
+            with ckpt.open("a") as f:
+                f.write(json.dumps({
+                    "object_id": entry.object_id,
+                    "records": [asdict(r) for r in object_records],
+                }) + "\n")
+        if progress and (n % 25 == 0 or n == len(todo)):
+            rate = (time.time() - started) / n
+            print(f"  {n}/{len(todo)} objects  {rate:.1f}s/object  "
+                  f"~{rate * (len(todo) - n) / 60:.0f} min left", flush=True)
 
     summary = summarise_screen(records, vocab, min_usable=config.min_usable)
     summary["color_vocabulary"] = vocab

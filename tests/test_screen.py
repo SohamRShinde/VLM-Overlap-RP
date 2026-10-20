@@ -290,3 +290,62 @@ def test_colors_outside_the_parser_vocabulary_are_reported(tmp_path):
           "counterfactual_color": "blue"}],
     )
     assert check_colors_in_vocabulary(load_manifest(path), VOCAB) == ["magenta"]
+
+
+# --- congruent baseline and the D38 threshold ------------------------------
+
+
+def rec_c(oid="a", dn=2.0, di=-2.0, dc=1.5, **kw):
+    return ObjectRecord(
+        object_id=oid, original_colors=("red",), counterfactual_color="blue",
+        answer_neutral="Red.", answer_incongruent="Blue.", answer_congruent="Red.",
+        delta_neutral=dn, delta_incongruent=di, delta_congruent=dc, **kw,
+    )
+
+
+def test_congruent_shift_is_computed_and_is_nan_without_the_variant():
+    assert classify(rec_c(dn=2.0, dc=1.5), VOCAB).congruent_shift == pytest.approx(0.5)
+    assert math.isnan(classify(rec(), VOCAB).congruent_shift)
+
+
+def test_threshold_comes_from_the_congruent_baseline_when_there_is_enough_of_it():
+    # 30 records: congruent shifts spread 0..2.9, attack shifts all 4.0.
+    records = [
+        rec_c(oid=f"o{i}", dn=4.0, di=0.0, dc=4.0 - i / 10.0) for i in range(30)
+    ]
+    s = summarise_screen(records, VOCAB, min_usable=1, shift_threshold=1.0)
+    cont = s["continuous_fallback"]
+    assert cont["n_with_congruent"] == 30
+    # 95th percentile of the baseline, not the 1.0 placeholder.
+    assert cont["baseline_threshold_p95_congruent"] == pytest.approx(2.8, abs=0.2)
+    assert cont["shift_threshold"] >= cont["baseline_threshold_p95_congruent"]
+
+
+def test_threshold_falls_back_to_the_floor_with_too_little_baseline():
+    s = summarise_screen([rec_c()], VOCAB, min_usable=1, shift_threshold=1.0)
+    cont = s["continuous_fallback"]
+    assert cont["baseline_threshold_p95_congruent"] is None
+    assert cont["shift_threshold"] == 1.0
+
+
+def test_criterion_separates_the_attack_from_the_congruent_baseline():
+    """The shape the full run showed: the attack moves Delta by ~8.5 logits,
+    while a congruent note - naming the colour the model already believes -
+    barely moves it. The baseline stays small, so the attack clears it."""
+    records = [rec_c(oid=f"o{i}", dn=9.0, di=0.5, dc=8.5) for i in range(30)]
+    s = summarise_screen(records, VOCAB, min_usable=1, shift_threshold=1.0)
+    cont = s["continuous_fallback"]
+    assert cont["baseline_threshold_p95_congruent"] == pytest.approx(0.5, abs=0.1)
+    assert cont["n_objects_shifted"] == 30
+
+
+def test_a_noisy_congruent_baseline_raises_the_bar_and_excludes_objects():
+    """The guard D38 is for: if merely putting a colour word on the image moves
+    Delta as much as the attack does, those objects must not count as moved."""
+    records = [rec_c(oid=f"o{i}", dn=9.0, di=5.0, dc=0.0) for i in range(30)]
+    s = summarise_screen(records, VOCAB, min_usable=1, shift_threshold=1.0)
+    cont = s["continuous_fallback"]
+    # Congruent shift is 9.0 for every record, so the bar is 9.0 and the
+    # attack's 4.0 does not clear it.
+    assert cont["baseline_threshold_p95_congruent"] == pytest.approx(9.0, abs=0.1)
+    assert cont["n_objects_shifted"] == 0
