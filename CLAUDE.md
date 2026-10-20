@@ -52,12 +52,13 @@ apply to both people and both sessions:
   then push. Never force-push `main`, and never rewrite pushed history.
 - **One owner per notebook at a time.** `.ipynb` files are JSON and merge
   badly. Do not edit the other person's notebook; ask them, or change `src/`
-  instead. Current owners (GitHub handles):
+  instead. @SohamRShinde owns the repo; kushviradiya is the
+  partner on the other machine. Who runs each notebook:
 
-  | Notebook | Owner |
+  | Notebook | Run by |
   |---|---|
   | `notebooks/t_screen.ipynb` | @SohamRShinde |
-  | `notebooks/replication_flip_rate.ipynb` | @DevParmar-Hub |
+  | `notebooks/replication_flip_rate.ipynb` | kushviradiya (the partner) |
 
   Update this table in the same commit when ownership changes. Commit
   notebooks with **outputs cleared**; results go to `results/`, not cell
