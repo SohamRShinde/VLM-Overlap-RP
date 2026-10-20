@@ -409,3 +409,38 @@ def test_vocabulary_from_records_is_empty_for_no_records():
     from circuit_overlap.screen import vocabulary_from_records
 
     assert vocabulary_from_records([]) == []
+
+
+# --- half-precision overflow (plan risk 7) --------------------------------
+
+
+def test_numerics_failure_is_detected_from_deltas_or_logits():
+    from circuit_overlap.screen import has_numerics_failure
+
+    assert has_numerics_failure(rec()) is False
+    assert has_numerics_failure(rec(dn=float("nan"))) is True
+    assert has_numerics_failure(rec(di=float("inf"))) is True
+    broken = ObjectRecord(
+        object_id="bench", original_colors=("brown",), counterfactual_color="pink",
+        answer_neutral="!!!!", answer_incongruent="!!!!",
+        color_logits_neutral={"brown": float("nan"), "pink": float("nan")},
+    )
+    assert has_numerics_failure(broken) is True
+
+
+def test_numerics_failures_are_excluded_from_every_rate_and_reported():
+    """The real shape of the 2026-10-20 run: 5 objects came back as NaN logits
+    with the answer '!!!!'. Counting those as wrong answers would understate
+    the model's accuracy and silently shrink the eligible denominator."""
+    good = [rec(oid=f"g{i}") for i in range(4)]
+    broken = ObjectRecord(
+        object_id="bench", original_colors=("brown",), counterfactual_color="pink",
+        answer_neutral="!!!!", answer_incongruent="!!!!",
+        delta_neutral=float("nan"), delta_incongruent=float("nan"),
+    )
+    s = summarise_screen(good + [broken], VOCAB + ["brown", "pink"], min_usable=1)
+    assert s["n_objects_numerics_failed"] == 1
+    assert s["numerics_failed_object_ids"] == ["bench"]
+    assert s["n_objects"] == 4                      # the broken object is not counted
+    assert s["n_unparsed_neutral"] == 0             # not mislabelled as unparsed
+    assert s["fool_rate_among_eligible"] == pytest.approx(1.0)

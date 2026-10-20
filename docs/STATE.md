@@ -1,7 +1,7 @@
 # STATE.md — One Circuit or Two? (VLM circuit overlap)
 
 **Last updated:** 2026-10-19 (chat 2: Lietzow repo read; head lists transcribed; 4-bit decided)
-**Phase:** T-condition viability **established** (D41 gate passed, 286 usable objects of 469; see RESULTS.md). Per-record data from that run was lost to a closed session and must be regenerated. No circuit work yet. Plan of record: `docs/plan_v2.md` (v2.1, 16 Oct 2026), except its venue claim (see blocker 1).
+**Phase:** T condition **established and analysed**. D41 gate passed (286 usable objects of 469, 65.6% of eligible), per-record data saved and committed to `results/`, D38 settled by the congruent baseline, and the plan 3.7 position-vs-size question answered. No circuit work yet. Plan of record: `docs/plan_v2.md` (v2.1, 16 Oct 2026), except its venue claim (see blocker 1).
 
 ## Status
 - Audit of plan_v2 against uploaded PDFs: **done** (chat 1). Lietzow head lists (plan App. A) match Lietzow Tables 5–7 exactly for Qwen-VL 3B, PaliGemma 3B, Qwen-VL 7B. All App. B numbers match.
@@ -10,7 +10,10 @@
 - **Section-3 metrics: done and CPU-tested.** `src/circuit_overlap/metrics.py` -- logit difference, restoration score, flip rate, Jaccard, containment, permutation null for J.
 - **T-screen code: written, CPU-tested, NOT RUN.** `notes.py` (overlay + exact mask), `tokens.py` (mask -> image tokens, 14px patch + 2x2 merge), `screen.py` (D27 rule, D41 gate, continuous fallback), `data.py` (manifest), `provenance.py` (result envelope), `t_screen.py` (GPU driver, never executed), `notebooks/t_screen.ipynb`. 104 CPU tests pass.
 - **Visual-Counterfact schema: verified on the Hub** (2026-10-18, user, dataset viewer). `mgolov/Visual-Counterfact`, `split="color"`, 493 rows. Columns are `object`, `correct_answer` (**a stringified list** of acceptable colours), `incorrect_answer`, `original_image`, `counterfact_image` -- not the names plan_v2 section 3.1 assumed. Handled in code (D29).
-- **T screen on GPU: run 2026-10-19/20, gate PASSED** (286 usable objects, 65.6% fool rate among eligible). Per-record JSON lost -- `run_screen` now checkpoints per object and includes the congruent variant, so the repeat is cheap to resume and also produces the D38 baseline.
+- **T screen: DONE** (2026-10-20). Gate passed, 286 usable objects of 469. Per-record data in `results/`, recovered from the checkpoint after the save cell failed. Analysis: `scripts/analyze_t_screen.py`. All numbers in RESULTS.md.
+- **D38 settled empirically:** congruent notes shift Delta by -2.10 (away from the counterfactual), the attack by +8.50, with **zero overlap** between the distributions. The attack's effect is note content, not note presence.
+- **plan 3.7 answered:** position beats size. Paired within object, the note fools on-object-only 99 times vs beside-only 20; the small-vs-medium comparison is near-symmetric despite double the area. Not an occlusion effect.
+- **plan risk 7 confirmed:** 5 objects returned non-finite logits in 4-bit/half precision (one generated `'!!!!'`). Excluded and reported; re-run those in fp32.
 - Plan **risk 2 is retired**: Qwen2.5-VL-3B does not resist typographic notes.
 - Replication gate: not started.
 

@@ -38,6 +38,7 @@ __all__ = [
     "ObjectRecord",
     "records_from_checkpoint",
     "vocabulary_from_records",
+    "has_numerics_failure",
     "Outcome",
     "parse_color_word",
     "classify",
@@ -130,6 +131,28 @@ def records_from_checkpoint(path: str | Path) -> list[ObjectRecord]:
         payload = json.loads(line)
         records.extend(ObjectRecord(**r) for r in payload["records"])
     return records
+
+
+def has_numerics_failure(record: ObjectRecord) -> bool:
+    """Whether this record's logits came back non-finite.
+
+    Confirmed on the first full run (2026-10-20, plan risk 7): 5 objects
+    returned NaN for every colour logit and generated ``'!!!!'`` -- Qwen's
+    half-precision overflow signature. Such a record says nothing about the
+    model's colour behaviour, so it must be reported as a numerics failure
+    rather than counted as a wrong answer.
+    """
+    for value in (record.delta_neutral, record.delta_incongruent, record.delta_congruent):
+        if value is not None and not math.isfinite(value):
+            return True
+    for logits in (
+        record.color_logits_neutral,
+        record.color_logits_incongruent,
+        record.color_logits_congruent,
+    ):
+        if logits and any(v is None or not math.isfinite(v) for v in logits.values()):
+            return True
+    return False
 
 
 def vocabulary_from_records(records: Sequence[ObjectRecord]) -> list[str]:
@@ -254,9 +277,17 @@ def summarise_screen(
         set by a conflict-free baseline rather than by the attack (D38). Both
         values are reported.
 
+    Records whose logits are non-finite are dropped before any counting and
+    reported under ``n_*_numerics_failed`` (plan risk 7).
+
     Returns a JSON-ready dict; no numpy types leak into it.
     """
     vocab = list(vocabulary)
+    # Numerics failures are not evidence about the model: keep them out of every
+    # rate, and report them separately (plan risk 7).
+    broken = [r for r in records if has_numerics_failure(r)]
+    broken_objects = sorted({r.object_id for r in broken})
+    records = [r for r in records if not has_numerics_failure(r)]
     outcomes = [classify(r, vocab) for r in records]
 
     by_object: dict[str, list[Outcome]] = {}
@@ -318,6 +349,9 @@ def summarise_screen(
         "min_usable": min_usable,
         "gate_passed": len(usable_objects) >= min_usable,
         "usable_object_ids": usable_objects,
+        "n_records_numerics_failed": len(broken),
+        "n_objects_numerics_failed": len(broken_objects),
+        "numerics_failed_object_ids": broken_objects,
         "n_unparsed_neutral": sum(o.parsed_neutral is None for o in outcomes),
         "n_unparsed_incongruent": sum(o.parsed_incongruent is None for o in outcomes),
         "continuous_fallback": {
