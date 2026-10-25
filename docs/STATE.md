@@ -15,7 +15,7 @@
 - **plan 3.7 answered:** position beats size. Paired within object, the note fools on-object-only 99 times vs beside-only 20; the small-vs-medium comparison is near-symmetric despite double the area. Not an occlusion effect.
 - **plan risk 7 confirmed:** 5 objects returned non-finite logits in 4-bit/half precision (one generated `'!!!!'`). Excluded and reported; re-run those in fp32.
 - Plan **risk 2 is retired**: Qwen2.5-VL-3B does not resist typographic notes.
-- Replication gate: not started.
+- **Replication gate: part 1 of 3 done** (2026-10-25). Group ablation of Lietzow's 9 promoting heads: prior flip 66/73 = 90.4% (theirs 84.9%), visual flip 5/73 = 6.8% (theirs 1.4%, not distinguishable at n = 73). See RESULTS.md. Still to do: re-discover the heads by patching and compare with their Table 5, the single-head checks (L26H5, L31H3), and numeric pass thresholds for D40.
 
 ## Blockers
 1. **No AAAI-27 venue chosen.** The uploaded `AIR-FM.md` is the **AAAI-2026** edition of that workshop (deadline 23 Oct 2025, 4 pages) and AIR-FM is not on the AAAI-27 list. plan_v2.1 section 0.8 proposed GSR-VLM, but that is **a candidate, not a decision** (D01, reopened 2026-10-18). Until a workshop is picked, its deadline, page limit, template, anonymity rules and archival status are all unknown, and plan section 9's 4-vs-6-page branch cannot be resolved. The AAAI general workshop deadline (20 Nov 2026) is the planning date in the meantime.
