@@ -104,10 +104,13 @@ class LastTokenRunner:
     call to :meth:`logits` copies that cache and runs the last token alone, so
     a patch at the last position costs one token instead of ~1,400.
 
-    Qwen2.5-VL keeps its multimodal RoPE offset on the model
-    (``model.model.rope_deltas``) between calls; it is recorded after the
-    prefill and restored before every step, so interleaving two runners
-    (source and target) stays correct.
+    **Position ids are passed explicitly.** Outside ``generate()``,
+    Qwen2.5-VL derives a cached step's multimodal RoPE positions from the
+    attention mask, which covers the whole prompt, so a 1-token step gets
+    positions for every token and attention stretches the query to full
+    length (transformers 5.14 and 5.21, observed on Kaggle 2026-10-27). The
+    prefill's own position ids are captured instead, and the last token, which
+    is text, sits one step after the last prefix token on every axis.
     """
 
     def __init__(self, model, inputs):
@@ -117,6 +120,9 @@ class LastTokenRunner:
         self.inputs = inputs
         ids = inputs["input_ids"]
         n = ids.shape[1]
+        mm_types = inputs.get("mm_token_type_ids")
+        if mm_types is not None and int(mm_types[0, -1]) != 0:
+            raise ValueError("the last prompt token must be text for a last-token patch")
         prefix = {}
         for key, value in inputs.items():
             sliceable = (
@@ -124,9 +130,25 @@ class LastTokenRunner:
                 and value.shape[0] == ids.shape[0] and value.shape[1] == n
             )
             prefix[key] = value[:, :-1] if sliceable else value
-        with torch.no_grad():
-            out = model(**prefix, use_cache=True)
+
+        captured = {}
+
+        def grab_positions(module, args, kwargs):
+            captured["position_ids"] = kwargs.get(
+                "position_ids", args[2] if len(args) > 2 else None)
+
+        handle = model.model.language_model.register_forward_pre_hook(
+            grab_positions, with_kwargs=True)
+        try:
+            with torch.no_grad():
+                out = model(**prefix, use_cache=True)
+        finally:
+            handle.remove()
         self.cache = out.past_key_values
+        positions = captured.get("position_ids")
+        # None: the model used plain 1-D positions, which it rebuilds correctly
+        # from the cache length on its own.
+        self.position_ids = None if positions is None else positions[..., -1:] + 1
         self.rope_deltas = getattr(model.model, "rope_deltas", None)
         self.cache_position = torch.tensor([n - 1], device=ids.device)
 
@@ -140,6 +162,7 @@ class LastTokenRunner:
             out = self.model(
                 input_ids=self.inputs["input_ids"][:, -1:],
                 attention_mask=self.inputs["attention_mask"],
+                position_ids=self.position_ids,
                 past_key_values=copy.deepcopy(self.cache),
                 cache_position=self.cache_position,
                 use_cache=True,

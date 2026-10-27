@@ -128,6 +128,9 @@ def tiny_inputs(torch, text_tail):
     return {
         "input_ids": ids,
         "attention_mask": torch.ones_like(ids),
+        # The real processor sends this (1 = image token). Without it the model
+        # skips multimodal RoPE and a broken cached path can still pass.
+        "mm_token_type_ids": (ids == IMAGE_TOKEN).long(),
         "pixel_values": torch.randn(16, 3 * 2 * 14 * 14, generator=torch.Generator().manual_seed(1)),
         "image_grid_thw": grid,
     }
@@ -138,6 +141,9 @@ def test_cached_last_token_path_matches_full_forward():
     from circuit_overlap.patching import LastTokenRunner
 
     run = LastTokenRunner(model, tiny_inputs(torch, [20, 21, 22, 23]))
+    # The multimodal-RoPE path must be the one exercised: it is the one that
+    # broke on Kaggle (positions spanning the whole prompt for a 1-token step).
+    assert run.position_ids is not None and run.position_ids.shape[-1] == 1
     assert run.check_against_full_forward(atol=1e-4) < 1e-4
     # Repeated calls must not grow or corrupt the cached prefix.
     assert torch.allclose(run.logits(), run.logits())

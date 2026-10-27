@@ -208,3 +208,8 @@ Recorded so neither session repeats them.
   prior answer vs the visual answer, D67), and 4 of the 5 "visual flips" went
   to a third colour. Before reporting a number "comparable to Lietzow", read
   the code that produced theirs -- the paper's wording is not enough.
+- **CPU test inputs did not match the real processor** (27 Oct). The tiny
+  Qwen2.5-VL test omitted `mm_token_type_ids`, so the model took a simpler
+  position path and the cached last-token code passed locally, then crashed
+  on Kaggle (`A inner dim (2805760) does not match weight (2048)`). Test
+  inputs for model code must carry every field the real processor emits.
