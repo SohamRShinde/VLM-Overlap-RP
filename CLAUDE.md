@@ -24,13 +24,15 @@ reopened). Do not state a venue, page limit, or framing as settled.
 ## Status, 20 Oct 2026
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
-- **Next: the replication gate** (plan section 4 step 2), starting with
-  `notebooks/replication_flip_rate.ipynb`. Its `[FILL IN]` cells were filled
-  on 20 Oct (conflicting subset by first-token top-1, a re-implemented
-  `head_knockout`, checkpointed loops) but it has **not produced a result
-  yet**. Pass criteria: DECISIONS.md D40; target numbers in
-  `configs/heads_lietzow_qwen3b.json` and plan Appendix B.
-- No circuit discovery has been run. Nothing has been patched or ablated.
+- **Replication gate (D40), in progress.** Part 1 (group ablation of
+  Lietzow's heads) ran on 25 Oct with an argmax flip definition: prior 90.4%,
+  visual 6.8% (RESULTS.md). On 27 Oct D40 got numeric thresholds (PROPOSED,
+  awaiting @SohamRShinde) and two runs were prepared, **not yet run**:
+  `replication_flip_rate.ipynb` section 5 (Lietzow's pairwise flips, group and
+  single heads, D67) and `replication_patching.ipynb` (re-discovery of the P
+  heads over all 576). `scripts/analyze_replication_gate.py` applies D40 to
+  their result files.
+- No circuit discovery has produced a result yet.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
@@ -59,6 +61,7 @@ apply to both people and both sessions:
   |---|---|
   | `notebooks/t_screen.ipynb` | @SohamRShinde |
   | `notebooks/replication_flip_rate.ipynb` | kushviradiya (the partner) |
+  | `notebooks/replication_patching.ipynb` | kushviradiya (the partner) |
 
   Update this table in the same commit when ownership changes. Commit
   notebooks with **outputs cleared**; results go to `results/`, not cell
@@ -198,5 +201,10 @@ Recorded so neither session repeats them.
   the kernel restarts (transformers caches the check). New notebooks copy the
   install cell, and the fix for a fresh install is a restart, not a re-install.
 - **`head_knockout` is re-implemented, not Lietzow's file** (D65 says reuse
-  theirs). Diff it against `src/vdpo/interventions.py` before citing a flip
-  rate from it.
+  theirs). Diffed on 27 Oct against their commit 145b453: same slice, same
+  position.
+- **Did not check the flip definition against their code.** The 25 Oct run
+  counted any top-1 change as a flip; Lietzow's flip is pairwise (logit of the
+  prior answer vs the visual answer, D67), and 4 of the 5 "visual flips" went
+  to a third colour. Before reporting a number "comparable to Lietzow", read
+  the code that produced theirs -- the paper's wording is not enough.
