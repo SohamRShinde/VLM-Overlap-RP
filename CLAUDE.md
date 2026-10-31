@@ -24,15 +24,13 @@ reopened). Do not state a venue, page limit, or framing as settled.
 ## Status, 31 Oct 2026
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
-- **Replication gate (D40), in progress.** Part 1 (group ablation of
-  Lietzow's heads) ran on 25 Oct with an argmax flip definition: prior 90.4%,
-  visual 6.8% (RESULTS.md). On 27 Oct D40 got numeric thresholds (PROPOSED,
-  awaiting @SohamRShinde). `replication_patching.ipynb` (re-discovery over
-  all 576 heads) ran on 27 Oct at `90286fa`: it finds exactly Lietzow's 9
-  promoting and 6 suppressing heads, so D40 (c)-(e) pass. Still to run:
-  `replication_flip_rate.ipynb` section 5 (pairwise flips, group and single
-  heads, D67) for (a), (b), (f); its first attempt ran pre-fix code.
-  `scripts/analyze_replication_gate.py` applies D40 to both result files.
+- **Replication gate (D40): PASSED** on all six criteria (thresholds
+  PROPOSED 27 Oct, awaiting @SohamRShinde). Both runs at `90286fa`:
+  patching over all 576 heads finds exactly Lietzow's 9 promoting and 6
+  suppressing heads; pairwise knockout (D67) flips 89.0% of prior answers
+  and 2.7% of visual ones, and L26H5 and L31H3 are the top single heads.
+  Numbers and caveats in RESULTS.md; `scripts/analyze_replication_gate.py`
+  reproduces the verdict. Next: T-circuit discovery.
 - No circuit discovery has produced a result yet.
 
 ## Two people, one repo
