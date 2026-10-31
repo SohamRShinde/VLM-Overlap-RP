@@ -55,6 +55,10 @@
 - [ ] Object-set confound: P "correctly conflicting" objects (model succeeds at override) and T fooled objects may be different subsets. Analyze on shared objects too?
 - [ ] Novelty vs Hua et al. 2025 (image-vs-caption router/promotion heads in Qwen2.5-VL) and Nikankin et al. 2025 (random-normalized IoU circuit overlap). Not-uploaded related work (Dyslexify, Ortu, Golovanevsky 2025a/b) still unread.
 
+## P split-half ceiling (2026-10-31)
+- **Done**, from the existing P patching results, CPU only (`scripts/analyze_split_half.py`, D69 pre-registered first). Promoting-set Jaccard between halves: median **0.900** [0.900, 1.000]; chance p95 **0.059**. All 9 P heads are selected in 100% of 2,000 half-runs; only L31H1 wobbles (48%). The P circuit is highly reproducible, so J_PT has a wide interpretable range.
+- **D70 (how J_PT is read) is PROPOSED and must be approved before T-circuit results exist.** Revised after the ceiling to make Jaccard primary; reason recorded in the decision.
+
 ## Next steps (proposed, not yet agreed)
 1. Email organizers; re-scope to confirmed page limit.
 2. Clone Lietzow repo; resolve checkpoint / prompt / indexing questions; write `configs/heads_lietzow_*.json` from Tables 5–6.

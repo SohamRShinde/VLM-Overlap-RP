@@ -43,7 +43,7 @@ Every reported number must have a row here. Reference numbers from other papers 
 - **Reproducibility note.** An earlier run of the same screen with 2 variants and emulated-bf16 compute gave the same 286 usable objects and the same 65.6% rate, but slightly different per-layout counts (183/236/238 vs 187/237/242) and unparsed counts. So the headline is stable across the precision and batching changes while individual borderline records are not.
 - **Not yet done:** these are behavioural rates, not circuit results. No head has been patched or ablated.
 
-### Correction (2026-10-20)### Correction (2026-10-20): the compute dtype of both rows above
+### Correction (2026-10-20): the compute dtype of both rows above
 The two rows above originally said "fp16 compute (T4, no bf16)". That was wrong.
 `torch.cuda.is_bf16_supported()` returns **True on a T4** because it counts
 emulation, so the loader selected bfloat16 and the runs used **emulated bf16** --
@@ -61,3 +61,15 @@ from these rows in compute dtype, and the result envelope records it.
 - The objects involved (`american chameleon`, `arctic fox`, ...) are the first 5 of the manifest, so they are **not** a random sample.
 - Deviations from Lietzow to carry into any write-up: compute dtype (see the correction above); our object set is 469 vs their 467 (see STATE.md).
 
+## P split-half ceiling (2026-10-31)
+
+| date | experiment | model | n | seed | prompt | commit | result | file path |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-31 | **P split-half ceiling** (plan 3.5, risk 1; parameters pre-registered in D69 at `d082038` before computing) | Qwen2.5-VL-3B-Instruct, from the P patching run at `90286fa` (4-bit nf4, fp16 compute) | 73 objects, 1000 splits into halves of 36/37 | 0 | P contrast (Visual vs Prior prompt) | `d082038-dirty` | **Promoting-set Jaccard between halves: median 0.900, 95% interval [0.900, 1.000].** Suppressing: median 0.833 [0.833, 1.000]. All-576-head PC1 rank correlation: median 0.624 [0.589, 0.654], Spearman-Brown to full length 0.769. Chance floor for two random 9-head sets: mean J 0.0085, 95th percentile 0.0588. **All 9 full-sample promoting heads are selected in 100% of the 2000 half-runs**; the only unstable head is L31H1 (48.4%). | [results/split_half_ceiling_p_qwen25vl3b.json](../results/split_half_ceiling_p_qwen25vl3b.json); reproduce with `scripts/analyze_split_half.py` |
+
+### Notes on the ceiling
+- **What it is for.** A circuit estimated from 73 objects is noisy, so even P against P does not give J = 1. The ceiling says how high J can go for *the same circuit* at this sample size, which is what makes a low J_PT interpretable (D70).
+- **The P circuit is very reproducible.** The usable range for J_PT runs from about 0.06 (chance, 95th percentile) to about 0.90 (self-agreement). That is wide enough to tell "different circuits" from "same circuit, noisy" with room to spare.
+- **The ceiling is conservative.** Each half holds ~36 objects; the full 73 agree with themselves better than two halves do. The T circuit will rest on up to 286 objects, so the binding noise for J_PT is P's.
+- **The gap between 0.90 and 1.00 is one head.** L31H1 sits just under the 2-sigma cut in the full sample (0.0634 vs 0.0636) and crosses it in about half the half-runs. Identical sets occur in only 3.3% of splits, not ~50%, because the halves are complements: when one half pushes L31H1 over the cut, the other pulls it under.
+- **The all-head rank correlation is the weaker statistic.** Its self-agreement is only 0.62: most of the 576 heads do nothing and their ranks reshuffle between halves (the same property `tests/test_ceiling.py` documents on synthetic data). It would also respond to generic depth effects shared by two different late-layer circuits. This is why D70 was revised to make Jaccard primary.

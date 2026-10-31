@@ -32,7 +32,10 @@ state a workshop name or framing as settled.
   and 2.7% of visual ones, and L26H5 and L31H3 are the top single heads.
   Numbers and caveats in RESULTS.md; `scripts/analyze_replication_gate.py`
   reproduces the verdict. Next: T-circuit discovery.
-- No circuit discovery has produced a result yet.
+- **P split-half ceiling: done** (31 Oct). Promoting-set J between halves
+  median 0.900 vs chance 0.059. D70, the rule for reading J_PT against it, is
+  PROPOSED and must be approved **before** T-circuit results exist.
+- T-circuit discovery: not started.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
@@ -113,6 +116,9 @@ python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 # regenerate every reported T-screen number from the saved results
 .venv/bin/python scripts/analyze_t_screen.py results/t_screen_qwen25vl3b.json
+
+# P split-half ceiling (D69), CPU only
+.venv/bin/python scripts/analyze_split_half.py results/replication_patching_qwen25vl3b.json
 ```
 
 ## Layout
