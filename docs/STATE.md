@@ -57,7 +57,7 @@
 
 ## P split-half ceiling (2026-10-31)
 - **Done**, from the existing P patching results, CPU only (`scripts/analyze_split_half.py`, D69 pre-registered first). Promoting-set Jaccard between halves: median **0.900** [0.900, 1.000]; chance p95 **0.059**. All 9 P heads are selected in 100% of 2,000 half-runs; only L31H1 wobbles (48%). The P circuit is highly reproducible, so J_PT has a wide interpretable range.
-- **D70 (how J_PT is read) is PROPOSED and must be approved before T-circuit results exist.** Revised after the ceiling to make Jaccard primary; reason recorded in the decision.
+- **D70 (how J_PT is read) approved 2026-10-31**, before any T-circuit result existed. Jaccard primary; reason for the same-day revision recorded in the decision.
 
 ## Next steps (proposed, not yet agreed)
 1. Email organizers; re-scope to confirmed page limit.

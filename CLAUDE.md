@@ -33,8 +33,8 @@ state a workshop name or framing as settled.
   Numbers and caveats in RESULTS.md; `scripts/analyze_replication_gate.py`
   reproduces the verdict. Next: T-circuit discovery.
 - **P split-half ceiling: done** (31 Oct). Promoting-set J between halves
-  median 0.900 vs chance 0.059. D70, the rule for reading J_PT against it, is
-  PROPOSED and must be approved **before** T-circuit results exist.
+  median 0.900 vs chance 0.059. D70, the rule for reading J_PT against it,
+  approved 31 Oct before any T-circuit result existed.
 - T-circuit discovery: not started.
 
 ## Two people, one repo
