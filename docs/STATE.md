@@ -59,6 +59,11 @@
 - **Done**, from the existing P patching results, CPU only (`scripts/analyze_split_half.py`, D69 pre-registered first). Promoting-set Jaccard between halves: median **0.900** [0.900, 1.000]; chance p95 **0.059**. All 9 P heads are selected in 100% of 2,000 half-runs; only L31H1 wobbles (48%). The P circuit is highly reproducible, so J_PT has a wide interpretable range.
 - **D70 (how J_PT is read) approved 2026-10-31**, before any T-circuit result existed. Jaccard primary; reason for the same-day revision recorded in the decision.
 
+## T-circuit discovery (2026-10-31)
+- **Notebook built, not run.** `notebooks/t_patching.ipynb` (owner @SohamRShinde), design pre-registered as **D71**: incongruent vs neutral note on `on_object_small`, Visual prompt, selection from all 469 objects on the cached patching path, P-shared objects swept first then seeded random, Kush's patching pipeline unchanged. Logic in `src/circuit_overlap/t_patching.py`.
+- **Not verified on a GPU.** Every code cell is checked statically (`tests/test_t_patching_notebook.py`: parses, no name used before a cell defines it, outputs cleared, D71 roles, both loops checkpointed), and the CPU pieces are unit-tested, but the cells have not executed against the real model. Section 2's `[VERIFY]` cells are the first real test: look at the sample pair, and the cached-path checks must pass before the sweep.
+- **Runtime ~8-9 h** (81 ms per patched step from Kush's run x 1,152 steps per object x ~280 objects, plus ~75 min of prompt runs). Under Kaggle's 12 h limit, but close enough that the resume path matters.
+
 ## Next steps (proposed, not yet agreed)
 1. Email organizers; re-scope to confirmed page limit.
 2. Clone Lietzow repo; resolve checkpoint / prompt / indexing questions; write `configs/heads_lietzow_*.json` from Tables 5–6.

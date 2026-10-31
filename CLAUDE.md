@@ -35,7 +35,8 @@ state a workshop name or framing as settled.
 - **P split-half ceiling: done** (31 Oct). Promoting-set J between halves
   median 0.900 vs chance 0.059. D70, the rule for reading J_PT against it,
   approved 31 Oct before any T-circuit result existed.
-- T-circuit discovery: not started.
+- **T-circuit discovery:** `notebooks/t_patching.ipynb` built 31 Oct, design
+  pre-registered as D71; not yet run (~8-9 h on a T4, Save & Run All).
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
@@ -65,6 +66,7 @@ apply to both people and both sessions:
   | `notebooks/t_screen.ipynb` | @SohamRShinde |
   | `notebooks/replication_flip_rate.ipynb` | kushviradiya (the partner) |
   | `notebooks/replication_patching.ipynb` | kushviradiya (the partner) |
+  | `notebooks/t_patching.ipynb` | @SohamRShinde |
 
   Update this table in the same commit when ownership changes. Commit
   notebooks with **outputs cleared**; results go to `results/`, not cell
@@ -87,8 +89,10 @@ apply to both people and both sessions:
   `RESULTS.md`, never reorder or rewrite another person's rows.
 - **Kaggle output paths are per notebook.** `t_screen.ipynb` uses
   `/kaggle/working/vc_color` and `/kaggle/working/t_screen_*`;
-  `replication_flip_rate.ipynb` uses `/kaggle/working/replication/`. A new
-  notebook gets its own prefix.
+  `replication_flip_rate.ipynb` uses `/kaggle/working/replication/`;
+  `replication_patching.ipynb` uses `/kaggle/working/patching/`;
+  `t_patching.ipynb` uses `/kaggle/working/t_patching/`. A new notebook gets
+  its own prefix.
 
 ## Setup
 - Models: Qwen2.5-VL-3B-Instruct (primary), PaliGemma-3B. **4-bit nf4**,
