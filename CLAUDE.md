@@ -21,17 +21,18 @@ before re-deriving any of that.
 section 0.8 proposes GSR-VLM but that was never agreed (DECISIONS.md D01,
 reopened). Do not state a venue, page limit, or framing as settled.
 
-## Status, 20 Oct 2026
+## Status, 31 Oct 2026
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
 - **Replication gate (D40), in progress.** Part 1 (group ablation of
   Lietzow's heads) ran on 25 Oct with an argmax flip definition: prior 90.4%,
   visual 6.8% (RESULTS.md). On 27 Oct D40 got numeric thresholds (PROPOSED,
-  awaiting @SohamRShinde) and two runs were prepared, **not yet run**:
-  `replication_flip_rate.ipynb` section 5 (Lietzow's pairwise flips, group and
-  single heads, D67) and `replication_patching.ipynb` (re-discovery of the P
-  heads over all 576). `scripts/analyze_replication_gate.py` applies D40 to
-  their result files.
+  awaiting @SohamRShinde). `replication_patching.ipynb` (re-discovery over
+  all 576 heads) ran on 27 Oct at `90286fa`: it finds exactly Lietzow's 9
+  promoting and 6 suppressing heads, so D40 (c)-(e) pass. Still to run:
+  `replication_flip_rate.ipynb` section 5 (pairwise flips, group and single
+  heads, D67) for (a), (b), (f); its first attempt ran pre-fix code.
+  `scripts/analyze_replication_gate.py` applies D40 to both result files.
 - No circuit discovery has produced a result yet.
 
 ## Two people, one repo
