@@ -62,6 +62,7 @@
 ## T-circuit discovery (2026-10-31)
 - **Notebook built, not run.** `notebooks/t_patching.ipynb` (owner @SohamRShinde), design pre-registered as **D71**: incongruent vs neutral note on `on_object_small`, Visual prompt, selection from all 469 objects on the cached patching path, P-shared objects swept first then seeded random, Kush's patching pipeline unchanged. Logic in `src/circuit_overlap/t_patching.py`.
 - **Not verified on a GPU.** Every code cell is checked statically (`tests/test_t_patching_notebook.py`: parses, no name used before a cell defines it, outputs cleared, D71 roles, both loops checkpointed), and the CPU pieces are unit-tested, but the cells have not executed against the real model. Section 2's `[VERIFY]` cells are the first real test: look at the sample pair, and the cached-path checks must pass before the sweep.
+- **The analysis is ready and pre-registered** (D72, committed before the T results): `scripts/analyze_t_circuit.py`. Validated on known-answer controls from the P data (T = P -> "self-agreement"; scrambled -> "chance"; 3/5/7 of 9 heads moved -> "between" with an unbiased bootstrap). The same controls showed the all-head rank correlation is insensitive to circuit identity (0.974 with 7 of 9 heads moved), so it is reported as landscape similarity only.
 - **Runtime ~8-9 h** (81 ms per patched step from Kush's run x 1,152 steps per object x ~280 objects, plus ~75 min of prompt runs). Under Kaggle's 12 h limit, but close enough that the resume path matters.
 
 ## Next steps (proposed, not yet agreed)

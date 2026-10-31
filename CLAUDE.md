@@ -123,6 +123,14 @@ python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 # P split-half ceiling (D69), CPU only
 .venv/bin/python scripts/analyze_split_half.py results/replication_patching_qwen25vl3b.json
+
+# THE HEADLINE: P-T circuit overlap read by D70 (computed per D72), CPU only.
+# Written before the T results existed; do not change its parameters.
+.venv/bin/python scripts/analyze_t_circuit.py \
+    results/replication_patching_qwen25vl3b.json \
+    results/t_patching_records_qwen25vl3b.jsonl.gz \
+    results/split_half_ceiling_p_qwen25vl3b.json \
+    results/t_circuit_overlap_qwen25vl3b.json
 ```
 
 ## Layout
