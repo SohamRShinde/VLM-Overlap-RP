@@ -17,15 +17,16 @@ date what you add. STATE.md has a table of everything Lietzow's own repo
 settled (prompt strings, checkpoints, indexing, loader filters) -- consult it
 before re-deriving any of that.
 
-**Venue: undecided.** AIR-FM was the AAAI-2026 workshop and is gone; plan v2.1
-section 0.8 proposes GSR-VLM but that was never agreed (DECISIONS.md D01,
-reopened). Do not state a venue, page limit, or framing as settled.
+**Paper: 6 pages, due 20 Nov 2026** (DECISIONS.md D01a, fixed 31 Oct). The
+workshop itself is still unconfirmed: AIR-FM was the AAAI-2026 edition and is
+gone, and GSR-VLM is plan v2.1's candidate but was never agreed (D01). Do not
+state a workshop name or framing as settled.
 
 ## Status, 31 Oct 2026
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
 - **Replication gate (D40): PASSED** on all six criteria (thresholds
-  PROPOSED 27 Oct, awaiting @SohamRShinde). Both runs at `90286fa`:
+  proposed 27 Oct, approved 31 Oct by @SohamRShinde). Both runs at `90286fa`:
   patching over all 576 heads finds exactly Lietzow's 9 promoting and 6
   suppressing heads; pairwise knockout (D67) flips 89.0% of prior answers
   and 2.7% of visual ones, and L26H5 and L31H3 are the top single heads.
