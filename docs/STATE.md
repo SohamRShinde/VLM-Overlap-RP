@@ -67,6 +67,11 @@
 - **Run and analysed (2026-11-01).** Notebook at `3b73bb5`: 244 of 469 objects selected, all patched, 0 non-finite; 243 of 244 also usable in the behavioural screen. T promoting set: 12 heads, 5 shared with P. **J_PT = 0.312 [0.278, 0.375]; D70 verdict "above chance, below self-agreement"** (chance p95 0.050, P ceiling p2.5 0.900). Shared heads include P's top single heads L26H5 and L31H3; T-only heads sit later (layers 29-33). Full numbers and caveats in RESULTS.md.
 - **Next, per the plan (not yet agreed):** H2 cross-ablation (plan 3.6: ablate P's heads on T and T's on P, against size- and layer-matched random controls), which tests whether the overlap is causal; then the V condition and H3.
 
+## H2 cross-ablation (2026-11-01)
+- **Notebook built, not run.** `notebooks/cross_ablation.ipynb` (owner @SohamRShinde); design and reading rule pre-registered as **D73** (`e9f6ff8`) before the code. Primary tests: H_P ablated on T objects, H_T on P objects, each against 100 layer-matched draws of unclassified heads, alpha 0.025. Secondary: diagonal and the shared / P-only / T-only decomposition. Robustness: mean ablation. Collateral: target-run flips and clean-image accuracy. Code in `src/circuit_overlap/cross_ablation.py`, analysis `scripts/analyze_cross_ablation.py`.
+- **Not verified on a GPU.** The notebook's cells are checked statically (`tests/test_cross_ablation_notebook.py`), its setup cells are copied verbatim from `t_patching.ipynb` (which ran), and the analysis is tested on known-answer synthetic records and against Kush's knockout counts. Section 2's checks are the first real test: cached path vs full forward under ablation, stacked hooks vs Kush's hook, and agreement with his recorded knockout of the same 9 heads.
+- **Runtime ~6.5 h** (D73 plan: ~226k ablated last-token steps at ~83 ms plus ~1,500 prefills). Section 2 prints the measured estimate.
+
 ## Next steps (proposed, not yet agreed)
 1. Email organizers; re-scope to confirmed page limit.
 2. Clone Lietzow repo; resolve checkpoint / prompt / indexing questions; write `configs/heads_lietzow_*.json` from Tables 5–6.
