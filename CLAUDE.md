@@ -22,7 +22,7 @@ workshop itself is still unconfirmed: AIR-FM was the AAAI-2026 edition and is
 gone, and GSR-VLM is plan v2.1's candidate but was never agreed (D01). Do not
 state a workshop name or framing as settled.
 
-## Status, 31 Oct 2026
+## Status, 1 Nov 2026
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
 - **Replication gate (D40): PASSED** on all six criteria (thresholds
@@ -35,8 +35,10 @@ state a workshop name or framing as settled.
 - **P split-half ceiling: done** (31 Oct). Promoting-set J between halves
   median 0.900 vs chance 0.059. D70, the rule for reading J_PT against it,
   approved 31 Oct before any T-circuit result existed.
-- **T-circuit discovery:** `notebooks/t_patching.ipynb` built 31 Oct, design
-  pre-registered as D71; not yet run (~8-9 h on a T4, Save & Run All).
+- **T-circuit discovery: done** (1 Nov, notebook at `3b73bb5`, design D71):
+  244 objects, 12 promoting heads. **Headline J_PT = 0.312 [0.278, 0.375],
+  D70 verdict "above chance, below self-agreement"** (5 of 16 heads shared).
+  See RESULTS.md. Next per the plan: H2 cross-ablation.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
