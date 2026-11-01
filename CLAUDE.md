@@ -39,9 +39,10 @@ state a workshop name or framing as settled.
   244 objects, 12 promoting heads. **Headline J_PT = 0.312 [0.278, 0.375],
   D70 verdict "above chance, below self-agreement"** (5 of 16 heads shared).
   See RESULTS.md.
-- **H2 cross-ablation:** `notebooks/cross_ablation.ipynb` built 1 Nov, design
-  and reading rule pre-registered as D73; not yet run (~6.5 h on a T4, Save &
-  Run All).
+- **H2 cross-ablation: done** (1 Nov, run at `8208422`, design D73). Both
+  primary tests null (H_P on T 2.5%, H_T on P 2.7%, random ~4-5%). Shared
+  heads carry P (83.6%) but not T (0%); T's own heads carry T (70.5%).
+  Overlap in selection, not in cause. See RESULTS.md.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
