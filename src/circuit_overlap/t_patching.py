@@ -86,6 +86,8 @@ def render_t_pair(original, counterfact, attack: str, neutral_words: Sequence[st
         # The note's pixel footprint must not depend on its word, or the
         # contrast is no longer single-factor.
         "same_note_footprint": bool((neutral.mask == incongruent.mask).all()),
+        # Pixel mask of the note (both renders), for H3's note tokens (D74).
+        "note_mask": incongruent.mask,
     }
 
 

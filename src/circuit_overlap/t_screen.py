@@ -80,6 +80,9 @@ class ScreenConfig:
     seed: int = 0
     prompt_template: str = VISUAL_PROMPT
     min_usable: int = 50
+    # None keeps transformers' default (sdpa), as every run before H3 used.
+    # H3 needs "eager": sdpa returns no attention weights (D74).
+    attn_implementation: str | None = None
 
 
 def load_notes_config(path: str | Path = "configs/notes.json") -> dict:
@@ -200,6 +203,8 @@ def load_model(config: ScreenConfig):
         device_map="auto",
         quantization_config=quantization_config,
         low_cpu_mem_usage=True,
+        **({"attn_implementation": config.attn_implementation}
+           if config.attn_implementation else {}),
     ).eval()
     for param in model.parameters():
         param.requires_grad = False

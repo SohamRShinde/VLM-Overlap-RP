@@ -26,6 +26,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 __all__ = [
     "NoteSpec",
+    "object_mask_from_pair",
     "object_bbox_from_pair",
     "resolve_anchor",
     "NoteRender",
@@ -155,6 +156,22 @@ class NoteRender:
         return float(region.mean()) if region.size else float("nan")
 
 
+def object_mask_from_pair(
+    original: Image.Image, counterfact: Image.Image, threshold: int = 16
+) -> np.ndarray | None:
+    """Pixels that differ between the two Visual-Counterfact images: the object.
+
+    The boolean ``(H, W)`` mask that ``object_bbox_from_pair`` boxes, for the
+    H3 analysis's object tokens (D74). ``None`` when the images differ in
+    shape; an empty or near-full mask is returned as is, for the caller to judge.
+    """
+    a = np.asarray(original.convert("RGB"), dtype=np.int16)
+    b = np.asarray(counterfact.convert("RGB"), dtype=np.int16)
+    if a.shape != b.shape:
+        return None
+    return np.abs(a - b).max(axis=-1) >= threshold
+
+
 def object_bbox_from_pair(
     original: Image.Image, counterfact: Image.Image, threshold: int = 16
 ) -> tuple[float, float, float, float] | None:
@@ -171,12 +188,8 @@ def object_bbox_from_pair(
     (a global recolour or a resize mismatch), in which cases the box carries no
     information and the caller should fall back to a fixed anchor.
     """
-    a = np.asarray(original.convert("RGB"), dtype=np.int16)
-    b = np.asarray(counterfact.convert("RGB"), dtype=np.int16)
-    if a.shape != b.shape:
-        return None
-    diff = np.abs(a - b).max(axis=-1) >= threshold
-    if not diff.any() or diff.mean() > 0.9:
+    diff = object_mask_from_pair(original, counterfact, threshold)
+    if diff is None or not diff.any() or diff.mean() > 0.9:
         return None
     rows = np.flatnonzero(diff.any(axis=1))
     cols = np.flatnonzero(diff.any(axis=0))

@@ -146,6 +146,9 @@ class LastTokenRunner:
             handle.remove()
         self.cache = out.past_key_values
         positions = captured.get("position_ids")
+        # The prefix's own position ids; H3 reads the image tokens' (row, col)
+        # from them to check the grid is flattened row-major (D74).
+        self.prefix_position_ids = positions
         # None: the model used plain 1-D positions, which it rebuilds correctly
         # from the cache length on its own.
         self.position_ids = None if positions is None else positions[..., -1:] + 1

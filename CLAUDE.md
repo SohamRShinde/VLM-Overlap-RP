@@ -43,6 +43,9 @@ state a workshop name or framing as settled.
   primary tests null (H_P on T 2.5%, H_T on P 2.7%, random ~4-5%). Shared
   heads carry P (83.6%) but not T (0%); T's own heads carry T (70.5%).
   Overlap in selection, not in cause. See RESULTS.md.
+- **H3 mechanism:** `notebooks/h3_attention.ipynb` built 1 Nov, design and
+  reading rule pre-registered as D74; not yet run (~2 h on a T4, Save & Run
+  All). Loads the model with eager attention, unlike every earlier run.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
@@ -74,6 +77,7 @@ apply to both people and both sessions:
   | `notebooks/replication_patching.ipynb` | kushviradiya (the partner) |
   | `notebooks/t_patching.ipynb` | @SohamRShinde |
   | `notebooks/cross_ablation.ipynb` | @SohamRShinde |
+  | `notebooks/h3_attention.ipynb` | @SohamRShinde |
 
   Update this table in the same commit when ownership changes. Commit
   notebooks with **outputs cleared**; results go to `results/`, not cell
@@ -100,7 +104,8 @@ apply to both people and both sessions:
   `replication_patching.ipynb` uses `/kaggle/working/patching/`;
   `t_patching.ipynb` uses `/kaggle/working/t_patching/`;
   `cross_ablation.ipynb` uses `/kaggle/working/cross_ablation/` (results at
-  its top level, checkpoints under `ckpt/`). A new notebook gets its own prefix.
+  its top level, checkpoints under `ckpt/`); `h3_attention.ipynb` uses
+  `/kaggle/working/h3_attention/` (same layout). A new notebook gets its own prefix.
 
 ## Setup
 - Models: Qwen2.5-VL-3B-Instruct (primary), PaliGemma-3B. **4-bit nf4**,
@@ -145,6 +150,12 @@ python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
     results/cross_ablation_qwen25vl3b.json \
     results/cross_ablation_records_qwen25vl3b.jsonl.gz \
     results/cross_ablation_analysis_qwen25vl3b.json
+
+# H3 mechanism read by D74, CPU only. Written before any H3 run.
+.venv/bin/python scripts/analyze_h3.py \
+    results/h3_attention_qwen25vl3b.json \
+    results/h3_attention_records_qwen25vl3b.jsonl.gz \
+    results/h3_analysis_qwen25vl3b.json
 ```
 
 ## Layout
