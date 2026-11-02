@@ -1,0 +1,1176 @@
+{
+  "experiment": "h3_analysis",
+  "timestamp_utc": "2026-11-02T03:52:25+00:00",
+  "commit": "7b97c16",
+  "model": "Qwen2.5-VL-3B-Instruct",
+  "checkpoint": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "n": 293,
+  "seed": 0,
+  "prompt": "T: visual='What color is this {object} here? Respond with the color name only.', incongruent vs neutral note, 3 layouts, and no note; P: prior='What color is {a_object} usually? Respond with the color name only.' vs visual, counterfactual image",
+  "python": "3.11.16",
+  "decision": "D74",
+  "sources": {
+    "summary": "results/h3_attention_qwen25vl3b.json",
+    "records": "results/h3_attention_records_qwen25vl3b.jsonl.gz",
+    "run_commit": "49f0152"
+  },
+  "result": {
+    "decision": "D74",
+    "alpha": 0.025,
+    "n_objects": {
+      "P": 70,
+      "T": 223
+    },
+    "n_dropped": {
+      "P": 3,
+      "T": 21
+    },
+    "dropped_status": {
+      "P": [
+        "drift"
+      ],
+      "T": [
+        "drift",
+        "numerics_failed"
+      ]
+    },
+    "sets": {
+      "P": [
+        "L26H0",
+        "L26H5",
+        "L26H6",
+        "L27H1",
+        "L27H4",
+        "L28H3",
+        "L31H3",
+        "L31H7",
+        "L34H14"
+      ],
+      "T": [
+        "L26H0",
+        "L26H5",
+        "L29H2",
+        "L31H3",
+        "L31H7",
+        "L32H6",
+        "L32H7",
+        "L32H13",
+        "L33H1",
+        "L33H3",
+        "L33H14",
+        "L34H14"
+      ],
+      "shared": [
+        "L26H0",
+        "L26H5",
+        "L31H3",
+        "L31H7",
+        "L34H14"
+      ],
+      "P_only": [
+        "L26H6",
+        "L27H1",
+        "L27H4",
+        "L28H3"
+      ],
+      "T_only": [
+        "L29H2",
+        "L32H6",
+        "L32H7",
+        "L32H13",
+        "L33H1",
+        "L33H3",
+        "L33H14"
+      ]
+    },
+    "primary": {
+      "A": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.28072946828955797,
+        "ci95": [
+          0.27365498510570146,
+          0.2875034819026266
+        ],
+        "null_mean": 0.07532610891864192,
+        "null_p5": 0.04185436011851378,
+        "null_p95": 0.11838370916079435,
+        "p": 0.009900990099009901,
+        "excess": 0.20540335937091606,
+        "excess_ci95": [
+          0.19977176757248566,
+          0.2106401562257848
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "primary",
+        "set": "T_only",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L29H2",
+          "L32H6",
+          "L32H7",
+          "L32H13",
+          "L33H1",
+          "L33H3",
+          "L33H14"
+        ],
+        "wording": "T-only heads attend to the note more than layer-matched random heads"
+      },
+      "W": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 4.01743039955157,
+        "ci95": [
+          3.8066076943161438,
+          4.2278154000112105
+        ],
+        "null_mean": 0.022647713647488788,
+        "null_p5": -0.32503195113901345,
+        "null_p95": 0.4105723450493273,
+        "p": 0.009900990099009901,
+        "excess": 3.994782685904081,
+        "excess_ci95": [
+          3.7741035817043485,
+          4.2158343837822825
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "primary",
+        "set": "T_only",
+        "condition": "T",
+        "measure": "dla",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L29H2",
+          "L32H6",
+          "L32H7",
+          "L32H13",
+          "L33H1",
+          "L33H3",
+          "L33H14"
+        ],
+        "wording": "T-only heads write the note's colour more than layer-matched random heads"
+      }
+    },
+    "mechanism": "the T-only heads read the note and write its colour",
+    "secondary": {
+      "A:shared": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.08617736304932733,
+        "ci95": [
+          0.08258850208520181,
+          0.08965185960538116
+        ],
+        "null_mean": 0.06841643823300447,
+        "null_p5": 0.017891183986995518,
+        "null_p95": 0.15769747623318384,
+        "p": 0.26732673267326734,
+        "excess": 0.017760924816322854,
+        "excess_ci95": [
+          0.015015436834865475,
+          0.020598883292237663
+        ],
+        "passes": false,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "shared",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L26H0",
+          "L26H5",
+          "L31H3",
+          "L31H7",
+          "L34H14"
+        ],
+        "wording": "shared heads: not distinguishable from layer-matched random heads at this n"
+      },
+      "W:shared": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": -0.18214213766816148,
+        "ci95": [
+          -0.2855053217376682,
+          -0.08472424923766818
+        ],
+        "null_mean": 0.02259110165919282,
+        "null_p5": -0.07788029501345291,
+        "null_p95": 0.16154963391704033,
+        "p": 1.0,
+        "excess": -0.2047332393273543,
+        "excess_ci95": [
+          -0.3058641134790023,
+          -0.10829880775966369
+        ],
+        "passes": false,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "shared",
+        "condition": "T",
+        "measure": "dla",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L26H0",
+          "L26H5",
+          "L31H3",
+          "L31H7",
+          "L34H14"
+        ],
+        "wording": "shared heads: not distinguishable from layer-matched random heads at this n"
+      },
+      "A:P_only": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.12188620852017937,
+        "ci95": [
+          0.11675907508408072,
+          0.12717170840807174
+        ],
+        "null_mean": 0.05577280713645753,
+        "null_p5": 0.016300241563901346,
+        "null_p95": 0.09866889400224214,
+        "p": 0.009900990099009901,
+        "excess": 0.06611340138372183,
+        "excess_ci95": [
+          0.06226954835310983,
+          0.0700618092052734
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "P_only",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L26H6",
+          "L27H1",
+          "L27H4",
+          "L28H3"
+        ],
+        "wording": "P-only heads attend to the note more than layer-matched random heads"
+      },
+      "W:P_only": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": -0.03327067721973094,
+        "ci95": [
+          -0.04568972318834082,
+          -0.020185261486547094
+        ],
+        "null_mean": -0.014982072543497761,
+        "null_p5": -0.0654087843721973,
+        "null_p95": 0.02530366683856502,
+        "p": 0.7722772277227723,
+        "excess": -0.01828860467623318,
+        "excess_ci95": [
+          -0.029412706513531384,
+          -0.006158915472477575
+        ],
+        "passes": false,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "P_only",
+        "condition": "T",
+        "measure": "dla",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L26H6",
+          "L27H1",
+          "L27H4",
+          "L28H3"
+        ],
+        "wording": "P-only heads: not distinguishable from layer-matched random heads at this n"
+      },
+      "A:T": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.19966609110612857,
+        "ci95": [
+          0.19464840895926755,
+          0.20457864228325856
+        ],
+        "null_mean": 0.07121450872417787,
+        "null_p5": 0.04069888364162929,
+        "null_p95": 0.11645047193572497,
+        "p": 0.009900990099009901,
+        "excess": 0.1284515823819507,
+        "excess_ci95": [
+          0.12465285078105566,
+          0.13206771583747384
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L26H0",
+          "L26H5",
+          "L29H2",
+          "L31H3",
+          "L31H7",
+          "L32H6",
+          "L32H7",
+          "L32H13",
+          "L33H1",
+          "L33H3",
+          "L33H14",
+          "L34H14"
+        ],
+        "wording": "H_T heads attend to the note more than layer-matched random heads"
+      },
+      "W:T": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 3.8352882618834077,
+        "ci95": [
+          3.5728353410538114,
+          4.1119361247982065
+        ],
+        "null_mean": 0.013350451461928248,
+        "null_p5": -0.35347529360986546,
+        "null_p95": 0.37992037886547086,
+        "p": 0.009900990099009901,
+        "excess": 3.8219378104214794,
+        "excess_ci95": [
+          3.543817662670245,
+          4.114398332429684
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T",
+        "condition": "T",
+        "measure": "dla",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L26H0",
+          "L26H5",
+          "L29H2",
+          "L31H3",
+          "L31H7",
+          "L32H6",
+          "L32H7",
+          "L32H13",
+          "L33H1",
+          "L33H3",
+          "L33H14",
+          "L34H14"
+        ],
+        "wording": "H_T heads write the note's colour more than layer-matched random heads"
+      },
+      "A_rise:T_only": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.10953702575272262,
+        "ci95": [
+          0.10025325748238309,
+          0.11896925071108264
+        ],
+        "null_mean": 0.02580764837924408,
+        "null_p5": -0.0008564998398462522,
+        "null_p95": 0.06210901769698911,
+        "p": 0.009900990099009901,
+        "excess": 0.08372937737347853,
+        "excess_ci95": [
+          0.07710163578049328,
+          0.09036836682303011
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T_only",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": "on_object_small/neutral",
+        "heads": [
+          "L29H2",
+          "L32H6",
+          "L32H7",
+          "L32H13",
+          "L33H1",
+          "L33H3",
+          "L33H14"
+        ],
+        "wording": "T-only heads attend to the note more when it names a colour more than layer-matched random heads"
+      },
+      "A_rise:shared": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.04870810313901345,
+        "ci95": [
+          0.04507619447533632,
+          0.052706617385650224
+        ],
+        "null_mean": 0.0386181733664574,
+        "null_p5": 0.004589421992825113,
+        "null_p95": 0.10871184131390134,
+        "p": 0.2871287128712871,
+        "excess": 0.010089929772556051,
+        "excess_ci95": [
+          0.007801082779022413,
+          0.012574501141914796
+        ],
+        "passes": false,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "shared",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": "on_object_small/neutral",
+        "heads": [
+          "L26H0",
+          "L26H5",
+          "L31H3",
+          "L31H7",
+          "L34H14"
+        ],
+        "wording": "shared heads: not distinguishable from layer-matched random heads at this n"
+      },
+      "object:clean": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.2560525419602819,
+        "ci95": [
+          0.2450529765214606,
+          0.26681915682254964
+        ],
+        "null_mean": 0.09484628308007687,
+        "null_p5": 0.0611709536194747,
+        "null_p95": 0.14038620249839848,
+        "p": 0.009900990099009901,
+        "excess": 0.161206258880205,
+        "excess_ci95": [
+          0.1540221025801089,
+          0.16747379043901348
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T_only",
+        "condition": "T",
+        "measure": "m_object",
+        "run": "clean",
+        "baseline": null,
+        "heads": [
+          "L29H2",
+          "L32H6",
+          "L32H7",
+          "L32H13",
+          "L33H1",
+          "L33H3",
+          "L33H14"
+        ],
+        "wording": "T-only heads attend to the object more than layer-matched random heads"
+      },
+      "image_colour:clean": {
+        "n": 223,
+        "n_draws": 100,
+        "direction": "less",
+        "observed": -3.117539062331839,
+        "ci95": [
+          -3.2730941987219726,
+          -2.968031164282511
+        ],
+        "null_mean": -0.05904350740784753,
+        "null_p5": -0.32837467014798205,
+        "null_p95": 0.19255724636547078,
+        "p": 0.009900990099009901,
+        "excess": -3.0584955549239914,
+        "excess_ci95": [
+          -3.2106984941376018,
+          -2.911008450799664
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T_only",
+        "condition": "T",
+        "measure": "dla",
+        "run": "clean",
+        "baseline": null,
+        "heads": [
+          "L29H2",
+          "L32H6",
+          "L32H7",
+          "L32H13",
+          "L33H1",
+          "L33H3",
+          "L33H14"
+        ],
+        "wording": "T-only heads write the image's colour more than layer-matched random heads"
+      },
+      "object:P_visual": {
+        "n": 70,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.3461425306122449,
+        "ci95": [
+          0.3279583867346938,
+          0.3647121260204082
+        ],
+        "null_mean": 0.13027035262857142,
+        "null_p5": 0.0823307168367347,
+        "null_p95": 0.19141473846938775,
+        "p": 0.009900990099009901,
+        "excess": 0.2158721779836735,
+        "excess_ci95": [
+          0.20506548438418365,
+          0.22727155915306127
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T_only",
+        "condition": "P",
+        "measure": "m_object",
+        "run": "visual",
+        "baseline": null,
+        "heads": [
+          "L29H2",
+          "L32H6",
+          "L32H7",
+          "L32H13",
+          "L33H1",
+          "L33H3",
+          "L33H14"
+        ],
+        "wording": "T-only heads attend to the object more than layer-matched random heads"
+      },
+      "image_colour:P_visual": {
+        "n": 70,
+        "n_draws": 100,
+        "direction": "less",
+        "observed": -4.2744969214285735,
+        "ci95": [
+          -4.648510959642858,
+          -3.9163957915357144
+        ],
+        "null_mean": 0.032236023659999995,
+        "null_p5": -0.3001914245,
+        "null_p95": 0.31306963171428565,
+        "p": 0.009900990099009901,
+        "excess": -4.306732945088574,
+        "excess_ci95": [
+          -4.689106868033107,
+          -3.936821545828822
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T_only",
+        "condition": "P",
+        "measure": "dla",
+        "run": "visual",
+        "baseline": null,
+        "heads": [
+          "L29H2",
+          "L32H6",
+          "L32H7",
+          "L32H13",
+          "L33H1",
+          "L33H3",
+          "L33H14"
+        ],
+        "wording": "T-only heads write the image's colour more than layer-matched random heads"
+      }
+    },
+    "validation": {
+      "routing:P": {
+        "n": 70,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.23016984920634925,
+        "ci95": [
+          0.21415191031746036,
+          0.24584360297619048
+        ],
+        "null_mean": 0.08710112786793654,
+        "null_p5": 0.023544090634920637,
+        "null_p95": 0.1707076996031746,
+        "p": 0.019801980198019802,
+        "excess": 0.1430687213384127,
+        "excess_ci95": [
+          0.13189703303701583,
+          0.15425421775331746
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "validation",
+        "set": "P",
+        "condition": "P",
+        "measure": "m_image",
+        "run": "visual",
+        "baseline": "prior",
+        "heads": [
+          "L26H0",
+          "L26H5",
+          "L26H6",
+          "L27H1",
+          "L27H4",
+          "L28H3",
+          "L31H3",
+          "L31H7",
+          "L34H14"
+        ],
+        "wording": "H_P heads attend to the image more under the Visual than the Prior prompt more than layer-matched random heads"
+      }
+    },
+    "descriptive": {
+      "note_token_share": 0.030595502533459495,
+      "note_enrichment": {
+        "T_only:on_object_small/incongruent": 13.212725566777115,
+        "T_only:on_object_small/neutral": 8.990679263363521,
+        "T_only:clean": 1.9312341764312502,
+        "shared:on_object_small/incongruent": 5.874439637709459,
+        "shared:on_object_small/neutral": 2.6019160177032097,
+        "shared:clean": 2.093044872605983,
+        "P_only:on_object_small/incongruent": 7.535370990563583,
+        "P_only:on_object_small/neutral": 2.944135288314019,
+        "P_only:clean": 1.7877037677903407,
+        "T:on_object_small/incongruent": 10.788983701521156,
+        "T:on_object_small/neutral": 6.749900954997709,
+        "T:clean": 1.9928549909570081
+      },
+      "spatial": {
+        "on_object_small": {
+          "fool_rate": 1.0,
+          "note_tokens_mean": 39.54708520179372,
+          "n_objects_without_note_tokens": 0,
+          "T_only_note_mass_incongruent": 0.28072946828955797,
+          "T_only_note_mass_neutral": 0.17119244253683538,
+          "fooled_minus_not_incongruent": {
+            "n": [
+              223,
+              0
+            ],
+            "a": 0.28072946828955797,
+            "b": null
+          }
+        },
+        "on_object_medium": {
+          "fool_rate": 0.874439461883408,
+          "note_tokens_mean": 76.69955156950672,
+          "n_objects_without_note_tokens": 0,
+          "T_only_note_mass_incongruent": 0.30745857783472136,
+          "T_only_note_mass_neutral": 0.19644327994875083,
+          "fooled_minus_not_incongruent": {
+            "n": [
+              195,
+              28
+            ],
+            "a": 0.31372545054945056,
+            "b": 0.2638142857142857,
+            "diff": 0.049911164835164834,
+            "ci95": [
+              0.03351250448717947,
+              0.06772041163657766
+            ]
+          }
+        },
+        "beside_object": {
+          "fool_rate": 0.6771300448430493,
+          "note_tokens_mean": 67.24215246636771,
+          "n_objects_without_note_tokens": 0,
+          "T_only_note_mass_incongruent": 0.296844804612428,
+          "T_only_note_mass_neutral": 0.15893722549647663,
+          "fooled_minus_not_incongruent": {
+            "n": [
+              151,
+              72
+            ],
+            "a": 0.3115807000946074,
+            "b": 0.26594035714285713,
+            "diff": 0.04564034295175029,
+            "ci95": [
+              0.030790477264664152,
+              0.061076561310837864
+            ]
+          }
+        }
+      },
+      "layer_profile_note_mass": {
+        "20": {
+          "unclassified_mean": 0.02650892526933856,
+          "classified": {}
+        },
+        "21": {
+          "unclassified_mean": 0.056033692965246636,
+          "classified": {}
+        },
+        "22": {
+          "unclassified_mean": 0.028150114153587452,
+          "classified": {}
+        },
+        "23": {
+          "unclassified_mean": 0.03345426647533632,
+          "classified": {}
+        },
+        "24": {
+          "unclassified_mean": 0.016351084997197313,
+          "classified": {}
+        },
+        "25": {
+          "unclassified_mean": 0.08964808920964124,
+          "classified": {}
+        },
+        "26": {
+          "unclassified_mean": 0.06082790941704035,
+          "classified": {
+            "L26H0": 0.017670582959641256,
+            "L26H5": 0.10734067264573993,
+            "L26H6": 0.015611632286995521
+          }
+        },
+        "27": {
+          "unclassified_mean": 0.07010552530429241,
+          "classified": {
+            "L27H1": 0.11663835874439465,
+            "L27H4": 0.254655605381166
+          }
+        },
+        "28": {
+          "unclassified_mean": 0.03219105558565023,
+          "classified": {
+            "L28H3": 0.1006392376681614
+          }
+        },
+        "29": {
+          "unclassified_mean": 0.0528090542600897,
+          "classified": {
+            "L29H2": 0.3570977578475338
+          }
+        },
+        "30": {
+          "unclassified_mean": 0.07616767180493275,
+          "classified": {}
+        },
+        "31": {
+          "unclassified_mean": 0.13281258196348494,
+          "classified": {
+            "L31H3": 0.15080076233183864,
+            "L31H7": 0.15119919282511216
+          }
+        },
+        "32": {
+          "unclassified_mean": 0.08036868126940323,
+          "classified": {
+            "L32H6": 0.32096143497757845,
+            "L32H7": 0.2817452914798207,
+            "L32H13": 0.2658244843049327
+          }
+        },
+        "33": {
+          "unclassified_mean": 0.07436779817178338,
+          "classified": {
+            "L33H1": 0.20926914798206273,
+            "L33H3": 0.23983865470852014,
+            "L33H14": 0.2903695067264574
+          }
+        },
+        "34": {
+          "unclassified_mean": 0.008756162122571003,
+          "classified": {
+            "L34H14": 0.0038756044843049325
+          }
+        },
+        "35": {
+          "unclassified_mean": 0.03058472179932735,
+          "classified": {}
+        }
+      },
+      "per_head_T": {
+        "L26H0": {
+          "on_object_small/incongruent:m_note": 0.017670582959641256,
+          "on_object_small/incongruent:m_object": 0.02714236322869955,
+          "on_object_small/incongruent:m_image": 0.11627242152466367,
+          "on_object_small/incongruent:dla": 0.000544308071748878,
+          "on_object_small/neutral:m_note": 0.009536040358744394,
+          "on_object_small/neutral:m_object": 0.0263804932735426,
+          "on_object_small/neutral:m_image": 0.09950560538116592,
+          "on_object_small/neutral:dla": -0.006706569506726458,
+          "clean:m_note": 0.0034232533632286987,
+          "clean:m_object": 0.027299515695067268,
+          "clean:m_image": 0.0937190134529148,
+          "clean:dla": -0.010857208968609864
+        },
+        "L26H5": {
+          "on_object_small/incongruent:m_note": 0.10734067264573989,
+          "on_object_small/incongruent:m_object": 0.1273201793721973,
+          "on_object_small/incongruent:m_image": 0.5658955156950672,
+          "on_object_small/incongruent:dla": 0.005168748878923768,
+          "on_object_small/neutral:m_note": 0.04596477130044843,
+          "on_object_small/neutral:m_object": 0.1342680717488789,
+          "on_object_small/neutral:m_image": 0.47341524663677126,
+          "on_object_small/neutral:dla": -0.010162049327354261,
+          "clean:m_note": 0.019271008968609865,
+          "clean:m_object": 0.13998674439461883,
+          "clean:m_image": 0.4418363228699551,
+          "clean:dla": -0.011250870582959644
+        },
+        "L26H6": {
+          "on_object_small/incongruent:m_note": 0.015611632286995518,
+          "on_object_small/incongruent:m_object": 0.023543636771300447,
+          "on_object_small/incongruent:m_image": 0.13627968609865473,
+          "on_object_small/incongruent:dla": 0.006808666278026906,
+          "on_object_small/neutral:m_note": 0.011568515695067264,
+          "on_object_small/neutral:m_object": 0.025611161434977582,
+          "on_object_small/neutral:m_image": 0.13447426008968608,
+          "on_object_small/neutral:dla": 0.012081074439461884,
+          "clean:m_note": 0.002816302242152467,
+          "clean:m_object": 0.020485968609865474,
+          "clean:m_image": 0.09049677130044842,
+          "clean:dla": 0.010067213004484305
+        },
+        "L27H1": {
+          "on_object_small/incongruent:m_note": 0.11663835874439461,
+          "on_object_small/incongruent:m_object": 0.316902600896861,
+          "on_object_small/incongruent:m_image": 0.8292255605381167,
+          "on_object_small/incongruent:dla": -0.022479753363228702,
+          "on_object_small/neutral:m_note": 0.027584801255605383,
+          "on_object_small/neutral:m_object": 0.45931130044843044,
+          "on_object_small/neutral:m_image": 0.8359605381165919,
+          "on_object_small/neutral:dla": -0.04356191255605381,
+          "clean:m_note": 0.05847576143497757,
+          "clean:m_object": 0.3971415156950672,
+          "clean:m_image": 0.852004932735426,
+          "clean:dla": -0.04019986816143497
+        },
+        "L27H4": {
+          "on_object_small/incongruent:m_note": 0.25465560538116594,
+          "on_object_small/incongruent:m_object": 0.10796911210762332,
+          "on_object_small/incongruent:m_image": 0.6784300448430494,
+          "on_object_small/incongruent:dla": -0.01607250986547085,
+          "on_object_small/neutral:m_note": 0.08251525246636772,
+          "on_object_small/neutral:m_object": 0.19118201793721973,
+          "on_object_small/neutral:m_image": 0.5860008968609864,
+          "on_object_small/neutral:dla": -0.020844639461883405,
+          "clean:m_note": 0.02331847085201794,
+          "clean:m_object": 0.18334476681614348,
+          "clean:m_image": 0.5292739910313901,
+          "clean:dla": -0.016590573991031393
+        },
+        "L28H3": {
+          "on_object_small/incongruent:m_note": 0.10063923766816142,
+          "on_object_small/incongruent:m_object": 0.09245556053811659,
+          "on_object_small/incongruent:m_image": 0.4707820627802691,
+          "on_object_small/incongruent:dla": -0.0015270802690582953,
+          "on_object_small/neutral:m_note": 0.05606850672645739,
+          "on_object_small/neutral:m_object": 0.11922959641255605,
+          "on_object_small/neutral:m_image": 0.4167260089686099,
+          "on_object_small/neutral:dla": -0.00721558206278027,
+          "clean:m_note": 0.017696237668161433,
+          "clean:m_object": 0.13390617040358746,
+          "clean:m_image": 0.3986964125560538,
+          "clean:dla": -0.009520993721973093
+        },
+        "L29H2": {
+          "on_object_small/incongruent:m_note": 0.35709775784753367,
+          "on_object_small/incongruent:m_object": 0.07617852466367714,
+          "on_object_small/incongruent:m_image": 0.6933515695067265,
+          "on_object_small/incongruent:dla": -0.04297876636771301,
+          "on_object_small/neutral:m_note": 0.09814970852017937,
+          "on_object_small/neutral:m_object": 0.20023896860986545,
+          "on_object_small/neutral:m_image": 0.5393094170403587,
+          "on_object_small/neutral:dla": -0.0357186998206278,
+          "clean:m_note": 0.03293556950672646,
+          "clean:m_object": 0.23368386995515697,
+          "clean:m_image": 0.5382832735426009,
+          "clean:dla": -0.046064179372197304
+        },
+        "L31H3": {
+          "on_object_small/incongruent:m_note": 0.15080076233183856,
+          "on_object_small/incongruent:m_object": 0.2929186098654708,
+          "on_object_small/incongruent:m_image": 0.7524470852017938,
+          "on_object_small/incongruent:dla": 0.0057642762331838555,
+          "on_object_small/neutral:m_note": 0.09100790134529148,
+          "on_object_small/neutral:m_object": 0.40503632286995517,
+          "on_object_small/neutral:m_image": 0.793891928251121,
+          "on_object_small/neutral:dla": -0.4638971748878924,
+          "clean:m_note": 0.04853256053811659,
+          "clean:m_object": 0.4034313004484305,
+          "clean:m_image": 0.7708645739910315,
+          "clean:dla": -0.5749235426008967
+        },
+        "L31H7": {
+          "on_object_small/incongruent:m_note": 0.15119919282511213,
+          "on_object_small/incongruent:m_object": 0.48302376681614356,
+          "on_object_small/incongruent:m_image": 0.9053426008968609,
+          "on_object_small/incongruent:dla": -0.47347726457399103,
+          "on_object_small/neutral:m_note": 0.039299225560538116,
+          "on_object_small/neutral:m_object": 0.6566551569506727,
+          "on_object_small/neutral:m_image": 0.9560340807174887,
+          "on_object_small/neutral:dla": -1.0842547085201795,
+          "clean:m_note": 0.0752039730941704,
+          "clean:m_object": 0.5897525112107623,
+          "clean:m_image": 0.9564865470852018,
+          "clean:dla": -1.1209219730941704
+        },
+        "L32H6": {
+          "on_object_small/incongruent:m_note": 0.3209614349775785,
+          "on_object_small/incongruent:m_object": 0.20812390134529143,
+          "on_object_small/incongruent:m_image": 0.8288488789237669,
+          "on_object_small/incongruent:dla": 0.5103996860986546,
+          "on_object_small/neutral:m_note": 0.15472681614349776,
+          "on_object_small/neutral:m_object": 0.3324942600896861,
+          "on_object_small/neutral:m_image": 0.7813354260089685,
+          "on_object_small/neutral:dla": -0.7739645829596412,
+          "clean:m_note": 0.042798264573991024,
+          "clean:m_object": 0.3371636322869955,
+          "clean:m_image": 0.7154381165919281,
+          "clean:dla": -0.9157887443946188
+        },
+        "L32H7": {
+          "on_object_small/incongruent:m_note": 0.2817452914798206,
+          "on_object_small/incongruent:m_object": 0.057493726457399114,
+          "on_object_small/incongruent:m_image": 0.4854022421524664,
+          "on_object_small/incongruent:dla": 0.42738866816143495,
+          "on_object_small/neutral:m_note": 0.11916517488789237,
+          "on_object_small/neutral:m_object": 0.08624040358744395,
+          "on_object_small/neutral:m_image": 0.3082112107623318,
+          "on_object_small/neutral:dla": -0.0986948932735426,
+          "clean:m_note": 0.00916243811659193,
+          "clean:m_object": 0.07689461434977576,
+          "clean:m_image": 0.16911744394618833,
+          "clean:dla": -0.12356269058295963
+        },
+        "L32H13": {
+          "on_object_small/incongruent:m_note": 0.2658244843049327,
+          "on_object_small/incongruent:m_object": 0.29847923766816153,
+          "on_object_small/incongruent:m_image": 0.8358730941704038,
+          "on_object_small/incongruent:dla": 0.16254441973094175,
+          "on_object_small/neutral:m_note": 0.259169398206278,
+          "on_object_small/neutral:m_object": 0.37699394618834087,
+          "on_object_small/neutral:m_image": 0.8661672645739911,
+          "on_object_small/neutral:dla": -0.2543775587443946,
+          "clean:m_note": 0.050105463228699555,
+          "clean:m_object": 0.4568689237668161,
+          "clean:m_image": 0.7768726457399103,
+          "clean:dla": -0.43478189551569507
+        },
+        "L33H1": {
+          "on_object_small/incongruent:m_note": 0.20926914798206278,
+          "on_object_small/incongruent:m_object": 0.08861264573991032,
+          "on_object_small/incongruent:m_image": 0.5106807174887892,
+          "on_object_small/incongruent:dla": 0.6705364843049326,
+          "on_object_small/neutral:m_note": 0.16956435426008967,
+          "on_object_small/neutral:m_object": 0.09590906726457399,
+          "on_object_small/neutral:m_image": 0.4574188340807175,
+          "on_object_small/neutral:dla": 0.1517863614349776,
+          "clean:m_note": 0.014606201793721975,
+          "clean:m_object": 0.10963724663677128,
+          "clean:m_image": 0.3112677130044843,
+          "clean:dla": 0.009832571300448432
+        },
+        "L33H3": {
+          "on_object_small/incongruent:m_note": 0.23983865470852017,
+          "on_object_small/incongruent:m_object": 0.1575559192825112,
+          "on_object_small/incongruent:m_image": 0.6458538116591928,
+          "on_object_small/incongruent:dla": 0.7626113695067266,
+          "on_object_small/neutral:m_note": 0.12621356053811658,
+          "on_object_small/neutral:m_object": 0.2137808520179372,
+          "on_object_small/neutral:m_image": 0.5493834080717489,
+          "on_object_small/neutral:dla": -0.03961528116591929,
+          "clean:m_note": 0.026616293721973095,
+          "clean:m_object": 0.2259151121076233,
+          "clean:m_image": 0.47916547085201794,
+          "clean:dla": -0.05323600717488789
+        },
+        "L33H14": {
+          "on_object_small/incongruent:m_note": 0.2903695067264574,
+          "on_object_small/incongruent:m_object": 0.22808130044843047,
+          "on_object_small/incongruent:m_image": 0.8611062780269059,
+          "on_object_small/incongruent:dla": 1.526928538116592,
+          "on_object_small/neutral:m_note": 0.27135808520179366,
+          "on_object_small/neutral:m_object": 0.2628691479820628,
+          "on_object_small/neutral:m_image": 0.8546224215246637,
+          "on_object_small/neutral:dla": -0.9380392735426007,
+          "clean:m_note": 0.04460317488789238,
+          "clean:m_object": 0.3522043946188341,
+          "clean:m_image": 0.74717668161435,
+          "clean:dla": -1.5539381165919286
+        },
+        "L34H14": {
+          "on_object_small/incongruent:m_note": 0.0038756044843049325,
+          "on_object_small/incongruent:m_object": 0.008733533632286995,
+          "on_object_small/incongruent:m_image": 0.057435022421524665,
+          "on_object_small/incongruent:dla": 0.2798577937219731,
+          "on_object_small/neutral:m_note": 0.0015383609865470855,
+          "on_object_small/neutral:m_object": 0.004995477488789238,
+          "on_object_small/neutral:m_image": 0.030545035874439463,
+          "on_object_small/neutral:dla": -0.9279320627802691,
+          "clean:m_note": 0.0007666052466367712,
+          "clean:m_object": 0.005725968609865471,
+          "clean:m_image": 0.035696771300448425,
+          "clean:dla": -1.0396578475336324
+        }
+      },
+      "eager_vs_discovery_max_abs_logit_T": 0.5,
+      "per_head_P": {
+        "L26H0": {
+          "prior:m_object": 0.01196945714285714,
+          "prior:m_image": 0.030471428571428566,
+          "prior:dla": 0.00873699857142857,
+          "visual:m_object": 0.037675,
+          "visual:m_image": 0.09281742857142856,
+          "visual:dla": 0.009996357142857142
+        },
+        "L26H5": {
+          "prior:m_object": 0.05784899999999999,
+          "prior:m_image": 0.14149014285714293,
+          "prior:dla": 0.020626942857142855,
+          "visual:m_object": 0.20203900000000002,
+          "visual:m_image": 0.44933285714285714,
+          "visual:dla": -0.006234271428571428
+        },
+        "L26H6": {
+          "prior:m_object": 0.015625899999999995,
+          "prior:m_image": 0.04861271428571429,
+          "prior:dla": -0.01080307,
+          "visual:m_object": 0.027023785714285712,
+          "visual:m_image": 0.08221185714285713,
+          "visual:dla": -0.007808255714285714
+        },
+        "L27H1": {
+          "prior:m_object": 0.1792581857142857,
+          "prior:m_image": 0.5183072857142856,
+          "prior:dla": 0.020825754285714287,
+          "visual:m_object": 0.5252471428571427,
+          "visual:m_image": 0.8324628571428571,
+          "visual:dla": 0.0064632957142857165
+        },
+        "L27H4": {
+          "prior:m_object": 0.09531425714285714,
+          "prior:m_image": 0.28536500000000004,
+          "prior:dla": 0.016324567142857144,
+          "visual:m_object": 0.3500637142857143,
+          "visual:m_image": 0.6556742857142858,
+          "visual:dla": 0.019599438571428575
+        },
+        "L28H3": {
+          "prior:m_object": 0.08659557142857144,
+          "prior:m_image": 0.19950142857142858,
+          "prior:dla": 0.011840025714285716,
+          "visual:m_object": 0.22063485714285716,
+          "visual:m_image": 0.45058571428571426,
+          "visual:dla": 0.009762012857142859
+        },
+        "L29H2": {
+          "prior:m_object": 0.14896500000000001,
+          "prior:m_image": 0.3038714285714285,
+          "prior:dla": 0.02168015714285714,
+          "visual:m_object": 0.3347628571428572,
+          "visual:m_image": 0.5917271428571427,
+          "visual:dla": 0.028140298571428565
+        },
+        "L31H3": {
+          "prior:m_object": 0.1592994285714286,
+          "prior:m_image": 0.328642,
+          "prior:dla": 0.43265462857142856,
+          "visual:m_object": 0.5245657142857144,
+          "visual:m_image": 0.8099642857142857,
+          "visual:dla": -0.8446129714285713
+        },
+        "L31H7": {
+          "prior:m_object": 0.41150742857142847,
+          "prior:m_image": 0.6853128571428571,
+          "prior:dla": -0.11708827142857144,
+          "visual:m_object": 0.6761414285714286,
+          "visual:m_image": 0.9412614285714286,
+          "visual:dla": -1.0888557142857143
+        },
+        "L32H6": {
+          "prior:m_object": 0.2031887142857143,
+          "prior:m_image": 0.38410714285714287,
+          "prior:dla": -0.4422945714285715,
+          "visual:m_object": 0.40625999999999995,
+          "visual:m_image": 0.7006085714285714,
+          "visual:dla": -1.033467285714286
+        },
+        "L32H7": {
+          "prior:m_object": 0.024801514285714282,
+          "prior:m_image": 0.05626757142857143,
+          "prior:dla": -0.003604000000000001,
+          "visual:m_object": 0.14624042857142858,
+          "visual:m_image": 0.2429511428571428,
+          "visual:dla": -0.18202614285714286
+        },
+        "L32H13": {
+          "prior:m_object": 0.43549142857142864,
+          "prior:m_image": 0.6508657142857142,
+          "prior:dla": -0.5991508571428571,
+          "visual:m_object": 0.5965957142857141,
+          "visual:m_image": 0.8423571428571429,
+          "visual:dla": -0.8719831428571427
+        },
+        "L33H1": {
+          "prior:m_object": 0.06963885714285716,
+          "prior:m_image": 0.15614914285714288,
+          "prior:dla": -0.10182761428571428,
+          "visual:m_object": 0.15478871428571428,
+          "visual:m_image": 0.3274571428571429,
+          "visual:dla": -0.13122487714285713
+        },
+        "L33H3": {
+          "prior:m_object": 0.19323900000000002,
+          "prior:m_image": 0.3355928571428572,
+          "prior:dla": -0.49870408571428576,
+          "visual:m_object": 0.36770142857142857,
+          "visual:m_image": 0.5852999999999999,
+          "visual:dla": -0.6407286285714286
+        },
+        "L33H14": {
+          "prior:m_object": 0.31652671428571433,
+          "prior:m_image": 0.5645971428571428,
+          "prior:dla": -1.827856857142857,
+          "visual:m_object": 0.4166485714285714,
+          "visual:m_image": 0.7493185714285714,
+          "visual:dla": -1.4432071428571431
+        },
+        "L34H14": {
+          "prior:m_object": 0.009799891428571426,
+          "prior:m_image": 0.04130835714285715,
+          "prior:dla": 0.2689496571428571,
+          "visual:m_object": 0.008816374285714289,
+          "visual:m_image": 0.036229142857142856,
+          "visual:dla": -0.9699964285714285
+        }
+      },
+      "eager_vs_discovery_max_abs_logit_P": 0.4375
+    },
+    "parameters": {
+      "n_boot": 1000,
+      "seed": 0,
+      "first_layer": 20
+    }
+  }
+}
