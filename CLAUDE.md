@@ -22,7 +22,7 @@ workshop itself is still unconfirmed: AIR-FM was the AAAI-2026 edition and is
 gone, and GSR-VLM is plan v2.1's candidate but was never agreed (D01). Do not
 state a workshop name or framing as settled.
 
-## Status, 1 Nov 2026
+## Status, 2 Nov 2026
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
 - **Replication gate (D40): PASSED** on all six criteria (thresholds
@@ -43,9 +43,11 @@ state a workshop name or framing as settled.
   primary tests null (H_P on T 2.5%, H_T on P 2.7%, random ~4-5%). Shared
   heads carry P (83.6%) but not T (0%); T's own heads carry T (70.5%).
   Overlap in selection, not in cause. See RESULTS.md.
-- **H3 mechanism:** `notebooks/h3_attention.ipynb` built 1 Nov, design and
-  reading rule pre-registered as D74; not yet run (~2 h on a T4, Save & Run
-  All). Loads the model with eager attention, unlike every earlier run.
+- **H3 mechanism: done** (2 Nov, run at `49f0152`, design D74, eager
+  attention). Both primary tests pass: the 7 T-only heads attend to the note
+  and write its colour; with no note they attend to the recoloured object and
+  write the image's colour. Shared heads do neither. "Object" tokens are the
+  recoloured pixels only. See RESULTS.md.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
