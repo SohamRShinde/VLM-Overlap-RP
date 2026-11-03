@@ -11,6 +11,8 @@ proposing experiments; it supersedes any earlier plan.
 - `docs/STATE.md`     current status, blockers, open questions, assumptions in code
 - `docs/DECISIONS.md` dated decisions and pre-registered thresholds (D01-D66)
 - `docs/RESULTS.md`   every reported number, with model, n, seed, prompt, commit
+- `docs/HANDOVER.md`  3 Nov handover: what is done, the two parallel tracks
+  (V condition; paper and figures) and who owns each
 
 They are living documents: keep them current, never overwrite wholesale, and
 date what you add. STATE.md has a table of everything Lietzow's own repo

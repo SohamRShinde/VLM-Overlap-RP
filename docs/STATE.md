@@ -85,6 +85,8 @@
 - **Open, proposed:** why the shared heads are selected under T but neither attend, write, nor matter when ablated; whether the T-only heads' visual-colour role has a backup route (ablation barely hurts clean accuracy).
 
 ## Next steps (proposed, not yet agreed)
+**2026-11-03:** the list below is from 19 Oct and mostly done. The current split of remaining work (Track A: V condition, Kush; Track B: paper and figures, Soham) is in `docs/HANDOVER.md`.
+
 1. Email organizers; re-scope to confirmed page limit.
 2. Clone Lietzow repo; resolve checkpoint / prompt / indexing questions; write `configs/heads_lietzow_*.json` from Tables 5–6.
 3. **T behavioral screen first** (inference only, cheap): does a note flip Qwen2.5-VL-3B on ≥ ~50 objects?
