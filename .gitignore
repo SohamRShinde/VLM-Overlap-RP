@@ -68,3 +68,11 @@ htmlcov/
 # NOT ignored, on purpose (plan_v2.md section 7):
 #   results/*.json  - small JSON results, must be versioned
 #   configs/*.json  - head lists and experiment configs
+
+# LaTeX build outputs (paper/)
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/main.pdf

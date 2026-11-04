@@ -45,6 +45,42 @@ def load_records(path: str | Path) -> tuple[list[ObjectRecord], dict]:
     return [ObjectRecord(**r) for r in result["records"]], payload
 
 
+def position_vs_size(clean: list[ObjectRecord], vocab) -> dict:
+    """Fool rate per layout among objects correct with the neutral note, and the
+    paired on-vs-beside and small-vs-medium counts (plan 3.7). Also used by
+    scripts/paper_numbers.py, so the paper and this report cannot disagree."""
+    layouts, fooled_by = {}, {}
+    for layout in sorted({r.layout for r in clean}):
+        rows = [r for r in clean if r.layout == layout]
+        eligible = [r for r in rows
+                    if parse_color_word(r.answer_neutral, vocab) in r.original_colors]
+        fooled = [r for r in eligible
+                  if parse_color_word(r.answer_incongruent, vocab) == r.counterfactual_color]
+        fooled_by[layout] = {r.object_id for r in fooled}
+        layouts[layout] = {
+            "n_eligible": len(eligible), "n_fooled": len(fooled),
+            "fool_rate": len(fooled) / len(eligible) if eligible else float("nan"),
+            "area": float(np.nanmedian([r.note_area_frac for r in rows if r.note_area_frac is not None])),
+            "occlusion": float(np.nanmedian([r.object_occlusion for r in rows
+                                             if r.object_occlusion is not None])),
+        }
+    out = {"layouts": layouts}
+    on = [l for l in fooled_by if l.startswith("on_object")]
+    beside = [l for l in fooled_by if l.startswith("beside")]
+    if on and beside:
+        on_set = set().union(*(fooled_by[l] for l in on))
+        beside_set = set().union(*(fooled_by[l] for l in beside))
+        out["on_vs_beside"] = {"only_on": len(on_set - beside_set),
+                               "only_beside": len(beside_set - on_set),
+                               "both": len(on_set & beside_set)}
+    if len(on) == 2:
+        first, second = sorted(on)   # alphabetical, so not necessarily small first
+        a, b = fooled_by[first], fooled_by[second]
+        out["on_object_pair"] = {"a": first, "b": second, "only_a": len(a - b),
+                                 "only_b": len(b - a), "both": len(a & b)}
+    return out
+
+
 def describe(name: str, values: np.ndarray) -> None:
     print(f"  {name:16s} n={values.size:5d}  mean {values.mean():+7.2f}  "
           f"median {np.median(values):+7.2f}  p5 {np.percentile(values, 5):+7.2f}  "
@@ -99,38 +135,20 @@ def main(path: str) -> None:
 
     print("\nPOSITION vs SIZE (plan 3.7)")
     print("  layout            n  fooled  fool_rate   area  occlusion")
-    fooled_by: dict[str, set[str]] = {}
-    for layout in sorted({r.layout for r in clean}):
-        rows = [r for r in clean if r.layout == layout]
-        eligible = [r for r in rows
-                    if parse_color_word(r.answer_neutral, vocab) in r.original_colors]
-        fooled = [r for r in eligible
-                  if parse_color_word(r.answer_incongruent, vocab) == r.counterfactual_color]
-        fooled_by[layout] = {r.object_id for r in fooled}
-        area = np.nanmedian([r.note_area_frac for r in rows if r.note_area_frac is not None])
-        occ = np.nanmedian([r.object_occlusion for r in rows
-                            if r.object_occlusion is not None])
-        rate = len(fooled) / len(eligible) if eligible else float("nan")
-        print(f"  {layout:17s} {len(eligible):3d}  {len(fooled):5d}  {rate:8.1%}  "
-              f"{area:5.1%}  {occ:8.1%}")
-
-    on = [l for l in fooled_by if l.startswith("on_object")]
-    beside = [l for l in fooled_by if l.startswith("beside")]
-    if on and beside:
-        on_set = set().union(*(fooled_by[l] for l in on))
-        beside_set = set().union(*(fooled_by[l] for l in beside))
-        only_on = len(on_set - beside_set)
-        only_beside = len(beside_set - on_set)
-        print(f"\n  paired within object: fooled on-object only {only_on}, "
-              f"beside only {only_beside}, both {len(on_set & beside_set)}")
+    pos = position_vs_size(clean, vocab)
+    for layout, row in pos["layouts"].items():
+        print(f"  {layout:17s} {row['n_eligible']:3d}  {row['n_fooled']:5d}  {row['fool_rate']:8.1%}  "
+              f"{row['area']:5.1%}  {row['occlusion']:8.1%}")
+    if "on_vs_beside" in pos:
+        pb = pos["on_vs_beside"]
+        print(f"\n  paired within object: fooled on-object only {pb['only_on']}, "
+              f"beside only {pb['only_beside']}, both {pb['both']}")
         print("  Same objects, same words, only placement differs -- so this is "
               "position, not object difficulty.")
-
-    if len(on) == 2:
-        small, medium = sorted(on)
-        a, b = fooled_by[small], fooled_by[medium]
-        print(f"  size, paired: {small} only {len(a - b)}, {medium} only {len(b - a)}, "
-              f"both {len(a & b)}")
+    if "on_object_pair" in pos:
+        sm = pos["on_object_pair"]
+        print(f"  size, paired: {sm['a']} only {sm['only_a']}, {sm['b']} only "
+              f"{sm['only_b']}, both {sm['both']}")
         print("  Medium notes cover roughly twice the area of small ones. If size "
               "drove the attack this would be lopsided.")
 

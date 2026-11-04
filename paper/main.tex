@@ -1,0 +1,407 @@
+% First draft, 4 Nov 2026. Build: see paper/README.md.
+%
+% Rules for editing this file (CLAUDE.md, RESULTS.md):
+%  * Never type a result. Every number comes from numbers.tex, which
+%    scripts/paper_numbers.py generates from results/. Reference numbers
+%    from other papers are cited as theirs.
+%  * Verdict sentences are the pre-registered phrases (D70, D73, D74), quoted.
+%  * \todo{} marks anything unverified or unfinished; the final build must
+%    have none.
+%
+% Layout: plain two-column article sized like AAAI (7in text width, 3.3in
+% columns). Swap in the workshop's template once the venue is confirmed (D01).
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+\usepackage[letterpaper,textwidth=7in,textheight=9.25in,columnsep=0.33in,top=0.75in]{geometry}
+% \usepackage{mathptmx}  % Times: not installed locally (texlive-fontsrecommended); the venue template sets the font
+\usepackage[expansion=false]{microtype}  % no scalable fonts locally
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{../figures/}}
+\input{numbers}
+
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\HP}{\mathcal{H}_P}
+\newcommand{\HT}{\mathcal{H}_T}
+\newcommand{\cco}{c_{o}}
+\newcommand{\ccf}{c_{cf}}
+
+\title{Does In-Image Text Hijack the Same Heads as Prompted Priors?\\
+\large A Circuit-Overlap Test in a Vision-Language Model}
+\author{Anonymous authors\todo{author block per the venue's anonymity rules}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Vision-language models answer from the image by default, but other signals can
+override it. Lietzow et al.\ found that a sparse set of late attention heads lets
+a prompt asking for an object's \emph{usual} colour override a recoloured image.
+We ask whether the same heads let a colour word \emph{written in the image}, a
+typographic attack, override what the object looks like. We hold the model
+(Qwen2.5-VL-3B), the task, the objects and the circuit-discovery pipeline fixed,
+and vary only where the competing signal comes from. Our pipeline re-discovers
+Lietzow's prior-override circuit exactly. The typographic circuit overlaps it
+(Jaccard \JPT{} [\JPTLo, \JPTHi]): above chance (\chanceEdge) but well below the
+prior circuit's agreement with itself (\ceilingMedian). The overlap is in
+selection, not in cause. Ablating the prior-override heads leaves the
+typographic attack intact, and the reverse also holds: neither differs from
+layer-matched random heads. The shared heads are needed only for the prior
+override. The typographic override runs through \nTonly{} later heads that
+attend to the note and write its colour into the answer. When there is no note,
+the same heads attend to the recoloured object and write \emph{its} colour.
+In-image text appears to exploit a pathway that moves colour from the image to
+the answer, not the circuit that lets prompted knowledge override vision.
+\end{abstract}
+
+% ===========================================================================
+\section{Introduction}
+
+When a vision-language model (VLM) is asked about an image, the image is not the
+only possible source of the answer. The model has memorised what objects usually
+look like, and text can appear both in the prompt and inside the image. How a
+model arbitrates between visual evidence and these competing signals matters for
+reliability: an answer that silently follows the wrong source is a failure that
+looks like a success.
+
+\citet{lietzow2026} studied one such arbitration with a recoloured-object
+benchmark~\cite{golovanevsky2025counterfact}. Shown a blue strawberry and asked
+what colour strawberries \emph{usually} are, a model must ignore the image and
+answer from memory. Models mostly fail, following the image; visual grounding is
+the default. When the override does succeed, it depends on a small set of
+attention heads in the second half of the network. In Qwen-VL these heads shift
+attention from image tokens toward text tokens, and ablating them as a group
+restores the visual answer~\cite{lietzow2026}.
+
+Typographic attacks put the competing signal somewhere else: \emph{inside} the
+image~\cite{goh2021multimodal,westerhoff2025scam}. A note reading ``purple'' on a
+red apple pits the image's own text against the object's pixels. Is this the same
+arbitration problem, solved by the same heads? If the prior-override heads
+implement a general ``answer from something other than the object's colour''
+mechanism, they should carry the typographic override too. If they implement
+routing from image to prompt text, as their attention shift suggests, they should
+not, because here the competing signal is in the image.
+
+We test this directly on Qwen2.5-VL-3B~\cite{bai2025qwen25vl}, holding everything
+fixed except the source of the conflict: the same objects, the same colour task
+and answer vocabulary, and the same discovery pipeline. Our contributions:
+\begin{itemize}\itemsep0pt
+\item An answer-matched design that compares a prompted-prior conflict (P) with
+a typographic conflict (T) on the same objects. Our port of Lietzow et al.'s
+pipeline re-discovers their circuit exactly (\S\ref{sec:replication}).
+\item Circuit overlap, read against a chance floor and a split-half ceiling
+fixed before the T results existed: the circuits are partly shared
+(\S\ref{sec:overlap}).
+\item Cross-ablation against layer-matched random heads, showing the shared
+heads are necessary for P only (\S\ref{sec:h2}).
+\item A mechanistic account of the T-only heads. They attend to the note and
+write its colour, and with no note they do the same with the object's own colour
+(\S\ref{sec:h3}).
+\end{itemize}
+Every test, threshold and verdict phrase was pre-registered in a dated decision
+log before the run it judges.\todo{decide whether to cite the repo/log; anonymity}
+
+% ===========================================================================
+\section{Related Work}
+
+\paragraph{Perception--knowledge conflicts in VLMs.}
+\citet{lietzow2026} localise prior override to sparse late heads in several VLMs,
+and report that the heads they find under an image-varying contrast are largely
+contained in the prompt-varying set. \citet{golovanevsky2025counterfact}
+introduce the recoloured-object data we use.
+\citet{golovanevsky2024notice,hua2025,ortu2025,nooralahzadeh2026} study related
+routing and arbitration mechanisms.\todo{read Hua, Ortu, Nooralahzadeh and
+Golovanevsky 2024 in full; one accurate sentence each; check novelty against Hua
+(image-vs-caption heads in Qwen2.5-VL)}
+
+\paragraph{Typographic attacks.}
+Text in an image can override object recognition in CLIP~\cite{goh2021multimodal}.
+SCAM~\cite{westerhoff2025scam} evaluates real-world typographic attacks on
+multimodal models, and \citet{dyslexify2025} locate typographic circuits in the
+vision encoder.\todo{verify both} Our question concerns the language-model
+side: which decoder heads carry the attack to the answer, and whether they are
+the heads that carry prompted knowledge.
+
+\paragraph{Circuit discovery and overlap.}
+We use activation patching~\cite{meng2022rome,wang2023ioi,heimersheim2024patching}
+at the level of attention-head outputs, following \citet{lietzow2026}.
+\citet{nikankin2025} compare circuits across modalities by
+intersection-over-union against random sets.\todo{verify} We add a split-half
+ceiling, so a low overlap can be told apart from an unreliable circuit.
+
+% ===========================================================================
+\section{Method}
+
+\paragraph{Model and data.}
+Qwen2.5-VL-3B-Instruct, with \nLayers{} layers of \nHeadsPerLayer{} heads
+(\nHeads{} in total), loaded in 4-bit NF4~\cite{dettmers2023qlora} with fp16
+compute, matching Lietzow et al.'s default precision. We use the colour split of
+Visual-Counterfact~\cite{golovanevsky2025counterfact}, filtered as Lietzow et
+al.'s loader filters it (\nObjects{} objects).\todo{reconcile with their 467:
+2 objects unexplained, STATE.md} Each object has an original image showing its
+typical colour $\cco$ and a counterfactual image recoloured to $\ccf$. Prompts
+are taken verbatim from their code: \emph{Visual} ``What color is this
+\{object\} here? Respond with the color name only.'' and \emph{Prior} ``What
+color is \{a/an object\} usually? Respond with the color name only.''
+
+\paragraph{Two conflicts.}
+Each conflict is a pair of runs that differ in one factor. In the \emph{source}
+run the competing signal wins; in the \emph{target} run the image wins.
+\begin{itemize}\itemsep0pt
+\item \textbf{P (prompted prior)}~\cite{lietzow2026}: the counterfactual image
+with the Prior prompt (source, answer $\cco$) versus the Visual prompt (target,
+answer $\ccf$). We keep objects answered as requested under both prompts
+(``correctly conflicting''): \nP.
+\item \textbf{T (typographic)}: the original image with a post-it-style note
+placed on the object (one fifth of the image width, centred on the object's
+bounding box) under the Visual prompt. In the source run the note reads $\ccf$;
+in the target run it reads a neutral, non-colour word of similar length. The two
+runs differ only in the note's word. We keep objects where the neutral-note run
+answers an accepted colour and the incongruent run answers the note's colour:
+\nT.
+\end{itemize}
+The answer tokens match between conditions but their roles swap. In P the
+source run answers $\cco$ from memory; in T the source run answers $\ccf$ from
+the note. We return to this in \S\ref{sec:discussion}.\todo{V condition
+(image-varying, Lietzow's visual contrast) is pre-registered and built; add if
+it lands}
+
+\paragraph{Circuit discovery.}
+We port Lietzow et al.'s procedure. For each object, we cache every head's
+output (the input slice of the attention output projection) at the last prompt
+token in both runs. For every head, we patch the source run's value into the
+target run and the target run's value into the source run, and record the
+logit difference between the two runs' answer tokens. A head's restoration score
+in each direction is the fraction of the source--target logit difference that
+the patch moves. We average the two per-head scores over objects and take PC1
+across heads. Heads beyond $+2\sigma$ on PC1 are \emph{promoting}, and those
+below $-2\sigma$ \emph{suppressing}. Patching only the last position cannot
+change earlier positions under causal attention. We therefore run the prompt
+prefix once and recompute only the last token per patch, and check before each
+sweep that this matches a full forward pass.
+
+\paragraph{Overlap.}
+Our primary statistic is the Jaccard index $J_{PT}$ of the promoting sets, with a
+bootstrap 95\% CI. Each bootstrap resample redraws objects independently per
+condition and re-runs classification (1{,}000 resamples). We read $J_{PT}$ on a
+fixed scale. The \emph{chance floor} is the overlap of random head sets of the
+observed sizes (10{,}000 permutations). The \emph{ceiling} is the overlap of the P
+circuit with itself when discovered on random halves of its objects
+(\nHalfSplits{} splits). The verdict is one of four phrases, fixed in advance:
+``not distinguishable from chance at this $n$'', ``not distinguishable from the P
+circuit's own self-agreement'', ``inconclusive at this $n$'', or ``above chance,
+below self-agreement''. Because P and T keep different objects, we also compute
+$J_{PT}$ on the objects present in both.
+
+\paragraph{Cross-ablation.}
+We zero-ablate a head set's outputs at the last token. Following Lietzow et al.,
+an ablation \emph{defeats} the override when the source run's answer logit falls
+below the target run's answer logit. Each test compares the observed rate with
+\hTwoDraws{} random sets of the same size and layer distribution, drawn from
+unclassified heads. The p-value is $(1+\#\{\text{random}\geq\text{observed}\})/
+(\hTwoDraws+1)$, so the smallest attainable value is $0.0099$. There are two
+primary tests at $\alpha=0.025$: $\HP$ on T objects and $\HT$ on P objects. We
+also decompose each set into shared, P-only and T-only heads.
+
+\paragraph{Mechanism.}
+For each head, at the last token, we measure (i) the attention mass of the
+last-token query on \emph{note} tokens, (ii) on \emph{object} tokens, and (iii)
+its \emph{direct effect} on the answer. Note tokens are image tokens at least
+half covered by the note on the model's own token grid. Object tokens are image
+tokens at least half covered by recoloured pixels and untouched by the note. The
+direct effect is a logit lens~\cite{nostalgebraist2020logitlens}: the head's
+contribution to the residual stream, passed through the final norm and the
+unembedding, read as the logit of the source answer minus the target answer.
+Attention weights require eager attention. Before measuring, we check that the
+weights rebuild every head's output and that the logit lens reproduces the
+model's own logits. Statistics and random sets are those of the cross-ablation.
+
+% ===========================================================================
+\section{Results}
+
+\subsection{Replication of the prior-override circuit}\label{sec:replication}
+On the \nP{} correctly conflicting objects (Lietzow et al.\ report 73 for this
+model), patching over all \nHeads{} heads finds \nPromP{} promoting and \nSupP{}
+suppressing heads, \promMatchesLietzow{} their published lists. Ablating the
+promoting group defeats the prior override on \repPriorFlip\% of objects and the
+visual answer on \repVisualFlip\% (theirs: \lietzowPriorFlip\% and
+\lietzowVisualFlip\%). The strongest single heads are \topSingleOne{}
+(\topSingleOneFlip\%; theirs \topSingleOneLietzow\%) and \topSingleTwo{}
+(\topSingleTwoFlip\%; theirs \topSingleTwoLietzow\%). We use our re-discovered set
+as $\HP$, so that P and T come from an identical pipeline.
+
+\subsection{Notes fool the model}
+A behavioural screen of all \nObjects{} objects shows that the note works by its
+content, not its presence. An incongruent note moves the logit difference toward
+the note's colour by \attackShift{} logits on average (minimum \attackShiftMin),
+while a note naming the object's own colour moves it \congruentShift{} the other
+way (maximum \congruentShiftMax). Of the \nCorrectNeutral{} objects answered
+correctly with a neutral note in at least one of three placements,
+\screenFoolRate\% are fooled by the incongruent note in at least one such
+placement. Placement matters more than size: small and medium notes on the
+object fool \screenFoolSmall\% and \screenFoolMedium\% of eligible objects, a note
+beside it \screenFoolBeside\%. Paired within objects, \pairedOnOnly{} are fooled
+only on the object and \pairedBesideOnly{} only beside it.\todo{the screen ran in
+emulated bf16, all later runs in fp16; say so or re-run} \nT{} objects meet the T
+selection rule for discovery.
+
+\subsection{The circuits overlap partly}\label{sec:overlap}
+Discovery on T finds \nPromT{} promoting heads. \nShared{} of them are also P
+heads, including the two strongest single P heads (Fig.~\ref{fig:heads}). The
+P-only heads lie in layers \layersPonly{} and the T-only heads in layers
+\layersTonly.
+$J_{PT}=\JPT$ [\JPTLo, \JPTHi]. This lies far from both ends of the scale
+(Fig.~\ref{fig:overlap}): the chance floor's 95th percentile is \chanceEdge{} and
+the P ceiling's 2.5th percentile is \ceilingLo. The pre-registered verdict is
+\emph{``\JPTVerdict''}. Neither pure hypothesis fits: routing-specific heads
+predict overlap near chance, and a general override mechanism predicts overlap
+near the ceiling. Object selection does not drive the result: on the
+\nSharedObjects{} objects in both sets, $J_{PT}=\JPTshared$ [\JPTsharedLo,
+\JPTsharedHi]. Nor is T the noisy side, since T's circuit agrees with itself
+across halves at median $J=\TselfJ$. Across all heads, the rank correlation of PC1
+scores is \rankRho{} (P's own, full length: \rankCeiling).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_heads}
+\caption{Every head's PC1 score under P and under T, in units of each
+condition's standard deviation; dashed lines are the $\pm2\sigma$ cuts. The
+circuits share \nShared{} heads (labelled). The P-only and T-only heads sit just
+above the cut in one condition and near zero in the other.}
+\label{fig:heads}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_overlap}
+\caption{$J_{PT}$ with 95\% bootstrap CIs, against the chance floor (grey: random
+sets of the observed sizes, bar to the 95th percentile, tick at the mean) and
+the P circuit's split-half self-agreement (blue: 2.5th--97.5th percentile, tick
+at the median). Hollow: objects kept by both conditions.}
+\label{fig:overlap}
+\end{figure}
+
+\subsection{Shared selection, separate causes}\label{sec:h2}
+Both primary cross-ablation tests are null (Fig.~\ref{fig:h2}). Ablating $\HP$
+defeats the typographic override on \hTwoPtoTObs\% of T objects [\hTwoPtoTLo,
+\hTwoPtoTHi] (random: \hTwoPtoTNull\%, $p=\hTwoPtoTP$). Ablating $\HT$ defeats the
+prior override on \hTwoTtoPObs\% of P objects [\hTwoTtoPLo, \hTwoTtoPHi] (random:
+\hTwoTtoPNull\%, $p=\hTwoTtoPP$). Both are \emph{``not distinguishable from
+layer-matched random heads at this $n$''}. Each set does defeat its own override:
+\hTwoPtoPObs\% and \hTwoTtoTObs\%. \hTwoMeanSentence
+
+The decomposition explains the nulls. The \nShared{} shared heads alone defeat
+the prior override on \hTwoStoPObs\% of P objects, but the typographic override
+on \hTwoStoTObs\% of T objects (\hTwoStoTCount{} of \hTwoStoTN). The T override
+runs through the \nTonly{} T-only heads, which alone defeat it on
+\hTwoTOtoTObs\%. The P-only heads defeat it on \hTwoPOtoTObs\% ($p=\hTwoPOtoTP$),
+which does not reach $\alpha$. $\HT$ on P reads null for a different reason than
+$\HP$ on T. The T-only heads push P's source runs \emph{toward} the image's colour
+(mean logit shift \hTwoTOonPShift, against \hTwoStoPShift{} for the shared
+heads), so ablating all of $\HT$ cancels the shared heads' effect.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.66\textwidth]{fig_cross_ablation}
+\caption{Cross-ablation. Share of objects whose override is defeated by
+zero-ablating each head set, with 95\% bootstrap CIs. Grey: \hTwoDraws{}
+layer-matched random sets (bar to the 95th percentile, tick at the mean). Hollow
+markers have no random control (descriptive).}
+\label{fig:h2}
+\end{figure*}
+
+\subsection{The T-only heads move colour from the image}\label{sec:h3}
+On \hThreeNT{} T objects (\hThreeDropT{} dropped because their answers changed
+under eager attention or became non-finite), both primary mechanism tests pass
+(Fig.~\ref{fig:h3}a,b). The T-only heads place \hThreeAObs{} of their last-token
+attention on note tokens [\hThreeALo, \hThreeAHi], against \hThreeANull{} for
+random heads ($p=\hThreeAP$). Their direct effect toward the note's colour is
+\hThreeWObs{} logits [\hThreeWLo, \hThreeWHi], against \hThreeWNull{}. The
+pre-registered mechanism sentence is \emph{``\hThreeMechanism''}. The note makes
+up \noteShare\% of the image tokens, but receives \enrichInc{} times its share of
+the T-only heads' image attention with a colour word and \enrichNeu{} times with
+a neutral word. The heads read text in the image regardless of its content, and
+read it more when it names a colour (rise \hThreeRiseObs, random
+\hThreeRiseNull).
+
+The shared heads neither attend to the note (\hThreeASObs, random \hThreeASNull,
+$p=\hThreeASP$) nor write its colour (\hThreeWSObs{} logits), consistent with
+their null ablation on T. The P-only heads attend to the note (\hThreeAPOObs,
+random \hThreeAPONull) but do not write its colour (\hThreeWPOObs).
+
+With no note, the T-only heads do the same thing with the object's own colour
+(Fig.~\ref{fig:h3}c). On the clean original image they attend to the recoloured
+object region (\hThreeObjCleanObs, random \hThreeObjCleanNull) and write the
+image's colour (\hThreeColCleanObs{} logits, random \hThreeColCleanNull). On P's
+Visual-prompt runs they do likewise (\hThreeObjPVObs; \hThreeColPVObs{} logits).
+As a check on the attention measurement, $\HP$ attends to the image more under the
+Visual than the Prior prompt, the direction Lietzow et al.\ report (difference
+\hThreeRoutingObs, random \hThreeRoutingNull, $p=\hThreeRoutingP$).
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_h3}
+\caption{Mechanism. (a) Last-token attention mass on note tokens, mean over the
+set's heads; (b) the set's summed direct effect toward the note's colour, both on
+T objects with the incongruent note. (c) The T-only heads' direct effect with the
+note, and with no note on T's clean images and P's Visual-prompt runs (negative =
+toward the image's colour). Grey as in Fig.~\ref{fig:h2}; whiskers are 95\%
+bootstrap CIs.}
+\label{fig:h3}
+\end{figure*}
+
+% ===========================================================================
+\section{Discussion}\label{sec:discussion}
+
+\paragraph{Selection is not cause.}
+Patching selected the shared heads in both conditions, yet ablating them affects
+only P, and under T they neither attend to the note nor write its colour.
+Patching asks whether a head's output \emph{carries} the difference between two
+runs; ablation asks whether the answer \emph{needs} it. For the shared heads
+under T, the two disagree. We do not yet know what patching picks up in them;
+redundancy, or an indirect path that ablation does not reveal, are both
+possible.\todo{one sentence on what would distinguish these}
+Overlap statistics computed from patching alone would have overstated how much
+the two overrides share.
+
+\paragraph{Two routes to an override.}
+The prior-override heads let prompted knowledge beat the image. The typographic
+attack does not use them. It uses heads that, by our measurements, move colour
+from wherever it appears in the image to the answer. A note is effective because
+it hands those heads a colour, not because it triggers the prior-override
+machinery. This fits the attack's dependence on placement: a note on the object
+fools more often than one beside it. Yet ablating the T-only heads barely affects ordinary
+answers (clean accuracy kept at \hTwoCleanTO\%, random \hTwoCleanRandom\%), so
+visual colour must also reach the answer by other routes. This is consistent with
+visual grounding being the default.
+
+\paragraph{Limitations.}
+One model, quantised to 4 bits. Interventions and attention are measured at the
+last token only. P and T share the colour pair but swap its roles, so heads that
+\emph{write} an answer may differ partly for that reason. The planned
+image-varying contrast (V), whose roles match P, addresses this.\todo{V} Head
+selection makes a positive direct effect for the T-only heads partly expected;
+the attention result does not share this problem. ``Object'' tokens are the
+recoloured pixels, which can omit parts of an object the recolouring left
+unchanged. Many tests sit at the smallest p-value 100 random sets allow, so the
+excess over random sets and its interval are the effect sizes. A second model
+(PaliGemma, whose routing Lietzow et al.\ find to differ) is future work.
+
+\section{Conclusion}
+Prompted priors and in-image text both override what a VLM sees, and patching
+selects partly the same heads for both. Causally, however, they use different
+routes. The prior-override heads are not needed for the typographic attack,
+which instead runs through heads that carry colour from the image, whether
+painted on the object or written on a note.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}
