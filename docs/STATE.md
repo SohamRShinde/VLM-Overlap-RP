@@ -48,7 +48,7 @@
 - [ ] Dataset licence: not shown on the viewer page. Check the dataset card before publishing.
 - [x] ~~Exact checkpoints~~ **resolved 2026-10-19** (see table above).
 - [x] ~~Layer index base~~ **resolved 2026-10-19:** 0-based layer and head indices, matching D30/D60.
-- [ ] V contrast: their `ContrastSpec`s are in `src/vdpo/types/contrast.py` (`PRIOR_CIRCUIT_CONTRAST`, visual variant) -- read it to settle which prompt is held fixed. Not yet read.
+- [x] ~~V contrast: which prompt is held fixed~~ **resolved 2026-11-04** (read at 145b453): `VISUAL_CIRCUIT_CONTRAST` holds the **Visual prompt** fixed, source = original image, target = counterfactual image. Their V objects are the **intersection** with P (`load_intersection_example_ids`: Visual-original right, Visual-counterfactual follows the image, Prior-counterfactual right). Our design is D75.
 - [ ] Lietzow "61% of V-classified heads also classified under P": pooled over models? promoting+suppressing? It is a containment fraction, not Jaccard.
 - [ ] Is Qwen2.5-VL-3B susceptible to typographic notes at all? No uploaded paper tests Qwen2.5-VL or PaliGemma on typographic attacks (SCAM evaluates neither).
 - [ ] Last-token risk for image-varying contrasts (V, T): Nooralahzadeh et al. report last-token residual patching leaves 90–98% of outputs unchanged on image-variant contrasts. Does last-token head patching give usable restoration for T?
@@ -86,6 +86,7 @@
 
 ## Next steps (proposed, not yet agreed)
 **2026-11-03:** the list below is from 19 Oct and mostly done. The current split of remaining work (Track A: V condition, Kush; Track B: paper and figures, Soham) is in `docs/HANDOVER.md`.
+**2026-11-04 (Kush):** Track A built, not run. D75 pushed (`8aa9307`) before any V code; `notebooks/v_patching.ipynb`, `src/circuit_overlap/v_patching.py` and `scripts/analyze_v_circuit.py` written and CPU-tested (297 passed). Next: one Kaggle Save & Run All (~7-8 h), then the analysis script.
 
 1. Email organizers; re-scope to confirmed page limit.
 2. Clone Lietzow repo; resolve checkpoint / prompt / indexing questions; write `configs/heads_lietzow_*.json` from Tables 5–6.
