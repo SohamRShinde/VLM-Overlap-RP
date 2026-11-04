@@ -73,6 +73,9 @@ alone already answer the title question).
    matplotlib is not in `.venv`: ask before installing it.
 2. **Draft**: intro, method, results, limitations. Where the source lives
    (Overleaf or `paper/` in the repo) is still to agree.
+   **Update 2026-11-04:** first draft started in `paper/` (LaTeX, in the repo);
+   every number is a macro generated from `results/` by `scripts/paper_numbers.py`.
+   It has a slot for the V result (search `\todo{V`).
 3. **Related work and novelty**, before claiming anything (STATE.md open
    questions): Hua et al. 2025 (image-vs-caption routing heads in
    Qwen2.5-VL), Nikankin et al. 2025 (circuit IoU), Dyslexify, Ortu,

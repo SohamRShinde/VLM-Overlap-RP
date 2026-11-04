@@ -84,6 +84,11 @@
 - **Caveat found by eye:** `check_tokens.png` showed the object tokens cover only the recoloured part of the object (the sheepdog's darker fur, not its white fur), because the object mask is the pixel diff. Kept as pre-registered; the paper must call it the recoloured region.
 - **Open, proposed:** why the shared heads are selected under T but neither attend, write, nor matter when ablated; whether the T-only heads' visual-colour role has a backup route (ablation barely hurts clean accuracy).
 
+## Paper (2026-11-04)
+- **First draft started** in `paper/main.tex` (6 pages incl. references in a plain two-column layout sized like AAAI). Covers replication, T screen, J_PT, H2, H3; V has `\todo` slots. Numbers are macros generated from `results/` by `scripts/paper_numbers.py`; `tests/test_paper.py` fails if they go stale. Figures from `scripts/make_figures.py`.
+- **Open:** related-work entries marked [VERIFY] in `paper/refs.bib` (Hua, Ortu, Nooralahzadeh, Dyslexify, Golovanevsky 2024/2025a titles); the venue template (D01); the design schematic (needs a dataset image, licence open); Times font not installed locally.
+- **Decided by default (Soham's session, 4 Nov):** the source lives in the repo, not Overleaf, so numbers and figures regenerate from `results/`.
+
 ## Next steps (proposed, not yet agreed)
 **2026-11-03:** the list below is from 19 Oct and mostly done. The current split of remaining work (Track A: V condition, Kush; Track B: paper and figures, Soham) is in `docs/HANDOVER.md`.
 **2026-11-04 (Kush):** Track A built, not run. D75 pushed (`8aa9307`) before any V code; `notebooks/v_patching.ipynb`, `src/circuit_overlap/v_patching.py` and `scripts/analyze_v_circuit.py` written and CPU-tested (297 passed). Next: one Kaggle Save & Run All (~7-8 h), then the analysis script.
