@@ -50,6 +50,9 @@ state a workshop name or framing as settled.
   and write its colour; with no note they attend to the recoloured object and
   write the image's colour. Shared heads do neither. "Object" tokens are the
   recoloured pixels only. See RESULTS.md.
+- **V condition (track A): built, not yet run** (4 Nov, kushviradiya).
+  Design D75 (pushed as `8aa9307` before any code); `notebooks/v_patching.ipynb`
+  and `scripts/analyze_v_circuit.py` are CPU-tested only.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
@@ -82,6 +85,7 @@ apply to both people and both sessions:
   | `notebooks/t_patching.ipynb` | @SohamRShinde |
   | `notebooks/cross_ablation.ipynb` | @SohamRShinde |
   | `notebooks/h3_attention.ipynb` | @SohamRShinde |
+  | `notebooks/v_patching.ipynb` | kushviradiya (the partner) |
 
   Update this table in the same commit when ownership changes. Commit
   notebooks with **outputs cleared**; results go to `results/`, not cell
@@ -109,7 +113,8 @@ apply to both people and both sessions:
   `t_patching.ipynb` uses `/kaggle/working/t_patching/`;
   `cross_ablation.ipynb` uses `/kaggle/working/cross_ablation/` (results at
   its top level, checkpoints under `ckpt/`); `h3_attention.ipynb` uses
-  `/kaggle/working/h3_attention/` (same layout). A new notebook gets its own prefix.
+  `/kaggle/working/h3_attention/` (same layout); `v_patching.ipynb` uses
+  `/kaggle/working/v_patching/`. A new notebook gets its own prefix.
 
 ## Setup
 - Models: Qwen2.5-VL-3B-Instruct (primary), PaliGemma-3B. **4-bit nf4**,
@@ -160,6 +165,16 @@ python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
     results/h3_attention_qwen25vl3b.json \
     results/h3_attention_records_qwen25vl3b.jsonl.gz \
     results/h3_analysis_qwen25vl3b.json
+
+# V condition read by D75: J_PV, J_VT and dJ = J_VT - J_PT, CPU only.
+# Written before any V run; do not change its parameters.
+.venv/bin/python scripts/analyze_v_circuit.py \
+    results/replication_patching_qwen25vl3b.json \
+    results/t_patching_records_qwen25vl3b.jsonl.gz \
+    results/v_patching_records_qwen25vl3b.jsonl.gz \
+    results/split_half_ceiling_p_qwen25vl3b.json \
+    results/t_patching_qwen25vl3b.json \
+    results/v_circuit_overlap_qwen25vl3b.json
 ```
 
 ## Layout
