@@ -92,6 +92,7 @@
 ## Next steps (proposed, not yet agreed)
 **2026-11-03:** the list below is from 19 Oct and mostly done. The current split of remaining work (Track A: V condition, Kush; Track B: paper and figures, Soham) is in `docs/HANDOVER.md`.
 **2026-11-04 (Kush):** Track A built, not run. D75 pushed (`8aa9307`) before any V code; `notebooks/v_patching.ipynb`, `src/circuit_overlap/v_patching.py` and `scripts/analyze_v_circuit.py` written and CPU-tested (297 passed). Next: one Kaggle Save & Run All (~7-8 h), then the analysis script.
+**2026-11-04 (Kush), later:** Track A **run and analysed** (notebook at `ca080d5`). 392 objects selected, 244 patched; V promoting (7) L31H3, L31H7, L32H6, L32H13, L33H3, L33H14, L34H14, all of them T heads. **dJ = J_VT - J_PT = +0.271 [+0.163, +0.289], D75 verdict "J_VT > J_PT"**; J_VT 0.583, J_PV 0.231. D75 still awaits @SohamRShinde's approval. `scripts/make_figures.py` has a slot for the J_VT row. See RESULTS.md.
 
 1. Email organizers; re-scope to confirmed page limit.
 2. Clone Lietzow repo; resolve checkpoint / prompt / indexing questions; write `configs/heads_lietzow_*.json` from Tables 5–6.

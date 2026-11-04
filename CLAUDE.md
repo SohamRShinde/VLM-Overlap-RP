@@ -50,9 +50,11 @@ state a workshop name or framing as settled.
   and write its colour; with no note they attend to the recoloured object and
   write the image's colour. Shared heads do neither. "Object" tokens are the
   recoloured pixels only. See RESULTS.md.
-- **V condition (track A): built, not yet run** (4 Nov, kushviradiya).
-  Design D75 (pushed as `8aa9307` before any code); `notebooks/v_patching.ipynb`
-  and `scripts/analyze_v_circuit.py` are CPU-tested only.
+- **V condition (track A): done** (4 Nov, kushviradiya; run at `ca080d5`,
+  design D75, proposed and awaiting @SohamRShinde). 244 of 392 selected
+  objects patched; V's 7 promoting heads are all T heads. **dJ = J_VT - J_PT
+  = +0.271 [+0.163, +0.289], verdict "J_VT > J_PT"** (J_VT 0.583, J_PV
+  0.231). See RESULTS.md.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
