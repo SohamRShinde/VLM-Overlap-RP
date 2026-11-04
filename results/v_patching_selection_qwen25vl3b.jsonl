@@ -1,0 +1,469 @@
+{"i": 0, "status": "selected", "name": "american chameleon", "attack": "brown", "size_original": [612, 440], "size_counterfact": [612, 440], "top1_original": 19576, "top1_counterfactual": 48388}
+{"i": 1, "status": "selected", "name": "arctic fox", "attack": "orange", "size_original": [622, 520], "size_counterfact": [622, 520], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 2, "status": "not_conflicting", "name": "band aid", "attack": "purple", "size_original": [1280, 960], "size_counterfact": [1280, 960], "top1_original": 41969, "top1_counterfactual": 74513}
+{"i": 3, "status": "selected", "name": "chesapeake bay retriever", "attack": "green", "size_original": [968, 1300], "size_counterfact": [968, 1300], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 4, "status": "selected", "name": "christmas stocking", "attack": "brown", "size_original": [1100, 1100], "size_counterfact": [1100, 1100], "top1_original": 6033, "top1_counterfactual": 48388}
+{"i": 5, "status": "selected", "name": "doberman", "attack": "purple", "size_original": [400, 600], "size_counterfact": [400, 600], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 6, "status": "selected", "name": "european fire salamander", "attack": "blue", "size_original": [1280, 720], "size_counterfact": [1280, 720], "top1_original": 47699, "top1_counterfactual": 10331}
+{"i": 7, "status": "selected", "name": "french horn", "attack": "red", "size_original": [1129, 1300], "size_counterfact": [1129, 1300], "top1_original": 25434, "top1_counterfactual": 6033}
+{"i": 8, "status": "selected", "name": "french loaf", "attack": "blue", "size_original": [1300, 871], "size_counterfact": [1300, 871], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 9, "status": "selected", "name": "gila monster", "attack": "purple", "size_original": [612, 351], "size_counterfact": [612, 351], "top1_original": 41969, "top1_counterfactual": 74513}
+{"i": 10, "status": "selected", "name": "gordon setter", "attack": "green", "size_original": [729, 486], "size_counterfact": [729, 486], "top1_original": 14417, "top1_counterfactual": 19576}
+{"i": 11, "status": "selected", "name": "granny smith", "attack": "blue", "size_original": [612, 462], "size_counterfact": [612, 462], "top1_original": 19576, "top1_counterfactual": 10331}
+{"i": 13, "status": "selected", "name": "irish setter", "attack": "green", "size_original": [600, 900], "size_counterfact": [600, 900], "top1_original": 6033, "top1_counterfactual": 19576}
+{"i": 14, "status": "selected", "name": "komodo dragon", "attack": "pink", "size_original": [1300, 922], "size_counterfact": [1300, 922], "top1_original": 28174, "top1_counterfactual": 71352}
+{"i": 15, "status": "selected", "name": "labrador retriever", "attack": "pink", "size_original": [1300, 892], "size_counterfact": [1300, 892], "top1_original": 47699, "top1_counterfactual": 71352}
+{"i": 16, "status": "selected", "name": "loafer", "attack": "yellow", "size_original": [876, 1168], "size_counterfact": [876, 1168], "top1_original": 48388, "top1_counterfactual": 47699}
+{"i": 17, "status": "selected", "name": "maltese dog", "attack": "orange", "size_original": [736, 736], "size_counterfact": [736, 736], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 18, "status": "selected", "name": "model t", "attack": "red", "size_original": [640, 427], "size_counterfact": [640, 427], "top1_original": 14417, "top1_counterfactual": 6033}
+{"i": 19, "status": "selected", "name": "newfoundland", "attack": "pink", "size_original": [326, 360], "size_counterfact": [326, 360], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 20, "status": "selected", "name": "norwegian elkhound", "attack": "red", "size_original": [1800, 1200], "size_counterfact": [1800, 1200], "top1_original": 28174, "top1_counterfactual": 6033}
+{"i": 21, "status": "selected", "name": "old english sheepdog", "attack": "yellow", "size_original": [2870, 2870], "size_counterfact": [2870, 2870], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 22, "status": "selected", "name": "pomeranian", "attack": "blue", "size_original": [867, 1023], "size_counterfact": [867, 1023], "top1_original": 41969, "top1_counterfactual": 10331}
+{"i": 23, "status": "selected", "name": "rottweiler", "attack": "pink", "size_original": [438, 626], "size_counterfact": [438, 626], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 24, "status": "selected", "name": "samoyed", "attack": "green", "size_original": [865, 1300], "size_counterfact": [865, 1300], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 25, "status": "selected", "name": "scottish deerhound", "attack": "red", "size_original": [557, 612], "size_counterfact": [557, 612], "top1_original": 28174, "top1_counterfactual": 6033}
+{"i": 26, "status": "selected", "name": "sealyham terrier", "attack": "purple", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 14075, "top1_counterfactual": 74513}
+{"i": 27, "status": "selected", "name": "weimaraner", "attack": "green", "size_original": [467, 700], "size_counterfact": [467, 700], "top1_original": 28174, "top1_counterfactual": 19576}
+{"i": 28, "status": "selected", "name": "west highland white terrier", "attack": "orange", "size_original": [1005, 1104], "size_counterfact": [1005, 1104], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 29, "status": "not_conflicting", "name": "acorn", "attack": "pink", "size_original": [1300, 1270], "size_counterfact": [1300, 1270], "top1_original": 41969, "top1_counterfactual": 71352}
+{"i": 30, "status": "selected", "name": "acorn squash", "attack": "blue", "size_original": [408, 612], "size_counterfact": [408, 612], "top1_original": 19576, "top1_counterfactual": 10331}
+{"i": 31, "status": "selected", "name": "acoustic guitar", "attack": "purple", "size_original": [626, 351], "size_counterfact": [626, 351], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 32, "status": "selected", "name": "affenpinscher", "attack": "purple", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 33, "status": "not_conflicting", "name": "airliner", "attack": "brown", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 34, "status": "not_conflicting", "name": "airplane", "attack": "brown", "size_original": [540, 360], "size_counterfact": [540, 360], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 35, "status": "not_conflicting", "name": "alligator", "attack": "pink", "size_original": [459, 280], "size_counterfact": [459, 280], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 36, "status": "selected", "name": "ambulance", "attack": "green", "size_original": [612, 471], "size_counterfact": [612, 471], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 37, "status": "selected", "name": "american football", "attack": "pink", "size_original": [600, 343], "size_counterfact": [600, 343], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 38, "status": "selected", "name": "anemone fish", "attack": "purple", "size_original": [612, 406], "size_counterfact": [612, 406], "top1_original": 41969, "top1_counterfactual": 74513}
+{"i": 39, "status": "selected", "name": "ant", "attack": "pink", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 40, "status": "selected", "name": "apple", "attack": "blue", "size_original": [626, 351], "size_counterfact": [626, 351], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 41, "status": "selected", "name": "armadillo", "attack": "purple", "size_original": [600, 248], "size_counterfact": [600, 248], "top1_original": 28174, "top1_counterfactual": 74513}
+{"i": 42, "status": "not_conflicting", "name": "armour", "attack": "purple", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 43, "status": "selected", "name": "artichoke", "attack": "blue", "size_original": [1300, 1096], "size_counterfact": [1300, 1096], "top1_original": 19576, "top1_counterfactual": 10331}
+{"i": 45, "status": "selected", "name": "avocado", "attack": "blue", "size_original": [626, 469], "size_counterfact": [626, 469], "top1_original": 19576, "top1_counterfactual": 10331}
+{"i": 46, "status": "selected", "name": "axolotl", "attack": "yellow", "size_original": [612, 390], "size_counterfact": [612, 390], "top1_original": 71352, "top1_counterfactual": 47699}
+{"i": 47, "status": "selected", "name": "bagel", "attack": "green", "size_original": [1024, 1024], "size_counterfact": [1024, 1024], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 48, "status": "selected", "name": "ballpoint", "attack": "yellow", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 10331, "top1_counterfactual": 47699}
+{"i": 49, "status": "selected", "name": "banana", "attack": "blue", "size_original": [1300, 914], "size_counterfact": [1300, 914], "top1_original": 47699, "top1_counterfactual": 10331}
+{"i": 50, "status": "selected", "name": "barn", "attack": "purple", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 6033, "top1_counterfactual": 74513}
+{"i": 51, "status": "selected", "name": "barrel", "attack": "yellow", "size_original": [1470, 980], "size_counterfact": [1470, 980], "top1_original": 48388, "top1_counterfactual": 47699}
+{"i": 52, "status": "not_conflicting", "name": "baseball", "attack": "pink", "size_original": [612, 612], "size_counterfact": [612, 612], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 53, "status": "selected", "name": "basketball", "attack": "purple", "size_original": [390, 280], "size_counterfact": [390, 280], "top1_original": 41969, "top1_counterfactual": 74513}
+{"i": 54, "status": "selected", "name": "bassoon", "attack": "purple", "size_original": [565, 1357], "size_counterfact": [565, 1357], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 56, "status": "selected", "name": "bath towel", "attack": "orange", "size_original": [1024, 892], "size_counterfact": [1024, 892], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 57, "status": "selected", "name": "bathtub", "attack": "green", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 58, "status": "not_conflicting", "name": "beacon", "attack": "brown", "size_original": [1500, 1500], "size_counterfact": [1500, 1500], "top1_original": 6033, "top1_counterfactual": 41969}
+{"i": 60, "status": "selected", "name": "bear", "attack": "pink", "size_original": [1000, 667], "size_counterfact": [1000, 667], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 61, "status": "selected", "name": "bearskin", "attack": "purple", "size_original": [612, 400], "size_counterfact": [612, 400], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 62, "status": "selected", "name": "beaver", "attack": "purple", "size_original": [1240, 1216], "size_counterfact": [1240, 1216], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 63, "status": "not_conflicting", "name": "beehive", "attack": "red", "size_original": [1300, 964], "size_counterfact": [1300, 964], "top1_original": 48388, "top1_counterfactual": 6033}
+{"i": 64, "status": "selected", "name": "beer bottle", "attack": "blue", "size_original": [600, 600], "size_counterfact": [600, 600], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 65, "status": "selected", "name": "beetle", "attack": "pink", "size_original": [1338, 980], "size_counterfact": [1338, 980], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 67, "status": "selected", "name": "bench", "attack": "pink", "size_original": [626, 393], "size_counterfact": [626, 393], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 69, "status": "not_conflicting", "name": "birch", "attack": "pink", "size_original": [417, 626], "size_counterfact": [417, 626], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 70, "status": "selected", "name": "bison", "attack": "blue", "size_original": [980, 980], "size_counterfact": [980, 980], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 71, "status": "selected", "name": "bittern", "attack": "purple", "size_original": [800, 533], "size_counterfact": [800, 533], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 72, "status": "selected", "name": "black stork", "attack": "pink", "size_original": [600, 451], "size_counterfact": [600, 451], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 73, "status": "selected", "name": "black swan", "attack": "pink", "size_original": [1300, 899], "size_counterfact": [1300, 899], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 74, "status": "numerics_failed", "name": "black widow", "attack": "green", "size_original": [1000, 667], "size_counterfact": [1000, 667]}
+{"i": 75, "status": "selected", "name": "black-and-tan coonhound", "attack": "yellow", "size_original": [729, 486], "size_counterfact": [729, 486], "top1_original": 14417, "top1_counterfactual": 47699}
+{"i": 76, "status": "selected", "name": "blackbird", "attack": "orange", "size_original": [600, 473], "size_counterfact": [600, 473], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 77, "status": "selected", "name": "blueberry", "attack": "brown", "size_original": [1000, 676], "size_counterfact": [1000, 676], "top1_original": 10331, "top1_counterfactual": 48388}
+{"i": 78, "status": "selected", "name": "bluejay", "attack": "orange", "size_original": [612, 566], "size_counterfact": [612, 566], "top1_original": 10331, "top1_counterfactual": 41969}
+{"i": 80, "status": "selected", "name": "boat", "attack": "green", "size_original": [1000, 668], "size_counterfact": [1000, 668], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 81, "status": "selected", "name": "bottle", "attack": "purple", "size_original": [634, 1024], "size_counterfact": [634, 1024], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 82, "status": "selected", "name": "bowl", "attack": "pink", "size_original": [612, 529], "size_counterfact": [612, 529], "top1_original": 14075, "top1_counterfactual": 71352}
+{"i": 83, "status": "selected", "name": "box", "attack": "green", "size_original": [612, 495], "size_counterfact": [612, 495], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 84, "status": "selected", "name": "bread", "attack": "green", "size_original": [2940, 1960], "size_counterfact": [2940, 1960], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 85, "status": "selected", "name": "brick", "attack": "blue", "size_original": [996, 996], "size_counterfact": [996, 996], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 86, "status": "selected", "name": "broccoli", "attack": "red", "size_original": [800, 685], "size_counterfact": [800, 685], "top1_original": 19576, "top1_counterfactual": 6033}
+{"i": 87, "status": "selected", "name": "broom", "attack": "pink", "size_original": [1067, 1690], "size_counterfact": [1067, 1690], "top1_original": 47699, "top1_counterfactual": 71352}
+{"i": 88, "status": "selected", "name": "buckeye", "attack": "pink", "size_original": [1600, 1690], "size_counterfact": [1600, 1690], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 89, "status": "selected", "name": "budgie", "attack": "purple", "size_original": [390, 280], "size_counterfact": [390, 280], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 90, "status": "selected", "name": "buffalo", "attack": "green", "size_original": [800, 980], "size_counterfact": [800, 980], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 91, "status": "selected", "name": "bullfrog", "attack": "red", "size_original": [1000, 1000], "size_counterfact": [1000, 1000], "top1_original": 19576, "top1_counterfactual": 6033}
+{"i": 93, "status": "selected", "name": "butternut squash", "attack": "green", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 41969, "top1_counterfactual": 19576}
+{"i": 94, "status": "selected", "name": "buzzard", "attack": "purple", "size_original": [1300, 868], "size_counterfact": [1300, 868], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 95, "status": "selected", "name": "cab", "attack": "green", "size_original": [890, 494], "size_counterfact": [890, 494], "top1_original": 47699, "top1_counterfactual": 19576}
+{"i": 96, "status": "selected", "name": "cabbage", "attack": "pink", "size_original": [1299, 1300], "size_counterfact": [1299, 1300], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 97, "status": "selected", "name": "cabbage butterfly", "attack": "red", "size_original": [612, 406], "size_counterfact": [612, 406], "top1_original": 14075, "top1_counterfactual": 6033}
+{"i": 98, "status": "selected", "name": "cabin", "attack": "pink", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 99, "status": "selected", "name": "camel", "attack": "red", "size_original": [2602, 1960], "size_counterfact": [2602, 1960], "top1_original": 48388, "top1_counterfactual": 6033}
+{"i": 100, "status": "selected", "name": "canary", "attack": "green", "size_original": [600, 399], "size_counterfact": [600, 399], "top1_original": 47699, "top1_counterfactual": 19576}
+{"i": 101, "status": "selected", "name": "candle", "attack": "purple", "size_original": [600, 600], "size_counterfact": [600, 600], "top1_original": 14075, "top1_counterfactual": 74513}
+{"i": 102, "status": "selected", "name": "cannon", "attack": "purple", "size_original": [600, 600], "size_counterfact": [600, 600], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 103, "status": "selected", "name": "cantaloupe", "attack": "pink", "size_original": [1000, 816], "size_counterfact": [1000, 816], "top1_original": 41969, "top1_counterfactual": 71352}
+{"i": 104, "status": "selected", "name": "car wheel", "attack": "brown", "size_original": [1125, 1300], "size_counterfact": [1125, 1300], "top1_original": 52343, "top1_counterfactual": 48388}
+{"i": 105, "status": "selected", "name": "carbonara", "attack": "green", "size_original": [1200, 1200], "size_counterfact": [1200, 1200], "top1_original": 47699, "top1_counterfactual": 19576}
+{"i": 106, "status": "selected", "name": "carrot", "attack": "green", "size_original": [548, 360], "size_counterfact": [548, 360], "top1_original": 41969, "top1_counterfactual": 19576}
+{"i": 107, "status": "selected", "name": "cassette player", "attack": "purple", "size_original": [2048, 1371], "size_counterfact": [2048, 1371], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 108, "status": "not_conflicting", "name": "catamaran", "attack": "brown", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 109, "status": "selected", "name": "caterpillar", "attack": "purple", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 110, "status": "selected", "name": "celery", "attack": "brown", "size_original": [590, 282], "size_counterfact": [590, 282], "top1_original": 19576, "top1_counterfactual": 48388}
+{"i": 111, "status": "selected", "name": "cello", "attack": "purple", "size_original": [408, 612], "size_counterfact": [408, 612], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 112, "status": "selected", "name": "chain", "attack": "purple", "size_original": [1185, 1300], "size_counterfact": [1185, 1300], "top1_original": 52343, "top1_counterfactual": 74513}
+{"i": 113, "status": "selected", "name": "chain mail", "attack": "purple", "size_original": [800, 802], "size_counterfact": [800, 802], "top1_original": 52343, "top1_counterfactual": 74513}
+{"i": 114, "status": "selected", "name": "chainlink fence", "attack": "purple", "size_original": [1600, 1233], "size_counterfact": [1600, 1233], "top1_original": 52343, "top1_counterfactual": 74513}
+{"i": 115, "status": "selected", "name": "cheese", "attack": "green", "size_original": [2940, 1960], "size_counterfact": [2940, 1960], "top1_original": 41969, "top1_counterfactual": 19576}
+{"i": 116, "status": "selected", "name": "cheeseburger", "attack": "green", "size_original": [1300, 1083], "size_counterfact": [1300, 1083], "top1_original": 47699, "top1_counterfactual": 19576}
+{"i": 117, "status": "not_conflicting", "name": "cheetah", "attack": "blue", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 118, "status": "selected", "name": "cherry", "attack": "blue", "size_original": [418, 626], "size_counterfact": [418, 626], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 119, "status": "selected", "name": "chickadee", "attack": "green", "size_original": [626, 393], "size_counterfact": [626, 393], "top1_original": 14417, "top1_counterfactual": 19576}
+{"i": 120, "status": "selected", "name": "chimpanzee", "attack": "orange", "size_original": [600, 337], "size_counterfact": [600, 337], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 121, "status": "selected", "name": "chinese lantern", "attack": "blue", "size_original": [626, 391], "size_counterfact": [626, 391], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 122, "status": "selected", "name": "chipmunk", "attack": "purple", "size_original": [2000, 1332], "size_counterfact": [2000, 1332], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 123, "status": "not_conflicting", "name": "chocolate sauce", "attack": "purple", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 25830, "top1_counterfactual": 74513}
+{"i": 124, "status": "selected", "name": "cigar", "attack": "pink", "size_original": [1000, 695], "size_counterfact": [1000, 695], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 125, "status": "selected", "name": "cigarette", "attack": "purple", "size_original": [1300, 1008], "size_counterfact": [1300, 1008], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 126, "status": "selected", "name": "clarinet", "attack": "pink", "size_original": [1500, 1500], "size_counterfact": [1500, 1500], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 127, "status": "not_conflicting", "name": "cleaver", "attack": "green", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 14417, "top1_counterfactual": 19576}
+{"i": 128, "status": "selected", "name": "closet", "attack": "yellow", "size_original": [260, 280], "size_counterfact": [260, 280], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 129, "status": "selected", "name": "cloud", "attack": "yellow", "size_original": [3000, 2000], "size_counterfact": [3000, 2000], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 130, "status": "selected", "name": "cockroach", "attack": "green", "size_original": [600, 598], "size_counterfact": [600, 598], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 131, "status": "selected", "name": "cocktail shaker", "attack": "green", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 52343, "top1_counterfactual": 19576}
+{"i": 132, "status": "selected", "name": "coconut", "attack": "pink", "size_original": [1300, 1300], "size_counterfact": [1300, 1300], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 133, "status": "selected", "name": "coho", "attack": "purple", "size_original": [390, 280], "size_counterfact": [390, 280], "top1_original": 52343, "top1_counterfactual": 74513}
+{"i": 134, "status": "selected", "name": "coin", "attack": "orange", "size_original": [626, 420], "size_counterfact": [626, 420], "top1_original": 52343, "top1_counterfactual": 41969}
+{"i": 136, "status": "selected", "name": "combination lock", "attack": "pink", "size_original": [626, 351], "size_counterfact": [626, 351], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 137, "status": "selected", "name": "computer keyboard", "attack": "pink", "size_original": [894, 975], "size_counterfact": [894, 975], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 138, "status": "selected", "name": "conch", "attack": "yellow", "size_original": [1000, 800], "size_counterfact": [1000, 800], "top1_original": 71352, "top1_counterfactual": 47699}
+{"i": 139, "status": "not_conflicting", "name": "cork", "attack": "pink", "size_original": [1000, 667], "size_counterfact": [1000, 667], "top1_original": 48388, "top1_counterfactual": 20170}
+{"i": 140, "status": "selected", "name": "corn", "attack": "blue", "size_original": [2893, 1960], "size_counterfact": [2893, 1960], "top1_original": 47699, "top1_counterfactual": 10331}
+{"i": 141, "status": "selected", "name": "cougar", "attack": "purple", "size_original": [612, 578], "size_counterfact": [612, 578], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 142, "status": "selected", "name": "cow", "attack": "blue", "size_original": [626, 413], "size_counterfact": [626, 413], "top1_original": 14075, "top1_counterfactual": 10331}
+{"i": 143, "status": "not_conflicting", "name": "cowboy boot", "attack": "red", "size_original": [923, 1300], "size_counterfact": [923, 1300], "top1_original": 48388, "top1_counterfactual": 34}
+{"i": 144, "status": "selected", "name": "crab", "attack": "yellow", "size_original": [1300, 945], "size_counterfact": [1300, 945], "top1_original": 6033, "top1_counterfactual": 47699}
+{"i": 145, "status": "selected", "name": "cranberry", "attack": "brown", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 6033, "top1_counterfactual": 48388}
+{"i": 147, "status": "not_conflicting", "name": "crocodile", "attack": "blue", "size_original": [1126, 980], "size_counterfact": [1126, 980], "top1_original": 28174, "top1_counterfactual": 10331}
+{"i": 148, "status": "selected", "name": "crow", "attack": "yellow", "size_original": [1200, 900], "size_counterfact": [1200, 900], "top1_original": 14417, "top1_counterfactual": 47699}
+{"i": 149, "status": "selected", "name": "crown", "attack": "green", "size_original": [1000, 750], "size_counterfact": [1000, 750], "top1_original": 25434, "top1_counterfactual": 19576}
+{"i": 150, "status": "selected", "name": "cucumber", "attack": "purple", "size_original": [1300, 1064], "size_counterfact": [1300, 1064], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 151, "status": "not_conflicting", "name": "curly-coated retriever", "attack": "blue", "size_original": [729, 486], "size_counterfact": [729, 486], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 152, "status": "selected", "name": "daisy", "attack": "blue", "size_original": [626, 618], "size_counterfact": [626, 618], "top1_original": 14075, "top1_counterfactual": 10331}
+{"i": 153, "status": "selected", "name": "dalmatian", "attack": "green", "size_original": [1300, 1251], "size_counterfact": [1300, 1251], "top1_original": 14417, "top1_counterfactual": 19576}
+{"i": 154, "status": "selected", "name": "dandelion", "attack": "purple", "size_original": [1300, 868], "size_counterfact": [1300, 868], "top1_original": 47699, "top1_counterfactual": 74513}
+{"i": 155, "status": "selected", "name": "deer", "attack": "pink", "size_original": [600, 529], "size_counterfact": [600, 529], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 156, "status": "selected", "name": "dial telephone", "attack": "pink", "size_original": [3000, 2000], "size_counterfact": [3000, 2000], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 157, "status": "selected", "name": "digital watch", "attack": "pink", "size_original": [1200, 1200], "size_counterfact": [1200, 1200], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 158, "status": "selected", "name": "dingo", "attack": "blue", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 159, "status": "not_conflicting", "name": "dishwasher", "attack": "purple", "size_original": [260, 280], "size_counterfact": [260, 280], "top1_original": 28174, "top1_counterfactual": 74513}
+{"i": 160, "status": "selected", "name": "dolphin", "attack": "yellow", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 28174, "top1_counterfactual": 47699}
+{"i": 161, "status": "selected", "name": "donkey", "attack": "pink", "size_original": [612, 460], "size_counterfact": [612, 460], "top1_original": 28174, "top1_counterfactual": 71352}
+{"i": 162, "status": "selected", "name": "dove", "attack": "green", "size_original": [540, 360], "size_counterfact": [540, 360], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 163, "status": "not_conflicting", "name": "dugong", "attack": "yellow", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 164, "status": "not_conflicting", "name": "dung beetle", "attack": "pink", "size_original": [1000, 913], "size_counterfact": [1000, 913], "top1_original": 10331, "top1_counterfactual": 71352}
+{"i": 165, "status": "selected", "name": "echidna", "attack": "purple", "size_original": [1414, 898], "size_counterfact": [1414, 898], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 166, "status": "not_conflicting", "name": "eggnog", "attack": "red", "size_original": [980, 980], "size_counterfact": [980, 980], "top1_original": 14075, "top1_counterfactual": 71352}
+{"i": 167, "status": "not_conflicting", "name": "eggplant", "attack": "yellow", "size_original": [444, 280], "size_counterfact": [444, 280], "top1_original": 74513, "top1_counterfactual": 19576}
+{"i": 168, "status": "selected", "name": "elephant", "attack": "orange", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 28174, "top1_counterfactual": 41969}
+{"i": 169, "status": "selected", "name": "elk", "attack": "yellow", "size_original": [600, 440], "size_counterfact": [600, 440], "top1_original": 48388, "top1_counterfactual": 47699}
+{"i": 170, "status": "selected", "name": "emerald", "attack": "purple", "size_original": [1300, 1300], "size_counterfact": [1300, 1300], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 171, "status": "not_conflicting", "name": "emu", "attack": "pink", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 172, "status": "not_conflicting", "name": "envelope", "attack": "orange", "size_original": [559, 372], "size_counterfact": [559, 372], "top1_original": 28174, "top1_counterfactual": 41969}
+{"i": 173, "status": "selected", "name": "espresso", "attack": "blue", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 174, "status": "not_conflicting", "name": "espresso maker", "attack": "pink", "size_original": [427, 600], "size_counterfact": [427, 600], "top1_original": 52343, "top1_counterfactual": 71352}
+{"i": 175, "status": "not_conflicting", "name": "faucet", "attack": "pink", "size_original": [349, 280], "size_counterfact": [349, 280], "top1_original": 49070, "top1_counterfactual": 71352}
+{"i": 176, "status": "selected", "name": "fawn", "attack": "yellow", "size_original": [1300, 1008], "size_counterfact": [1300, 1008], "top1_original": 48388, "top1_counterfactual": 47699}
+{"i": 177, "status": "selected", "name": "fence", "attack": "pink", "size_original": [791, 360], "size_counterfact": [791, 360], "top1_original": 14075, "top1_counterfactual": 71352}
+{"i": 178, "status": "not_conflicting", "name": "fire engine", "attack": "brown", "size_original": [1000, 563], "size_counterfact": [1000, 563], "top1_original": 6033, "top1_counterfactual": 41969}
+{"i": 179, "status": "not_conflicting", "name": "fireboat", "attack": "brown", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 6033, "top1_counterfactual": 41969}
+{"i": 180, "status": "not_conflicting", "name": "flamingo", "attack": "blue", "size_original": [676, 900], "size_counterfact": [676, 900], "top1_original": 41969, "top1_counterfactual": 10331}
+{"i": 181, "status": "selected", "name": "flat-coated retriever", "attack": "orange", "size_original": [5802, 6364], "size_counterfact": [5802, 6364], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 182, "status": "selected", "name": "flute", "attack": "brown", "size_original": [1000, 460], "size_counterfact": [1000, 460], "top1_original": 52343, "top1_counterfactual": 48388}
+{"i": 183, "status": "selected", "name": "folding chair", "attack": "yellow", "size_original": [625, 625], "size_counterfact": [625, 625], "top1_original": 14417, "top1_counterfactual": 47699}
+{"i": 184, "status": "selected", "name": "fork", "attack": "green", "size_original": [417, 280], "size_counterfact": [417, 280], "top1_original": 52343, "top1_counterfactual": 19576}
+{"i": 185, "status": "not_conflicting", "name": "forklift", "attack": "brown", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 47699, "top1_counterfactual": 41969}
+{"i": 186, "status": "selected", "name": "fox", "attack": "yellow", "size_original": [700, 541], "size_counterfact": [700, 541], "top1_original": 6033, "top1_counterfactual": 47699}
+{"i": 187, "status": "selected", "name": "freezer", "attack": "orange", "size_original": [2000, 2000], "size_counterfact": [2000, 2000], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 188, "status": "selected", "name": "fridge", "attack": "yellow", "size_original": [173, 280], "size_counterfact": [173, 280], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 189, "status": "selected", "name": "frilled lizard", "attack": "pink", "size_original": [612, 572], "size_counterfact": [612, 572], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 190, "status": "selected", "name": "frog", "attack": "purple", "size_original": [640, 360], "size_counterfact": [640, 360], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 191, "status": "selected", "name": "frying pan", "attack": "yellow", "size_original": [500, 500], "size_counterfact": [500, 500], "top1_original": 14417, "top1_counterfactual": 47699}
+{"i": 192, "status": "selected", "name": "garbage truck", "attack": "brown", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 19576, "top1_counterfactual": 48388}
+{"i": 193, "status": "selected", "name": "garlic", "attack": "orange", "size_original": [269, 360], "size_counterfact": [269, 360], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 194, "status": "selected", "name": "gas pump", "attack": "blue", "size_original": [866, 1300], "size_counterfact": [866, 1300], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 195, "status": "selected", "name": "gasmask", "attack": "yellow", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 14417, "top1_counterfactual": 47699}
+{"i": 196, "status": "selected", "name": "giant panda", "attack": "purple", "size_original": [626, 351], "size_counterfact": [626, 351], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 197, "status": "selected", "name": "giant schnauzer", "attack": "orange", "size_original": [4286, 5000], "size_counterfact": [4286, 5000], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 198, "status": "selected", "name": "giraffe", "attack": "green", "size_original": [438, 600], "size_counterfact": [438, 600], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 199, "status": "selected", "name": "goat", "attack": "orange", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 200, "status": "selected", "name": "goldfinch", "attack": "red", "size_original": [1300, 1241], "size_counterfact": [1300, 1241], "top1_original": 47699, "top1_counterfactual": 6033}
+{"i": 201, "status": "selected", "name": "goldfish", "attack": "pink", "size_original": [612, 422], "size_counterfact": [612, 422], "top1_original": 41969, "top1_counterfactual": 71352}
+{"i": 202, "status": "selected", "name": "golf ball", "attack": "pink", "size_original": [1300, 1300], "size_counterfact": [1300, 1300], "top1_original": 14075, "top1_counterfactual": 71352}
+{"i": 203, "status": "selected", "name": "gondola", "attack": "pink", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 204, "status": "selected", "name": "goose", "attack": "red", "size_original": [471, 612], "size_counterfact": [471, 612], "top1_original": 14075, "top1_counterfactual": 6033}
+{"i": 205, "status": "selected", "name": "gopher", "attack": "yellow", "size_original": [626, 393], "size_counterfact": [626, 393], "top1_original": 48388, "top1_counterfactual": 47699}
+{"i": 206, "status": "not_conflicting", "name": "gorilla", "attack": "yellow", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 28174, "top1_counterfactual": 47699}
+{"i": 207, "status": "selected", "name": "grape", "attack": "blue", "size_original": [612, 420], "size_counterfact": [612, 420], "top1_original": 19576, "top1_counterfactual": 10331}
+{"i": 208, "status": "not_conflicting", "name": "grapefruit", "attack": "blue", "size_original": [626, 431], "size_counterfact": [626, 431], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 209, "status": "selected", "name": "grasshopper", "attack": "purple", "size_original": [612, 407], "size_counterfact": [612, 407], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 210, "status": "selected", "name": "grater", "attack": "purple", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 52343, "top1_counterfactual": 74513}
+{"i": 211, "status": "selected", "name": "great white shark", "attack": "red", "size_original": [1280, 1280], "size_counterfact": [1280, 1280], "top1_original": 28174, "top1_counterfactual": 6033}
+{"i": 212, "status": "selected", "name": "green lizard", "attack": "pink", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 213, "status": "selected", "name": "green mamba", "attack": "purple", "size_original": [800, 533], "size_counterfact": [800, 533], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 214, "status": "selected", "name": "green snake", "attack": "pink", "size_original": [2940, 1960], "size_counterfact": [2940, 1960], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 215, "status": "selected", "name": "grenade", "attack": "pink", "size_original": [1000, 750], "size_counterfact": [1000, 750], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 216, "status": "selected", "name": "grey whale", "attack": "yellow", "size_original": [612, 303], "size_counterfact": [612, 303], "top1_original": 28174, "top1_counterfactual": 47699}
+{"i": 217, "status": "selected", "name": "groenendael", "attack": "purple", "size_original": [861, 1300], "size_counterfact": [861, 1300], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 218, "status": "selected", "name": "ground beetle", "attack": "pink", "size_original": [600, 598], "size_counterfact": [600, 598], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 219, "status": "selected", "name": "groundhog", "attack": "green", "size_original": [800, 479], "size_counterfact": [800, 479], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 220, "status": "selected", "name": "guacamole", "attack": "purple", "size_original": [612, 551], "size_counterfact": [612, 551], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 221, "status": "selected", "name": "gun", "attack": "orange", "size_original": [1300, 1300], "size_counterfact": [1300, 1300], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 222, "status": "selected", "name": "hare", "attack": "yellow", "size_original": [542, 360], "size_counterfact": [542, 360], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 223, "status": "selected", "name": "hartebeest", "attack": "red", "size_original": [570, 570], "size_counterfact": [570, 570], "top1_original": 48388, "top1_counterfactual": 6033}
+{"i": 224, "status": "selected", "name": "hay", "attack": "purple", "size_original": [3737, 1960], "size_counterfact": [3737, 1960], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 225, "status": "selected", "name": "head cabbage", "attack": "pink", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 227, "status": "selected", "name": "holster", "attack": "red", "size_original": [1300, 1057], "size_counterfact": [1300, 1057], "top1_original": 14417, "top1_counterfactual": 6033}
+{"i": 228, "status": "selected", "name": "honeycomb", "attack": "purple", "size_original": [1600, 1304], "size_counterfact": [1600, 1304], "top1_original": 47699, "top1_counterfactual": 74513}
+{"i": 229, "status": "selected", "name": "honeydew", "attack": "orange", "size_original": [866, 1300], "size_counterfact": [866, 1300], "top1_original": 19576, "top1_counterfactual": 41969}
+{"i": 230, "status": "selected", "name": "hornet", "attack": "pink", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 47699, "top1_counterfactual": 71352}
+{"i": 231, "status": "selected", "name": "hose", "attack": "purple", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 232, "status": "selected", "name": "hotdog", "attack": "blue", "size_original": [1080, 1080], "size_counterfact": [1080, 1080], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 233, "status": "selected", "name": "house finch", "attack": "green", "size_original": [1536, 1344], "size_counterfact": [1536, 1344], "top1_original": 6033, "top1_counterfactual": 19576}
+{"i": 234, "status": "selected", "name": "housefly", "attack": "pink", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 235, "status": "selected", "name": "ibex", "attack": "red", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 48388, "top1_counterfactual": 6033}
+{"i": 236, "status": "selected", "name": "iguana", "attack": "orange", "size_original": [1000, 667], "size_counterfact": [1000, 667], "top1_original": 19576, "top1_counterfactual": 41969}
+{"i": 237, "status": "selected", "name": "impala", "attack": "blue", "size_original": [688, 1122], "size_counterfact": [688, 1122], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 238, "status": "selected", "name": "indigo bunting", "attack": "yellow", "size_original": [1025, 1300], "size_counterfact": [1025, 1300], "top1_original": 10331, "top1_counterfactual": 47699}
+{"i": 239, "status": "selected", "name": "jack-o'-lantern", "attack": "blue", "size_original": [1167, 1300], "size_counterfact": [1167, 1300], "top1_original": 41969, "top1_counterfactual": 10331}
+{"i": 240, "status": "selected", "name": "jackfruit", "attack": "pink", "size_original": [1053, 1300], "size_counterfact": [1053, 1300], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 241, "status": "selected", "name": "jaguar", "attack": "blue", "size_original": [411, 280], "size_counterfact": [411, 280], "top1_original": 14417, "top1_counterfactual": 10331}
+{"i": 242, "status": "selected", "name": "jay", "attack": "yellow", "size_original": [612, 566], "size_counterfact": [612, 566], "top1_original": 10331, "top1_counterfactual": 47699}
+{"i": 243, "status": "selected", "name": "jean", "attack": "yellow", "size_original": [540, 360], "size_counterfact": [540, 360], "top1_original": 10331, "top1_counterfactual": 47699}
+{"i": 245, "status": "selected", "name": "joystick", "attack": "orange", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 246, "status": "selected", "name": "kangaroo", "attack": "green", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 248, "status": "selected", "name": "killer whale", "attack": "orange", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 249, "status": "selected", "name": "king crab", "attack": "green", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 6033, "top1_counterfactual": 19576}
+{"i": 250, "status": "selected", "name": "knife", "attack": "green", "size_original": [881, 1300], "size_counterfact": [881, 1300], "top1_original": 52343, "top1_counterfactual": 19576}
+{"i": 251, "status": "selected", "name": "koala", "attack": "pink", "size_original": [1193, 1300], "size_counterfact": [1193, 1300], "top1_original": 28174, "top1_counterfactual": 71352}
+{"i": 252, "status": "selected", "name": "kuvasz", "attack": "purple", "size_original": [460, 290], "size_counterfact": [460, 290], "top1_original": 14075, "top1_counterfactual": 74513}
+{"i": 253, "status": "selected", "name": "lab coat", "attack": "purple", "size_original": [612, 364], "size_counterfact": [612, 364], "top1_original": 14075, "top1_counterfactual": 74513}
+{"i": 254, "status": "numerics_failed", "name": "lacewing", "attack": "red", "size_original": [1000, 750], "size_counterfact": [1000, 750]}
+{"i": 255, "status": "selected", "name": "ladybug", "attack": "green", "size_original": [700, 600], "size_counterfact": [700, 600], "top1_original": 6033, "top1_counterfactual": 19576}
+{"i": 256, "status": "selected", "name": "lamb", "attack": "green", "size_original": [612, 418], "size_counterfact": [612, 418], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 257, "status": "selected", "name": "lawn mower", "attack": "purple", "size_original": [1300, 871], "size_counterfact": [1300, 871], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 258, "status": "selected", "name": "lawn mower", "attack": "blue", "size_original": [1300, 871], "size_counterfact": [1300, 871], "top1_original": 19576, "top1_counterfactual": 10331}
+{"i": 259, "status": "selected", "name": "lemon", "attack": "purple", "size_original": [1024, 785], "size_counterfact": [1024, 785], "top1_original": 47699, "top1_counterfactual": 74513}
+{"i": 260, "status": "selected", "name": "lens cap", "attack": "orange", "size_original": [612, 459], "size_counterfact": [612, 459], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 261, "status": "not_conflicting", "name": "lesser panda", "attack": "purple", "size_original": [626, 351], "size_counterfact": [626, 351], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 262, "status": "selected", "name": "lettuce", "attack": "pink", "size_original": [1300, 1154], "size_counterfact": [1300, 1154], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 263, "status": "selected", "name": "lifeboat", "attack": "pink", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 41969, "top1_counterfactual": 71352}
+{"i": 264, "status": "selected", "name": "lime", "attack": "brown", "size_original": [612, 461], "size_counterfact": [612, 461], "top1_original": 19576, "top1_counterfactual": 48388}
+{"i": 265, "status": "selected", "name": "limousine", "attack": "purple", "size_original": [600, 343], "size_counterfact": [600, 343], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 266, "status": "selected", "name": "limpkin", "attack": "green", "size_original": [723, 465], "size_counterfact": [723, 465], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 267, "status": "selected", "name": "lipstick", "attack": "green", "size_original": [408, 612], "size_counterfact": [408, 612], "top1_original": 6033, "top1_counterfactual": 19576}
+{"i": 268, "status": "not_conflicting", "name": "little blue heron", "attack": "yellow", "size_original": [570, 440], "size_counterfact": [570, 440], "top1_original": 10331, "top1_counterfactual": 74513}
+{"i": 269, "status": "selected", "name": "lobster", "attack": "yellow", "size_original": [900, 597], "size_counterfact": [900, 597], "top1_original": 6033, "top1_counterfactual": 47699}
+{"i": 270, "status": "selected", "name": "lotion", "attack": "green", "size_original": [1500, 1500], "size_counterfact": [1500, 1500], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 271, "status": "not_conflicting", "name": "loudspeaker", "attack": "orange", "size_original": [2155, 1232], "size_counterfact": [2155, 1232], "top1_original": 14417, "top1_counterfactual": 48388}
+{"i": 272, "status": "numerics_failed", "name": "lycaenid", "attack": "green", "size_original": [1000, 667], "size_counterfact": [1000, 667]}
+{"i": 273, "status": "selected", "name": "machete", "attack": "purple", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 52343, "top1_counterfactual": 74513}
+{"i": 274, "status": "selected", "name": "mackerel", "attack": "red", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 52343, "top1_counterfactual": 6033}
+{"i": 275, "status": "selected", "name": "mandarin", "attack": "blue", "size_original": [1000, 867], "size_counterfact": [1000, 867], "top1_original": 41969, "top1_counterfactual": 10331}
+{"i": 277, "status": "not_conflicting", "name": "maple tree", "attack": "pink", "size_original": [1300, 1269], "size_counterfact": [1300, 1269], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 278, "status": "selected", "name": "marimba", "attack": "green", "size_original": [1000, 667], "size_counterfact": [1000, 667], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 279, "status": "selected", "name": "mashed potato", "attack": "blue", "size_original": [612, 429], "size_counterfact": [612, 429], "top1_original": 47699, "top1_counterfactual": 10331}
+{"i": 280, "status": "selected", "name": "meerkat", "attack": "red", "size_original": [699, 280], "size_counterfact": [699, 280], "top1_original": 48388, "top1_counterfactual": 6033}
+{"i": 281, "status": "selected", "name": "microwave", "attack": "yellow", "size_original": [1000, 700], "size_counterfact": [1000, 700], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 282, "status": "selected", "name": "miniature pinscher", "attack": "green", "size_original": [1333, 983], "size_counterfact": [1333, 983], "top1_original": 14417, "top1_counterfactual": 19576}
+{"i": 283, "status": "selected", "name": "mink", "attack": "purple", "size_original": [1000, 1000], "size_counterfact": [1000, 1000], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 284, "status": "selected", "name": "mobile home", "attack": "purple", "size_original": [2205, 980], "size_counterfact": [2205, 980], "top1_original": 14075, "top1_counterfactual": 74513}
+{"i": 285, "status": "selected", "name": "modem", "attack": "orange", "size_original": [600, 450], "size_counterfact": [600, 450], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 287, "status": "not_conflicting", "name": "monarch", "attack": "pink", "size_original": [1300, 942], "size_counterfact": [1300, 942], "top1_original": 41969, "top1_counterfactual": 20170}
+{"i": 288, "status": "selected", "name": "monitor", "attack": "orange", "size_original": [497, 360], "size_counterfact": [497, 360], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 289, "status": "not_conflicting", "name": "moose", "attack": "purple", "size_original": [600, 458], "size_counterfact": [600, 458], "top1_original": 28174, "top1_counterfactual": 74513}
+{"i": 290, "status": "selected", "name": "moray eel", "attack": "red", "size_original": [1200, 1200], "size_counterfact": [1200, 1200], "top1_original": 19576, "top1_counterfactual": 6033}
+{"i": 291, "status": "not_conflicting", "name": "mosquito net", "attack": "pink", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 98781, "top1_counterfactual": 20170}
+{"i": 292, "status": "selected", "name": "moth", "attack": "pink", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 293, "status": "selected", "name": "mouse", "attack": "red", "size_original": [390, 280], "size_counterfact": [390, 280], "top1_original": 28174, "top1_counterfactual": 6033}
+{"i": 295, "status": "not_conflicting", "name": "mug", "attack": "pink", "size_original": [612, 612], "size_counterfact": [612, 612], "top1_original": 14075, "top1_counterfactual": 20170}
+{"i": 296, "status": "selected", "name": "mushroom", "attack": "purple", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 297, "status": "selected", "name": "nail", "attack": "orange", "size_original": [2000, 2000], "size_counterfact": [2000, 2000], "top1_original": 52343, "top1_counterfactual": 41969}
+{"i": 298, "status": "selected", "name": "napkin", "attack": "orange", "size_original": [612, 588], "size_counterfact": [612, 588], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 299, "status": "selected", "name": "nightingale", "attack": "blue", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 300, "status": "selected", "name": "oak", "attack": "purple", "size_original": [626, 542], "size_counterfact": [626, 542], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 301, "status": "selected", "name": "olive", "attack": "pink", "size_original": [1300, 1114], "size_counterfact": [1300, 1114], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 302, "status": "selected", "name": "orange", "attack": "green", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 41969, "top1_counterfactual": 19576}
+{"i": 303, "status": "selected", "name": "orangutan", "attack": "purple", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 41969, "top1_counterfactual": 74513}
+{"i": 304, "status": "selected", "name": "oriole", "attack": "blue", "size_original": [659, 1000], "size_counterfact": [659, 1000], "top1_original": 41969, "top1_counterfactual": 10331}
+{"i": 305, "status": "selected", "name": "ostrich", "attack": "red", "size_original": [591, 600], "size_counterfact": [591, 600], "top1_original": 48388, "top1_counterfactual": 6033}
+{"i": 306, "status": "selected", "name": "otter", "attack": "blue", "size_original": [800, 503], "size_counterfact": [800, 503], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 307, "status": "selected", "name": "oven", "attack": "pink", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 14075, "top1_counterfactual": 71352}
+{"i": 308, "status": "selected", "name": "owl", "attack": "green", "size_original": [665, 1000], "size_counterfact": [665, 1000], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 309, "status": "selected", "name": "ox", "attack": "yellow", "size_original": [311, 280], "size_counterfact": [311, 280], "top1_original": 48388, "top1_counterfactual": 47699}
+{"i": 310, "status": "selected", "name": "oystercatcher", "attack": "purple", "size_original": [626, 393], "size_counterfact": [626, 393], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 311, "status": "not_conflicting", "name": "padlock", "attack": "red", "size_original": [470, 626], "size_counterfact": [470, 626], "top1_original": 52343, "top1_counterfactual": 34}
+{"i": 312, "status": "not_conflicting", "name": "palm tree", "attack": "pink", "size_original": [819, 1024], "size_counterfact": [819, 1024], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 313, "status": "selected", "name": "panther", "attack": "pink", "size_original": [600, 423], "size_counterfact": [600, 423], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 314, "status": "not_conflicting", "name": "paper towel", "attack": "pink", "size_original": [262, 360], "size_counterfact": [262, 360], "top1_original": 14075, "top1_counterfactual": 20170}
+{"i": 315, "status": "selected", "name": "parakeet", "attack": "purple", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 316, "status": "numerics_failed", "name": "park bench", "attack": "pink", "size_original": [579, 280], "size_counterfact": [579, 280]}
+{"i": 317, "status": "not_conflicting", "name": "parsley", "attack": "pink", "size_original": [1024, 682], "size_counterfact": [1024, 682], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 318, "status": "selected", "name": "passenger car", "attack": "pink", "size_original": [600, 255], "size_counterfact": [600, 255], "top1_original": 14075, "top1_counterfactual": 71352}
+{"i": 319, "status": "not_conflicting", "name": "peacock", "attack": "orange", "size_original": [1500, 970], "size_counterfact": [1500, 970], "top1_original": 10331, "top1_counterfactual": 19576}
+{"i": 320, "status": "selected", "name": "pear", "attack": "purple", "size_original": [1267, 1300], "size_counterfact": [1267, 1300], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 322, "status": "selected", "name": "pelican", "attack": "green", "size_original": [866, 1300], "size_counterfact": [866, 1300], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 323, "status": "selected", "name": "pen", "attack": "orange", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 10331, "top1_counterfactual": 41969}
+{"i": 324, "status": "selected", "name": "pencil", "attack": "blue", "size_original": [586, 280], "size_counterfact": [586, 280], "top1_original": 47699, "top1_counterfactual": 10331}
+{"i": 325, "status": "selected", "name": "penguin", "attack": "green", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 14417, "top1_counterfactual": 19576}
+{"i": 326, "status": "not_conflicting", "name": "peppercorn", "attack": "blue", "size_original": [2715, 1960], "size_counterfact": [2715, 1960], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 327, "status": "selected", "name": "piano", "attack": "yellow", "size_original": [626, 351], "size_counterfact": [626, 351], "top1_original": 14417, "top1_counterfactual": 47699}
+{"i": 328, "status": "selected", "name": "picket fence", "attack": "purple", "size_original": [791, 360], "size_counterfact": [791, 360], "top1_original": 14075, "top1_counterfactual": 74513}
+{"i": 329, "status": "selected", "name": "pickle", "attack": "pink", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 330, "status": "selected", "name": "pig", "attack": "blue", "size_original": [736, 619], "size_counterfact": [736, 619], "top1_original": 71352, "top1_counterfactual": 10331}
+{"i": 331, "status": "selected", "name": "pigeon", "attack": "pink", "size_original": [675, 900], "size_counterfact": [675, 900], "top1_original": 28174, "top1_counterfactual": 71352}
+{"i": 332, "status": "selected", "name": "piggy bank", "attack": "green", "size_original": [626, 470], "size_counterfact": [626, 470], "top1_original": 71352, "top1_counterfactual": 19576}
+{"i": 333, "status": "selected", "name": "pill bottle", "attack": "purple", "size_original": [612, 477], "size_counterfact": [612, 477], "top1_original": 41969, "top1_counterfactual": 74513}
+{"i": 334, "status": "selected", "name": "pillow", "attack": "orange", "size_original": [540, 360], "size_counterfact": [540, 360], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 335, "status": "selected", "name": "pine", "attack": "purple", "size_original": [863, 1300], "size_counterfact": [863, 1300], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 336, "status": "selected", "name": "pineapple", "attack": "purple", "size_original": [866, 1300], "size_counterfact": [866, 1300], "top1_original": 47699, "top1_counterfactual": 74513}
+{"i": 337, "status": "selected", "name": "ping-pong ball", "attack": "purple", "size_original": [1500, 1500], "size_counterfact": [1500, 1500], "top1_original": 14075, "top1_counterfactual": 74513}
+{"i": 339, "status": "selected", "name": "pistol", "attack": "orange", "size_original": [2744, 1960], "size_counterfact": [2744, 1960], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 340, "status": "selected", "name": "plane", "attack": "green", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 341, "status": "not_conflicting", "name": "plastic bag", "attack": "pink", "size_original": [612, 612], "size_counterfact": [612, 612], "top1_original": 14075, "top1_counterfactual": 20170}
+{"i": 343, "status": "selected", "name": "plum", "attack": "green", "size_original": [280, 280], "size_counterfact": [280, 280], "top1_original": 74513, "top1_counterfactual": 19576}
+{"i": 344, "status": "selected", "name": "plunger", "attack": "brown", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 6033, "top1_counterfactual": 48388}
+{"i": 345, "status": "selected", "name": "pomegranate", "attack": "purple", "size_original": [612, 532], "size_counterfact": [612, 532], "top1_original": 6033, "top1_counterfactual": 74513}
+{"i": 346, "status": "selected", "name": "pool table", "attack": "purple", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 347, "status": "selected", "name": "poppy", "attack": "blue", "size_original": [664, 700], "size_counterfact": [664, 700], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 348, "status": "not_conflicting", "name": "porcupine", "attack": "pink", "size_original": [450, 470], "size_counterfact": [450, 470], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 349, "status": "selected", "name": "potato", "attack": "pink", "size_original": [390, 280], "size_counterfact": [390, 280], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 350, "status": "selected", "name": "prairie chicken", "attack": "blue", "size_original": [800, 533], "size_counterfact": [800, 533], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 351, "status": "selected", "name": "pretzel", "attack": "purple", "size_original": [800, 457], "size_counterfact": [800, 457], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 352, "status": "selected", "name": "ptarmigan", "attack": "orange", "size_original": [800, 800], "size_counterfact": [800, 800], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 353, "status": "selected", "name": "puck", "attack": "orange", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 354, "status": "selected", "name": "pumpkin", "attack": "pink", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 41969, "top1_counterfactual": 71352}
+{"i": 355, "status": "not_conflicting", "name": "punching bag", "attack": "brown", "size_original": [408, 612], "size_counterfact": [408, 612], "top1_original": 6033, "top1_counterfactual": 41969}
+{"i": 356, "status": "not_conflicting", "name": "raccoon", "attack": "green", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 357, "status": "selected", "name": "radio", "attack": "green", "size_original": [980, 980], "size_counterfact": [980, 980], "top1_original": 14417, "top1_counterfactual": 19576}
+{"i": 359, "status": "not_conflicting", "name": "raisin", "attack": "purple", "size_original": [1300, 841], "size_counterfact": [1300, 841], "top1_original": 41969, "top1_counterfactual": 74513}
+{"i": 360, "status": "not_conflicting", "name": "rapeseed", "attack": "pink", "size_original": [1300, 1243], "size_counterfact": [1300, 1243], "top1_original": 47699, "top1_counterfactual": 20170}
+{"i": 361, "status": "selected", "name": "raspberry", "attack": "green", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 6033, "top1_counterfactual": 19576}
+{"i": 362, "status": "selected", "name": "rattlesnake", "attack": "pink", "size_original": [3072, 1910], "size_counterfact": [3072, 1910], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 363, "status": "selected", "name": "raven", "attack": "purple", "size_original": [1200, 900], "size_counterfact": [1200, 900], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 364, "status": "not_conflicting", "name": "recreational vehicle", "attack": "red", "size_original": [612, 391], "size_counterfact": [612, 391], "top1_original": 28174, "top1_counterfactual": 6033}
+{"i": 365, "status": "selected", "name": "red wine", "attack": "green", "size_original": [556, 900], "size_counterfact": [556, 900], "top1_original": 6033, "top1_counterfactual": 19576}
+{"i": 366, "status": "selected", "name": "reflex camera", "attack": "purple", "size_original": [2940, 1960], "size_counterfact": [2940, 1960], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 367, "status": "not_conflicting", "name": "refrigerator", "attack": "brown", "size_original": [735, 840], "size_counterfact": [735, 840], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 368, "status": "selected", "name": "remote control", "attack": "orange", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 369, "status": "selected", "name": "revolver", "attack": "pink", "size_original": [1600, 1153], "size_counterfact": [1600, 1153], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 370, "status": "not_conflicting", "name": "rhubarb", "attack": "brown", "size_original": [1024, 681], "size_counterfact": [1024, 681], "top1_original": 6033, "top1_counterfactual": 19576}
+{"i": 371, "status": "selected", "name": "rifle", "attack": "pink", "size_original": [490, 641], "size_counterfact": [490, 641], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 373, "status": "selected", "name": "ringlet", "attack": "blue", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 374, "status": "selected", "name": "rock crab", "attack": "blue", "size_original": [600, 600], "size_counterfact": [600, 600], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 375, "status": "selected", "name": "rocket", "attack": "yellow", "size_original": [839, 1300], "size_counterfact": [839, 1300], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 376, "status": "not_conflicting", "name": "rooster", "attack": "purple", "size_original": [600, 620], "size_counterfact": [600, 620], "top1_original": 10331, "top1_counterfactual": 74513}
+{"i": 377, "status": "selected", "name": "rose", "attack": "blue", "size_original": [657, 900], "size_counterfact": [657, 900], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 378, "status": "selected", "name": "rubber eraser", "attack": "green", "size_original": [1000, 669], "size_counterfact": [1000, 669], "top1_original": 71352, "top1_counterfactual": 19576}
+{"i": 379, "status": "selected", "name": "saddle", "attack": "purple", "size_original": [254, 280], "size_counterfact": [254, 280], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 380, "status": "selected", "name": "safety pin", "attack": "green", "size_original": [1000, 1500], "size_counterfact": [1000, 1500], "top1_original": 52343, "top1_counterfactual": 19576}
+{"i": 381, "status": "not_conflicting", "name": "sailboat", "attack": "brown", "size_original": [612, 612], "size_counterfact": [612, 612], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 382, "status": "not_conflicting", "name": "sandbar", "attack": "green", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 28174, "top1_counterfactual": 19576}
+{"i": 383, "status": "not_conflicting", "name": "sandpaper", "attack": "purple", "size_original": [1100, 1100], "size_counterfact": [1100, 1100], "top1_original": 6033, "top1_counterfactual": 74513}
+{"i": 384, "status": "selected", "name": "sardine", "attack": "pink", "size_original": [1400, 893], "size_counterfact": [1400, 893], "top1_original": 52343, "top1_counterfactual": 71352}
+{"i": 385, "status": "selected", "name": "saxophone", "attack": "red", "size_original": [600, 900], "size_counterfact": [600, 900], "top1_original": 25434, "top1_counterfactual": 6033}
+{"i": 386, "status": "selected", "name": "schipperke", "attack": "green", "size_original": [612, 459], "size_counterfact": [612, 459], "top1_original": 14417, "top1_counterfactual": 19576}
+{"i": 387, "status": "selected", "name": "screw", "attack": "purple", "size_original": [605, 404], "size_counterfact": [605, 404], "top1_original": 52343, "top1_counterfactual": 74513}
+{"i": 388, "status": "selected", "name": "sea", "attack": "yellow", "size_original": [626, 413], "size_counterfact": [626, 413], "top1_original": 10331, "top1_counterfactual": 47699}
+{"i": 389, "status": "selected", "name": "sea lion", "attack": "purple", "size_original": [1500, 1404], "size_counterfact": [1500, 1404], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 390, "status": "selected", "name": "seagull", "attack": "blue", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 14075, "top1_counterfactual": 10331}
+{"i": 391, "status": "not_conflicting", "name": "seal", "attack": "red", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 48388, "top1_counterfactual": 6033}
+{"i": 392, "status": "selected", "name": "seaweed", "attack": "blue", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 19576, "top1_counterfactual": 10331}
+{"i": 393, "status": "selected", "name": "sewing machine", "attack": "yellow", "size_original": [612, 488], "size_counterfact": [612, 488], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 394, "status": "selected", "name": "shark", "attack": "orange", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 28174, "top1_counterfactual": 41969}
+{"i": 395, "status": "selected", "name": "sheep", "attack": "purple", "size_original": [479, 360], "size_counterfact": [479, 360], "top1_original": 14075, "top1_counterfactual": 74513}
+{"i": 396, "status": "selected", "name": "shrimp", "attack": "blue", "size_original": [600, 448], "size_counterfact": [600, 448], "top1_original": 71352, "top1_counterfactual": 10331}
+{"i": 397, "status": "selected", "name": "siamang", "attack": "yellow", "size_original": [626, 358], "size_counterfact": [626, 358], "top1_original": 14417, "top1_counterfactual": 47699}
+{"i": 398, "status": "selected", "name": "sink", "attack": "orange", "size_original": [626, 626], "size_counterfact": [626, 626], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 399, "status": "selected", "name": "ski mask", "attack": "orange", "size_original": [600, 600], "size_counterfact": [600, 600], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 400, "status": "selected", "name": "skillet", "attack": "orange", "size_original": [1498, 1000], "size_counterfact": [1498, 1000], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 401, "status": "selected", "name": "skunk", "attack": "pink", "size_original": [457, 360], "size_counterfact": [457, 360], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 402, "status": "not_conflicting", "name": "sleigh", "attack": "yellow", "size_original": [1300, 1300], "size_counterfact": [1300, 1300], "top1_original": 6033, "top1_counterfactual": 25434}
+{"i": 403, "status": "selected", "name": "sloth bear", "attack": "red", "size_original": [433, 280], "size_counterfact": [433, 280], "top1_original": 14417, "top1_counterfactual": 6033}
+{"i": 404, "status": "selected", "name": "snail", "attack": "pink", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 405, "status": "selected", "name": "space heater", "attack": "green", "size_original": [600, 600], "size_counterfact": [600, 600], "top1_original": 14417, "top1_counterfactual": 19576}
+{"i": 406, "status": "selected", "name": "space shuttle", "attack": "pink", "size_original": [866, 1300], "size_counterfact": [866, 1300], "top1_original": 14075, "top1_counterfactual": 71352}
+{"i": 407, "status": "selected", "name": "spade", "attack": "orange", "size_original": [600, 600], "size_counterfact": [600, 600], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 408, "status": "selected", "name": "sparrow", "attack": "pink", "size_original": [612, 391], "size_counterfact": [612, 391], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 410, "status": "selected", "name": "spinach", "attack": "blue", "size_original": [576, 360], "size_counterfact": [576, 360], "top1_original": 19576, "top1_counterfactual": 10331}
+{"i": 411, "status": "selected", "name": "spoon", "attack": "yellow", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 52343, "top1_counterfactual": 47699}
+{"i": 412, "status": "selected", "name": "spoonbill", "attack": "green", "size_original": [2500, 1664], "size_counterfact": [2500, 1664], "top1_original": 71352, "top1_counterfactual": 19576}
+{"i": 413, "status": "selected", "name": "spotted salamander", "attack": "purple", "size_original": [391, 280], "size_counterfact": [391, 280], "top1_original": 14417, "top1_counterfactual": 74513}
+{"i": 414, "status": "selected", "name": "squirrel", "attack": "blue", "size_original": [780, 619], "size_counterfact": [780, 619], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 415, "status": "not_conflicting", "name": "steel arch bridge", "attack": "yellow", "size_original": [800, 1040], "size_counterfact": [800, 1040], "top1_original": 14417, "top1_counterfactual": 47699}
+{"i": 416, "status": "not_conflicting", "name": "steel drum", "attack": "red", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 52343, "top1_counterfactual": 34}
+{"i": 417, "status": "not_conflicting", "name": "stethoscope", "attack": "yellow", "size_original": [390, 280], "size_counterfact": [390, 280], "top1_original": 14417, "top1_counterfactual": 25434}
+{"i": 418, "status": "selected", "name": "stick", "attack": "red", "size_original": [1023, 682], "size_counterfact": [1023, 682], "top1_original": 48388, "top1_counterfactual": 6033}
+{"i": 419, "status": "not_conflicting", "name": "stingray", "attack": "red", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 28174, "top1_counterfactual": 34}
+{"i": 420, "status": "selected", "name": "stork", "attack": "green", "size_original": [651, 900], "size_counterfact": [651, 900], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 421, "status": "selected", "name": "strainer", "attack": "green", "size_original": [417, 626], "size_counterfact": [417, 626], "top1_original": 52343, "top1_counterfactual": 19576}
+{"i": 422, "status": "selected", "name": "strawberry", "attack": "blue", "size_original": [700, 700], "size_counterfact": [700, 700], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 423, "status": "selected", "name": "sulphur butterfly", "attack": "blue", "size_original": [800, 630], "size_counterfact": [800, 630], "top1_original": 47699, "top1_counterfactual": 10331}
+{"i": 424, "status": "selected", "name": "sulphur-crested cockatoo", "attack": "green", "size_original": [1300, 1104], "size_counterfact": [1300, 1104], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 425, "status": "selected", "name": "sunflower", "attack": "purple", "size_original": [900, 758], "size_counterfact": [900, 758], "top1_original": 47699, "top1_counterfactual": 74513}
+{"i": 427, "status": "selected", "name": "swan", "attack": "red", "size_original": [1300, 861], "size_counterfact": [1300, 861], "top1_original": 14075, "top1_counterfactual": 6033}
+{"i": 428, "status": "selected", "name": "tabby", "attack": "green", "size_original": [1209, 1084], "size_counterfact": [1209, 1084], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 429, "status": "selected", "name": "taxi", "attack": "green", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 47699, "top1_counterfactual": 19576}
+{"i": 430, "status": "selected", "name": "television", "attack": "pink", "size_original": [390, 280], "size_counterfact": [390, 280], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 431, "status": "selected", "name": "tennis ball", "attack": "pink", "size_original": [1000, 367], "size_counterfact": [1000, 367], "top1_original": 47699, "top1_counterfactual": 71352}
+{"i": 432, "status": "selected", "name": "thatch", "attack": "blue", "size_original": [1500, 1000], "size_counterfact": [1500, 1000], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 433, "status": "selected", "name": "theater curtain", "attack": "purple", "size_original": [1000, 736], "size_counterfact": [1000, 736], "top1_original": 6033, "top1_counterfactual": 74513}
+{"i": 434, "status": "selected", "name": "thimble", "attack": "blue", "size_original": [1300, 923], "size_counterfact": [1300, 923], "top1_original": 52343, "top1_counterfactual": 10331}
+{"i": 435, "status": "selected", "name": "three-toed sloth", "attack": "red", "size_original": [1300, 883], "size_counterfact": [1300, 883], "top1_original": 48388, "top1_counterfactual": 6033}
+{"i": 436, "status": "selected", "name": "tick", "attack": "purple", "size_original": [2250, 1250], "size_counterfact": [2250, 1250], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 437, "status": "selected", "name": "tiger", "attack": "purple", "size_original": [2602, 1960], "size_counterfact": [2602, 1960], "top1_original": 41969, "top1_counterfactual": 74513}
+{"i": 438, "status": "selected", "name": "tiger shark", "attack": "orange", "size_original": [639, 360], "size_counterfact": [639, 360], "top1_original": 28174, "top1_counterfactual": 41969}
+{"i": 439, "status": "not_conflicting", "name": "tile roof", "attack": "purple", "size_original": [3483, 1960], "size_counterfact": [3483, 1960], "top1_original": 41969, "top1_counterfactual": 74513}
+{"i": 440, "status": "selected", "name": "timber wolf", "attack": "red", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 28174, "top1_counterfactual": 6033}
+{"i": 441, "status": "selected", "name": "toad", "attack": "pink", "size_original": [390, 280], "size_counterfact": [390, 280], "top1_original": 19576, "top1_counterfactual": 71352}
+{"i": 442, "status": "not_conflicting", "name": "toilet", "attack": "brown", "size_original": [1120, 1300], "size_counterfact": [1120, 1300], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 443, "status": "selected", "name": "toilet seat", "attack": "yellow", "size_original": [600, 900], "size_counterfact": [600, 900], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 444, "status": "selected", "name": "tomato", "attack": "blue", "size_original": [612, 612], "size_counterfact": [612, 612], "top1_original": 6033, "top1_counterfactual": 10331}
+{"i": 445, "status": "selected", "name": "toucan", "attack": "orange", "size_original": [1600, 1153], "size_counterfact": [1600, 1153], "top1_original": 14417, "top1_counterfactual": 41969}
+{"i": 446, "status": "selected", "name": "tow truck", "attack": "purple", "size_original": [612, 404], "size_counterfact": [612, 404], "top1_original": 47699, "top1_counterfactual": 74513}
+{"i": 447, "status": "selected", "name": "trailer truck", "attack": "orange", "size_original": [640, 360], "size_counterfact": [640, 360], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 448, "status": "selected", "name": "tree frog", "attack": "blue", "size_original": [538, 360], "size_counterfact": [538, 360], "top1_original": 19576, "top1_counterfactual": 10331}
+{"i": 449, "status": "selected", "name": "tricycle", "attack": "green", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 6033, "top1_counterfactual": 19576}
+{"i": 450, "status": "selected", "name": "tripod", "attack": "pink", "size_original": [1600, 1600], "size_counterfact": [1600, 1600], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 451, "status": "selected", "name": "trombone", "attack": "purple", "size_original": [1600, 1200], "size_counterfact": [1600, 1200], "top1_original": 25434, "top1_counterfactual": 74513}
+{"i": 452, "status": "selected", "name": "truck", "attack": "purple", "size_original": [864, 360], "size_counterfact": [864, 360], "top1_original": 14075, "top1_counterfactual": 74513}
+{"i": 453, "status": "selected", "name": "trumpet", "attack": "blue", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 25434, "top1_counterfactual": 10331}
+{"i": 454, "status": "selected", "name": "tub", "attack": "red", "size_original": [600, 365], "size_counterfact": [600, 365], "top1_original": 14075, "top1_counterfactual": 6033}
+{"i": 455, "status": "selected", "name": "tuba", "attack": "red", "size_original": [574, 900], "size_counterfact": [574, 900], "top1_original": 25434, "top1_counterfactual": 6033}
+{"i": 456, "status": "selected", "name": "turkey", "attack": "blue", "size_original": [260, 280], "size_counterfact": [260, 280], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 457, "status": "not_conflicting", "name": "turnip", "attack": "blue", "size_original": [612, 408], "size_counterfact": [612, 408], "top1_original": 14075, "top1_counterfactual": 36962}
+{"i": 458, "status": "selected", "name": "turtle", "attack": "purple", "size_original": [1000, 1000], "size_counterfact": [1000, 1000], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 459, "status": "selected", "name": "typewriter", "attack": "yellow", "size_original": [512, 512], "size_counterfact": [512, 512], "top1_original": 14417, "top1_counterfactual": 47699}
+{"i": 460, "status": "selected", "name": "van", "attack": "green", "size_original": [612, 345], "size_counterfact": [612, 345], "top1_original": 14075, "top1_counterfactual": 19576}
+{"i": 461, "status": "selected", "name": "veil", "attack": "yellow", "size_original": [173, 280], "size_counterfact": [173, 280], "top1_original": 14075, "top1_counterfactual": 47699}
+{"i": 462, "status": "selected", "name": "vine", "attack": "blue", "size_original": [1000, 399], "size_counterfact": [1000, 399], "top1_original": 19576, "top1_counterfactual": 10331}
+{"i": 463, "status": "selected", "name": "vine snake", "attack": "brown", "size_original": [1300, 867], "size_counterfact": [1300, 867], "top1_original": 19576, "top1_counterfactual": 48388}
+{"i": 464, "status": "selected", "name": "violin", "attack": "purple", "size_original": [1000, 667], "size_counterfact": [1000, 667], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 465, "status": "selected", "name": "vulture", "attack": "green", "size_original": [260, 280], "size_counterfact": [260, 280], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 466, "status": "selected", "name": "waffle iron", "attack": "pink", "size_original": [585, 612], "size_counterfact": [585, 612], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 467, "status": "selected", "name": "wagon", "attack": "brown", "size_original": [1300, 865], "size_counterfact": [1300, 865], "top1_original": 6033, "top1_counterfactual": 48388}
+{"i": 468, "status": "selected", "name": "wallaby", "attack": "blue", "size_original": [612, 340], "size_counterfact": [612, 340], "top1_original": 48388, "top1_counterfactual": 10331}
+{"i": 469, "status": "not_conflicting", "name": "wallet", "attack": "purple", "size_original": [1080, 1620], "size_counterfact": [1080, 1620], "top1_original": 10331, "top1_counterfactual": 74513}
+{"i": 470, "status": "selected", "name": "walnut", "attack": "red", "size_original": [3000, 3000], "size_counterfact": [3000, 3000], "top1_original": 48388, "top1_counterfactual": 6033}
+{"i": 472, "status": "selected", "name": "warthog", "attack": "pink", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 473, "status": "selected", "name": "washer", "attack": "pink", "size_original": [1300, 1041], "size_counterfact": [1300, 1041], "top1_original": 14075, "top1_counterfactual": 71352}
+{"i": 474, "status": "selected", "name": "wasp", "attack": "red", "size_original": [600, 598], "size_counterfact": [600, 598], "top1_original": 47699, "top1_counterfactual": 6033}
+{"i": 475, "status": "selected", "name": "water buffalo", "attack": "red", "size_original": [643, 360], "size_counterfact": [643, 360], "top1_original": 28174, "top1_counterfactual": 6033}
+{"i": 476, "status": "selected", "name": "weasel", "attack": "pink", "size_original": [919, 1300], "size_counterfact": [919, 1300], "top1_original": 48388, "top1_counterfactual": 71352}
+{"i": 477, "status": "selected", "name": "whale", "attack": "pink", "size_original": [612, 303], "size_counterfact": [612, 303], "top1_original": 28174, "top1_counterfactual": 71352}
+{"i": 478, "status": "selected", "name": "wheelbarrow", "attack": "purple", "size_original": [600, 600], "size_counterfact": [600, 600], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 479, "status": "selected", "name": "whip", "attack": "pink", "size_original": [2000, 2000], "size_counterfact": [2000, 2000], "top1_original": 14417, "top1_counterfactual": 71352}
+{"i": 480, "status": "selected", "name": "whiskey jug", "attack": "purple", "size_original": [785, 1024], "size_counterfact": [785, 1024], "top1_original": 48388, "top1_counterfactual": 74513}
+{"i": 481, "status": "not_conflicting", "name": "white wolf", "attack": "brown", "size_original": [918, 360], "size_counterfact": [918, 360], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 482, "status": "selected", "name": "wild boar", "attack": "green", "size_original": [626, 417], "size_counterfact": [626, 417], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 483, "status": "selected", "name": "wine bottle", "attack": "purple", "size_original": [349, 612], "size_counterfact": [349, 612], "top1_original": 19576, "top1_counterfactual": 74513}
+{"i": 484, "status": "selected", "name": "wok", "attack": "yellow", "size_original": [980, 980], "size_counterfact": [980, 980], "top1_original": 14417, "top1_counterfactual": 47699}
+{"i": 485, "status": "selected", "name": "wolf", "attack": "orange", "size_original": [479, 360], "size_counterfact": [479, 360], "top1_original": 28174, "top1_counterfactual": 41969}
+{"i": 486, "status": "selected", "name": "wombat", "attack": "green", "size_original": [800, 603], "size_counterfact": [800, 603], "top1_original": 48388, "top1_counterfactual": 19576}
+{"i": 487, "status": "not_conflicting", "name": "worm", "attack": "purple", "size_original": [1600, 1290], "size_counterfact": [1600, 1290], "top1_original": 47699, "top1_counterfactual": 74513}
+{"i": 488, "status": "selected", "name": "wrench", "attack": "orange", "size_original": [1300, 678], "size_counterfact": [1300, 678], "top1_original": 52343, "top1_counterfactual": 41969}
+{"i": 489, "status": "selected", "name": "yam", "attack": "green", "size_original": [540, 360], "size_counterfact": [540, 360], "top1_original": 41969, "top1_counterfactual": 19576}
+{"i": 490, "status": "selected", "name": "yellow lady's slipper", "attack": "pink", "size_original": [1749, 980], "size_counterfact": [1749, 980], "top1_original": 47699, "top1_counterfactual": 71352}
+{"i": 491, "status": "selected", "name": "yurt", "attack": "orange", "size_original": [387, 280], "size_counterfact": [387, 280], "top1_original": 14075, "top1_counterfactual": 41969}
+{"i": 492, "status": "not_conflicting", "name": "zucchini", "attack": "orange", "size_original": [3542, 1960], "size_counterfact": [3542, 1960], "top1_original": 19576, "top1_counterfactual": 48388}
