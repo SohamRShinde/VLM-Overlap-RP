@@ -78,6 +78,9 @@ def test_d76_method_pieces():
     assert "patch_example_batched(model, source_in, target_in" in src
     assert "random.Random(0).shuffle(order)" in src and "budget_s=PATCH_BUDGET_H * 3600" in src
     assert "quiet_processor_warning()" in src
+    # the labels the processor adds are dropped, and that is checked against the first run's inputs
+    assert "labels_max_dlogit" in src
+    assert src.index("labels_max_dlogit") < src.index("runner0 = FullForwardRunner(model, inp0)")
 
 
 def test_every_long_loop_checkpoints():

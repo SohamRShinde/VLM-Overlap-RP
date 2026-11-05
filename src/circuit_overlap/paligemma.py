@@ -82,11 +82,22 @@ def load_paligemma(checkpoint: str = CHECKPOINT, attn_implementation: str | None
     return model, processor
 
 
-def build_inputs(processor, image, question: str, device):
-    """Their ``build_inputs``: RGB image, plain-text question, no padding."""
-    return processor(
+def build_inputs(processor, image, question: str, device, keep_labels: bool = False):
+    """Their ``build_inputs``: RGB image, plain-text question, no padding.
+
+    Newer transformers' PaliGemmaProcessor also returns ``labels`` (Lietzow
+    pinned 5.1.0). Passed to the model, they make it compute a training loss
+    over every position and the full vocabulary -- wasted work, and it fails
+    with last-position-only logits -- so they are dropped. The notebook checks
+    that dropping them leaves the logits unchanged (it would not if they
+    switched PaliGemma's attention mask to its training form).
+    """
+    inputs = processor(
         images=image.convert("RGB"), text=question, padding=False, return_tensors="pt"
     ).to(device)
+    if not keep_labels:
+        inputs.pop("labels", None)
+    return inputs
 
 
 def text_geometry(model) -> dict:
