@@ -55,6 +55,11 @@ state a workshop name or framing as settled.
   objects patched; V's 7 promoting heads are all T heads. **dJ = J_VT - J_PT
   = +0.271 [+0.163, +0.289], verdict "J_VT > J_PT"** (J_VT 0.583, J_PV
   0.231). See RESULTS.md.
+- **PaliGemma-3B: built, not run** (5 Nov, @SohamRShinde, design D76).
+  `notebooks/pg_replication.ipynb`: replication gate (knockout + patching of
+  Lietzow's PaliGemma heads) and T viability. **Full forward pass per
+  intervention**, not the cached Qwen path (PaliGemma's prefix may attend both
+  ways). The HF account behind `HF_TOKEN` must accept the PaliGemma 2 licence.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
@@ -88,6 +93,7 @@ apply to both people and both sessions:
   | `notebooks/cross_ablation.ipynb` | @SohamRShinde |
   | `notebooks/h3_attention.ipynb` | @SohamRShinde |
   | `notebooks/v_patching.ipynb` | kushviradiya (the partner) |
+  | `notebooks/pg_replication.ipynb` | @SohamRShinde |
 
   Update this table in the same commit when ownership changes. Commit
   notebooks with **outputs cleared**; results go to `results/`, not cell
@@ -116,7 +122,9 @@ apply to both people and both sessions:
   `cross_ablation.ipynb` uses `/kaggle/working/cross_ablation/` (results at
   its top level, checkpoints under `ckpt/`); `h3_attention.ipynb` uses
   `/kaggle/working/h3_attention/` (same layout); `v_patching.ipynb` uses
-  `/kaggle/working/v_patching/`. A new notebook gets its own prefix.
+  `/kaggle/working/v_patching/`; `pg_replication.ipynb` uses
+  `/kaggle/working/pg_replication/` (checkpoints under `ckpt/`). A new
+  notebook gets its own prefix.
 
 ## Setup
 - Models: Qwen2.5-VL-3B-Instruct (primary), PaliGemma-3B. **4-bit nf4**,
@@ -178,6 +186,12 @@ python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
     results/split_half_ceiling_p_qwen25vl3b.json \
     results/t_patching_qwen25vl3b.json \
     results/v_circuit_overlap_qwen25vl3b.json
+
+# PaliGemma replication gate and T viability read by D76, CPU only.
+.venv/bin/python scripts/analyze_pg_replication.py \
+    results/pg_selection_paligemma2_3b.json \
+    results/pg_replication_knockout_paligemma2_3b.json \
+    results/pg_replication_patching_paligemma2_3b.json
 
 # paper figures (PDF + PNG) into figures/, drawn only from results/
 .venv/bin/python scripts/make_figures.py
