@@ -36,6 +36,7 @@ D76 = {"label": "D76", "min_prior_flip": 2 / 3, "max_visual_flip": 0.10, "min_fo
        "single_heads": tuple(parse_head_label(k) for k in _HEADS.single_head_prior_flip_pct),
        "n_perm": 10_000}
 MIN_T_CONFLICTING = 50   # D76 (6), D41's bar
+MIN_PATCHED = 60         # D76a (2): fewer patched objects -> (c)-(e) not run
 
 
 def selection_counts(path: Path) -> dict:
@@ -72,6 +73,12 @@ def main(selection: str | None, knockout: str | None, patching: str | None) -> d
         print()
     elif selection:
         print(f"missing: {selection}\n")
+    if patching and Path(patching).exists():
+        n = len(json.loads(Path(patching).read_text())["result"]["records"])
+        print(f"patching: {n} objects patched (D76a minimum {MIN_PATCHED})")
+        if n < MIN_PATCHED:
+            print(f"  fewer than {MIN_PATCHED}: criteria (c)-(e) are not run\n")
+            patching = None
     out["gate"] = gate_main(knockout, patching, gate=D76)
     return out
 

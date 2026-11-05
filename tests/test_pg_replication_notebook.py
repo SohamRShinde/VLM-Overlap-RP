@@ -72,6 +72,12 @@ def test_d76_method_pieces():
         assert check in src
     # every check runs before the first long loop
     assert src.index("promoting_ablation_max_dlogit") < src.index('run_cached(CKPT / "select.jsonl"')
+    # D76a: exact speed-ups checked before the sweep, seeded order, time budget
+    assert "logits_to_keep_max_dlogit" in src
+    assert src.index("batched_vs_unbatched_max_dlogit") < src.index('run_cached(CKPT / "patching.jsonl"')
+    assert "patch_example_batched(model, source_in, target_in" in src
+    assert "random.Random(0).shuffle(order)" in src and "budget_s=PATCH_BUDGET_H * 3600" in src
+    assert "quiet_processor_warning()" in src
 
 
 def test_every_long_loop_checkpoints():

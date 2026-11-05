@@ -70,3 +70,54 @@ def test_gate_script_runs_on_the_qwen_files_in_d76_mode():
     assert r.returncode == 0, r.stderr
     assert "D76 criteria" in r.stdout and "L15H7 and L20H3" in r.stdout
     assert "D76 verdict:" in r.stdout
+
+
+def test_run_cached_budget_stops_and_resumes(tmp_path):
+    from circuit_overlap.replication import run_cached
+
+    rows = [{"i": i} for i in range(5)]
+    calls = []
+
+    def slow(r):
+        calls.append(r["i"])
+        import time
+        time.sleep(0.05)
+        return {"v": r["i"] * 2}
+
+    first = run_cached(tmp_path / "c.jsonl", rows, slow, progress_every=0, budget_s=0.07)
+    assert 1 <= len(first) < 5 and [r["i"] for r in first] == calls     # stopped early, in order
+    rest = run_cached(tmp_path / "c.jsonl", rows, slow, progress_every=0)
+    assert [r["i"] for r in rest] == list(range(5)) and sorted(calls) == list(range(5))   # resumed, no repeats
+
+
+def test_run_cached_without_budget_is_unchanged(tmp_path):
+    from circuit_overlap.replication import run_cached
+
+    out = run_cached(tmp_path / "c.jsonl", [{"i": 1}, {"i": 2}], lambda r: {"v": 1}, progress_every=0)
+    assert out == [{"i": 1, "v": 1}, {"i": 2, "v": 1}]
+
+
+def test_quiet_processor_warning_drops_only_that_message(caplog):
+    import logging
+
+    from circuit_overlap.paligemma import quiet_processor_warning
+
+    quiet_processor_warning()
+    log = logging.getLogger("transformers.models.paligemma.processing_paligemma")
+    with caplog.at_level(logging.WARNING):
+        log.warning("You are passing both `text` and `images` to `PaliGemmaProcessor`. blah")
+        log.warning("something else")
+    msgs = [r.getMessage() for r in caplog.records]
+    assert msgs == ["something else"]
+
+
+def test_too_few_patched_objects_leave_c_to_e_not_run(tmp_path, capsys):
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import analyze_pg_replication as pg
+
+    qwen = json.loads((ROOT / "results" / "replication_patching_qwen25vl3b.json").read_text())
+    qwen["result"]["records"] = qwen["result"]["records"][:30]
+    f = tmp_path / "patch.json"
+    f.write_text(json.dumps(qwen))
+    out = pg.main(None, None, str(f))
+    assert out["gate"]["criteria"]["c"] is None and "not run" in capsys.readouterr().out

@@ -109,12 +109,17 @@ def knockout_flip_counts(records: Sequence[Mapping], config: str) -> dict:
 
 
 def run_cached(path: str | Path, todo: Sequence[Mapping], fn: Callable[[Mapping], dict],
-               key: str = "i", progress_every: int = 25) -> list[dict]:
+               key: str = "i", progress_every: int = 25,
+               budget_s: float | None = None) -> list[dict]:
     """Apply ``fn`` to each row, appending one JSON line per row to ``path``.
 
     Rows already in the file are skipped, so a restarted kernel resumes where
     it stopped. Returns the records in ``todo`` order. Delete the file when
     the prompt, head set or anything else that changes the answers changes.
+
+    ``budget_s``: stop starting new rows once this many seconds have passed,
+    and return only the rows done so far (still in ``todo`` order). None, the
+    default, runs everything.
     """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -129,6 +134,10 @@ def run_cached(path: str | Path, todo: Sequence[Mapping], fn: Callable[[Mapping]
     t0 = time.time()
     with path.open("a") as f:
         for n_new, r in enumerate(remaining, 1):
+            if budget_s is not None and time.time() - t0 > budget_s:
+                print(f"  time budget of {budget_s / 3600:.1f} h reached: stopping with "
+                      f"{len(done)}/{len(todo)} done", flush=True)
+                break
             d = {key: r[key], **fn(r)}
             f.write(json.dumps(d) + "\n")
             f.flush()
@@ -137,4 +146,4 @@ def run_cached(path: str | Path, todo: Sequence[Mapping], fn: Callable[[Mapping]
                 rate = (time.time() - t0) / n_new
                 print(f"  {len(todo) - len(remaining) + n_new}/{len(todo)}  {rate:.1f} s/item  "
                       f"~{rate * (len(remaining) - n_new) / 60:.0f} min left", flush=True)
-    return [done[r[key]] for r in todo]
+    return [done[r[key]] for r in todo if r[key] in done]
