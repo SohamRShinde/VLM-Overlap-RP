@@ -82,6 +82,12 @@ alone already answer the title question).
    Golovanevsky 2025a/b. Quote numbers from the PDFs, never from memory.
 4. **Venue** (STATE.md blocker 1) and the dataset licence (open question).
 
+### Track C -- PaliGemma-3B [Soham, from 5 Nov]
+Paper writing (track B) moved to Soham's Claude project on 5 Nov; this repo's
+Claude session now ports the pipeline to `google/paligemma2-3b-mix-448` (D11).
+New code goes in new modules/notebooks (owner Soham); nothing Kush's notebooks
+import changes behaviour. See STATE.md "Paper (2026-11-04)".
+
 ### Joint, ~16-20 Nov
 Red-team every claim and number against RESULTS.md (plan 10), polish, submit.
 
