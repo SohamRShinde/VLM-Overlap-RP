@@ -61,6 +61,10 @@ state a workshop name or framing as settled.
   121 correctly conflicting. **T viable: 302 objects.** PaliGemma's prefix
   attends both ways (measured), so it uses **full forward passes only**. The
   HF account behind `HF_TOKEN` must accept the PaliGemma 2 licence.
+- **PaliGemma P ceiling: done** (6 Nov): J between halves median 1.000,
+  2.5th pct 0.875. **PaliGemma T circuit + J_PT: built, not run** (design
+  D77, `notebooks/pg_t_patching.ipynb`): all 302 T objects, ~20 h over
+  several sessions, resumable.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
@@ -95,6 +99,7 @@ apply to both people and both sessions:
   | `notebooks/h3_attention.ipynb` | @SohamRShinde |
   | `notebooks/v_patching.ipynb` | kushviradiya (the partner) |
   | `notebooks/pg_replication.ipynb` | @SohamRShinde |
+  | `notebooks/pg_t_patching.ipynb` | @SohamRShinde |
 
   Update this table in the same commit when ownership changes. Commit
   notebooks with **outputs cleared**; results go to `results/`, not cell
@@ -124,8 +129,9 @@ apply to both people and both sessions:
   its top level, checkpoints under `ckpt/`); `h3_attention.ipynb` uses
   `/kaggle/working/h3_attention/` (same layout); `v_patching.ipynb` uses
   `/kaggle/working/v_patching/`; `pg_replication.ipynb` uses
-  `/kaggle/working/pg_replication/` (checkpoints under `ckpt/`). A new
-  notebook gets its own prefix.
+  `/kaggle/working/pg_replication/` (checkpoints under `ckpt/`);
+  `pg_t_patching.ipynb` uses `/kaggle/working/pg_t_patching/` (same layout).
+  A new notebook gets its own prefix.
 
 ## Setup
 - Models: Qwen2.5-VL-3B-Instruct (primary), PaliGemma-3B. **4-bit nf4**,
@@ -193,6 +199,18 @@ python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
     results/pg_selection_paligemma2_3b.json \
     results/pg_replication_knockout_paligemma2_3b.json \
     results/pg_replication_patching_paligemma2_3b.json
+
+# PaliGemma P split-half ceiling (D69 parameters, D77 (6)), CPU only
+.venv/bin/python scripts/analyze_split_half.py \
+    results/pg_replication_patching_paligemma2_3b.json \
+    results/split_half_ceiling_p_paligemma2_3b.json
+
+# PaliGemma J_PT read by D70/D72 as D77 fixes (needs >= 60 T objects), CPU only
+.venv/bin/python scripts/analyze_pg_t_circuit.py \
+    results/pg_replication_patching_paligemma2_3b.json \
+    results/pg_t_patching_records_paligemma2_3b.jsonl.gz \
+    results/split_half_ceiling_p_paligemma2_3b.json \
+    results/pg_t_circuit_overlap_paligemma2_3b.json
 
 # paper figures (PDF + PNG) into figures/, drawn only from results/
 .venv/bin/python scripts/make_figures.py
