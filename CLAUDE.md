@@ -24,7 +24,7 @@ workshop itself is still unconfirmed: AIR-FM was the AAAI-2026 edition and is
 gone, and GSR-VLM is plan v2.1's candidate but was never agreed (D01). Do not
 state a workshop name or framing as settled.
 
-## Status, 2 Nov 2026
+## Status, 6 Nov 2026
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
 - **Replication gate (D40): PASSED** on all six criteria (thresholds
@@ -55,11 +55,12 @@ state a workshop name or framing as settled.
   objects patched; V's 7 promoting heads are all T heads. **dJ = J_VT - J_PT
   = +0.271 [+0.163, +0.289], verdict "J_VT > J_PT"** (J_VT 0.583, J_PV
   0.231). See RESULTS.md.
-- **PaliGemma-3B: built, not run** (5 Nov, @SohamRShinde, design D76).
-  `notebooks/pg_replication.ipynb`: replication gate (knockout + patching of
-  Lietzow's PaliGemma heads) and T viability. **Full forward pass per
-  intervention**, not the cached Qwen path (PaliGemma's prefix may attend both
-  ways). The HF account behind `HF_TOKEN` must accept the PaliGemma 2 licence.
+- **PaliGemma-3B replication gate (D76): PASSED** (6 Nov, run resumed at
+  `1494a33`, amendment D76a). Exact match to Lietzow's 8 promoting and 2
+  suppressing heads (PC1 ranks 1-8), knockout prior flip 95.9%, visual 1.7%,
+  121 correctly conflicting. **T viable: 302 objects.** PaliGemma's prefix
+  attends both ways (measured), so it uses **full forward passes only**. The
+  HF account behind `HF_TOKEN` must accept the PaliGemma 2 licence.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
