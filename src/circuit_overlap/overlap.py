@@ -234,7 +234,7 @@ def analyse_overlap(
         },
         "rank_correlation": {
             "rho": rho,
-            "reading": "whole-landscape similarity of all 576 heads' PC1 scores; "
+            "reading": f"whole-landscape similarity of all {n_total} heads' PC1 scores; "
                        "insensitive to circuit identity (D72 controls), not an overlap measure",
             "p_ceiling_half_length": float(p_ceiling["pc1_spearman"]["median"]),
             "p_ceiling_full_length": p_rel,

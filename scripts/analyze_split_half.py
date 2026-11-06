@@ -48,7 +48,7 @@ def main(src: str, dst: str | None) -> dict:
     print("\nSELF-AGREEMENT BETWEEN HALVES")
     print(f"  Jaccard, promoting    {fmt(out['jaccard_promoting'])}")
     print(f"  Jaccard, suppressing  {fmt(out['jaccard_suppressing'])}")
-    print(f"  PC1 rank corr (576)   {fmt(out['pc1_spearman'])}")
+    print(f"  PC1 rank corr ({out['n_heads_total']})   {fmt(out['pc1_spearman'])}")
     print(f"     Spearman-Brown to full length: {out['pc1_spearman_brown_full_length']:.3f}")
     print(f"  identical promoting sets in {out['share_of_splits_with_identical_promoting_sets']:.1%} of splits")
     print(f"  promoting set size per half: {fmt(out['promoting_set_size_per_half'])}")

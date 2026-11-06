@@ -155,3 +155,12 @@ from these rows in compute dtype, and the result envelope records it.
 - **T is much more viable on PaliGemma than the screen needed:** 302 of 469 objects (Qwen's equivalent selection: 244). Not yet a circuit result.
 - **Deviation from Lietzow:** fp16 compute on a T4 where their loader would use bf16 (D76 (3)); their numbers are matched anyway.
 
+## PaliGemma P split-half ceiling (2026-11-06)
+
+| date | experiment | model | n | seed | prompt | commit | result | file path |
+|---|---|---|---|---|---|---|---|---|
+| 2026-11-06 | **PaliGemma P split-half ceiling** (D69's parameters, required by D77 (6); computed before any PaliGemma T patching existed) | PaliGemma2-3B-mix-448, from the D76 patching run | 121 P objects; 1,000 random halves of 60/61 | 0 | as the D76 patching row | source run `1494a33`; analysis at this commit | **Promoting-set J between halves: median 1.000, 95% interval [0.875, 1.000]**, range [0.875, 1.000]; identical promoting sets in 84.5% of splits; set size 7-8 per half. Suppressing J median 0.667 [0.667, 1.000]. PC1 rank correlation (208 heads) median 0.897 [0.871, 0.917], Spearman-Brown to full length 0.946. Chance floor, two random 8-head sets of 208: mean J 0.0206, 95th percentile 0.0667. Selection frequency: 7 of their 8 heads in 100% of half-runs, L22H1 in 92.2%. | [results/split_half_ceiling_p_paligemma2_3b.json](../results/split_half_ceiling_p_paligemma2_3b.json); reproduce with `scripts/analyze_split_half.py results/pg_replication_patching_paligemma2_3b.json` |
+
+- **The ceiling D70 will read PaliGemma's J_PT against: 2.5th percentile 0.875** (Qwen's: 0.900). The PaliGemma P circuit is at least as reproducible as Qwen's, with more objects per half (60/61 vs 36/37).
+- L22H1, the weakest promoting head (closest to the cut in the D76 row), is the only one that drops out of some half-runs.
+
