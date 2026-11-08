@@ -45,15 +45,15 @@ def load_records(path: str) -> dict[str, list]:
     return out
 
 
-def knockout_cross_check(p_records: list) -> dict | None:
+def knockout_cross_check(p_records: list, knockout: Path = KNOCKOUT) -> dict | None:
     """Our H_P zero ablation on P against Kush's grp_promoting knockout.
 
     Same 9 heads (D40 found exactly Lietzow's set), same objects, same
     ablation site; his run used a full-forward baseline, ours the cached path.
     """
-    if not KNOCKOUT.exists():
+    if knockout is None or not Path(knockout).exists():
         return None
-    knock = {r["i"]: r for r in json.loads(KNOCKOUT.read_text())["result"]["records"]}
+    knock = {r["i"]: r for r in json.loads(Path(knockout).read_text())["result"]["records"]}
     ours = [r for r in p_records if r.get("status") == "ok" and r["i"] in knock
             and (r.get("a_prior"), r.get("a_visual")) == (knock[r["i"]]["a_prior"], knock[r["i"]]["a_visual"])]
     if not ours:
@@ -82,13 +82,16 @@ def line(name: str, t: dict | None) -> str:
             f"p = {t['p']:.4f}")
 
 
-def main(summary_path: str, records_path: str, out_path: str | None = None) -> dict:
+def main(summary_path: str, records_path: str, out_path: str | None = None,
+         knockout: Path | None = KNOCKOUT, decision: str = "D73") -> dict:
+    """``knockout``: the same model's knockout file, whose ``grp_promoting`` is
+    the same head set as H_P (Qwen's by default; never mix models)."""
     summary = json.loads(Path(summary_path).read_text())
     plan = summary["result"]["plan"]
     recs = load_records(records_path)
     out = analyse_cross_ablation(plan, {"P": recs["P"], "T": recs["T"]}, recs["clean"],
                                  n_boot=N_BOOT, seed=SEED)
-    out["knockout_cross_check"] = knockout_cross_check(recs["P"])
+    out["knockout_cross_check"] = knockout_cross_check(recs["P"], knockout)
 
     print(f"objects: P {out['n_objects']['P']} (dropped {out['n_dropped']['P']}), "
           f"T {out['n_objects']['T']} (dropped {out['n_dropped']['T']})")
@@ -137,7 +140,8 @@ def main(summary_path: str, records_path: str, out_path: str | None = None) -> d
               f"kept: {kept}   (random rP {cl['random_mean_rP']:.1%}, rT {cl['random_mean_rT']:.1%})")
     kc = out["knockout_cross_check"]
     if kc:
-        print(f"\nCHECK vs Kush's knockout of the same 9 heads on P ({kc['n_compared']} objects): "
+        print(f"\nCHECK vs the knockout of the same {len(plan['sets']['P'])} heads on P "
+              f"({Path(knockout).name}, {kc['n_compared']} objects): "
               f"max |dlogit| {kc['max_abs_logit_diff']:.3f}, source flips ours/his "
               f"{kc['source_flips_ours_vs_kush']}, disagreements {kc['flip_disagreements']}")
 
@@ -147,7 +151,7 @@ def main(summary_path: str, records_path: str, out_path: str | None = None) -> d
             model=summary.get("model", "Qwen2.5-VL-3B-Instruct"),
             checkpoint=summary.get("checkpoint", "Qwen/Qwen2.5-VL-3B-Instruct"),
             seed=SEED, prompt=summary.get("prompt", ""),
-            n=out["n_objects"]["P"] + out["n_objects"]["T"], repo_dir=ROOT, decision="D73",
+            n=out["n_objects"]["P"] + out["n_objects"]["T"], repo_dir=ROOT, decision=decision,
             sources={"summary": summary_path, "records": records_path,
                      "run_commit": summary.get("commit")},
         )))
