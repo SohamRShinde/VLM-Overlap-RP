@@ -24,7 +24,7 @@ workshop itself is still unconfirmed: AIR-FM was the AAAI-2026 edition and is
 gone, and GSR-VLM is plan v2.1's candidate but was never agreed (D01). Do not
 state a workshop name or framing as settled.
 
-## Status, 6 Nov 2026
+## Status, 8 Nov 2026
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
 - **Replication gate (D40): PASSED** on all six criteria (thresholds
@@ -62,9 +62,11 @@ state a workshop name or framing as settled.
   attends both ways (measured), so it uses **full forward passes only**. The
   HF account behind `HF_TOKEN` must accept the PaliGemma 2 licence.
 - **PaliGemma P ceiling: done** (6 Nov): J between halves median 1.000,
-  2.5th pct 0.875. **PaliGemma T circuit + J_PT: built, not run** (design
-  D77, `notebooks/pg_t_patching.ipynb`): all 302 T objects, ~20 h over
-  several sessions, resumable.
+  2.5th pct 0.875.
+- **PaliGemma T circuit + J_PT: done** (8 Nov, run at `4c5342a`, design D77):
+  all 302 T objects, 8 promoting heads. **J_PT = 0.333 [0.333, 0.364], D70
+  verdict "above chance, below self-agreement"** (4 of 12 heads shared), as
+  on Qwen. P's strongest single head (L15H7) is not shared. See RESULTS.md.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
