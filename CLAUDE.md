@@ -67,6 +67,10 @@ state a workshop name or framing as settled.
   all 302 T objects, 8 promoting heads. **J_PT = 0.333 [0.333, 0.364], D70
   verdict "above chance, below self-agreement"** (4 of 12 heads shared), as
   on Qwen. P's strongest single head (L15H7) is not shared. See RESULTS.md.
+- **PaliGemma H2: built, not run** (8 Nov, design D78): D73 unchanged, with
+  an exact **layer replay** (`circuit_overlap.replay`) checked against full
+  forward passes on every configuration of one P and one T object before any
+  loop. ~12-15 h estimated, resumable.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
@@ -102,6 +106,7 @@ apply to both people and both sessions:
   | `notebooks/v_patching.ipynb` | kushviradiya (the partner) |
   | `notebooks/pg_replication.ipynb` | @SohamRShinde |
   | `notebooks/pg_t_patching.ipynb` | @SohamRShinde |
+  | `notebooks/pg_cross_ablation.ipynb` | @SohamRShinde |
 
   Update this table in the same commit when ownership changes. Commit
   notebooks with **outputs cleared**; results go to `results/`, not cell
@@ -132,7 +137,8 @@ apply to both people and both sessions:
   `/kaggle/working/h3_attention/` (same layout); `v_patching.ipynb` uses
   `/kaggle/working/v_patching/`; `pg_replication.ipynb` uses
   `/kaggle/working/pg_replication/` (checkpoints under `ckpt/`);
-  `pg_t_patching.ipynb` uses `/kaggle/working/pg_t_patching/` (same layout).
+  `pg_t_patching.ipynb` uses `/kaggle/working/pg_t_patching/` (same layout);
+  `pg_cross_ablation.ipynb` uses `/kaggle/working/pg_cross_ablation/` (same layout).
   A new notebook gets its own prefix.
 
 ## Setup
@@ -213,6 +219,13 @@ python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
     results/pg_t_patching_records_paligemma2_3b.jsonl.gz \
     results/split_half_ceiling_p_paligemma2_3b.json \
     results/pg_t_circuit_overlap_paligemma2_3b.json
+
+# PaliGemma H2 cross-ablation read by D73 as D78 fixes (refuses a wrong plan or an
+# incomplete run; cross-checks against PaliGemma's own knockout), CPU only
+.venv/bin/python scripts/analyze_pg_cross_ablation.py \
+    results/pg_cross_ablation_paligemma2_3b.json \
+    results/pg_cross_ablation_records_paligemma2_3b.jsonl.gz \
+    results/pg_cross_ablation_analysis_paligemma2_3b.json
 
 # paper figures (PDF + PNG) into figures/, drawn only from results/
 .venv/bin/python scripts/make_figures.py
