@@ -24,7 +24,7 @@ workshop itself is still unconfirmed: AIR-FM was the AAAI-2026 edition and is
 gone, and GSR-VLM is plan v2.1's candidate but was never agreed (D01). Do not
 state a workshop name or framing as settled.
 
-## Status, 8 Nov 2026
+## Status, 11 Nov 2026
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
 - **Replication gate (D40): PASSED** on all six criteria (thresholds
@@ -67,10 +67,12 @@ state a workshop name or framing as settled.
   all 302 T objects, 8 promoting heads. **J_PT = 0.333 [0.333, 0.364], D70
   verdict "above chance, below self-agreement"** (4 of 12 heads shared), as
   on Qwen. P's strongest single head (L15H7) is not shared. See RESULTS.md.
-- **PaliGemma H2: built, not run** (8 Nov, design D78): D73 unchanged, with
-  an exact **layer replay** (`circuit_overlap.replay`) checked against full
-  forward passes on every configuration of one P and one T object before any
-  loop. ~12-15 h estimated, resumable.
+- **PaliGemma H2: done** (11 Nov, run at `0eccb71`, design D78, exact
+  **layer replay** `circuit_overlap.replay`, checked against full forward
+  passes). H_P on T null (7.9% vs random 3.5%); **H_T on P passes** (28.9%
+  vs 5.6%), unlike Qwen. Shared heads carry P (75.2%) and a little of T
+  (8.9%). **Mean ablation passes both, so not robust to ablation type**
+  (D73 (10)). See RESULTS.md.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.

@@ -1,0 +1,576 @@
+{
+  "experiment": "cross_ablation_analysis",
+  "timestamp_utc": "2026-11-11T12:04:31+00:00",
+  "commit": "04a31b0",
+  "model": "PaliGemma2-3B-mix-448",
+  "checkpoint": "google/paligemma2-3b-mix-448",
+  "n": 423,
+  "seed": 0,
+  "prompt": "P: prior='What color is {a_object} usually? Respond with the color name only.' vs visual='What color is this {object} here? Respond with the color name only.'; T: visual, incongruent vs neutral note",
+  "python": "3.11.16",
+  "decision": "D78",
+  "sources": {
+    "summary": "results/pg_cross_ablation_paligemma2_3b.json",
+    "records": "results/pg_cross_ablation_records_paligemma2_3b.jsonl.gz",
+    "run_commit": "0eccb71"
+  },
+  "result": {
+    "alpha": 0.025,
+    "n_objects": {
+      "P": 121,
+      "T": 302
+    },
+    "n_dropped": {
+      "P": 0,
+      "T": 0
+    },
+    "sets": {
+      "P": [
+        "L15H7",
+        "L16H4",
+        "L17H7",
+        "L20H3",
+        "L22H1",
+        "L24H3",
+        "L25H2",
+        "L25H4"
+      ],
+      "T": [
+        "L20H3",
+        "L20H7",
+        "L22H4",
+        "L22H5",
+        "L23H7",
+        "L24H3",
+        "L25H2",
+        "L25H4"
+      ],
+      "shared": [
+        "L20H3",
+        "L24H3",
+        "L25H2",
+        "L25H4"
+      ],
+      "P_only": [
+        "L15H7",
+        "L16H4",
+        "L17H7",
+        "L22H1"
+      ],
+      "T_only": [
+        "L20H7",
+        "L22H4",
+        "L22H5",
+        "L23H7"
+      ]
+    },
+    "primary": {
+      "P->T": {
+        "n": 302,
+        "n_draws": 100,
+        "observed": 0.07947019867549669,
+        "count": 24,
+        "ci95": [
+          0.052980132450331126,
+          0.11258278145695365
+        ],
+        "null_mean": 0.03490066225165563,
+        "null_p95": 0.10612582781456953,
+        "null_max": 0.1291390728476821,
+        "p": 0.1188118811881188,
+        "excess": 0.04456953642384106,
+        "excess_ci95": [
+          0.015629139072847686,
+          0.07822516556291391
+        ],
+        "passes": false,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "primary",
+        "ablated": "P",
+        "condition": "T",
+        "heads": [
+          "L15H7",
+          "L16H4",
+          "L17H7",
+          "L20H3",
+          "L22H1",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "ablating H_P: not distinguishable from layer-matched random heads at this n",
+        "logit_diff_change": {
+          "mean": 0.2392387417218543,
+          "null_mean": -0.026750162251655628,
+          "null_p95": 0.4103486589403973
+        }
+      },
+      "T->P": {
+        "n": 121,
+        "n_draws": 100,
+        "observed": 0.2892561983471074,
+        "count": 35,
+        "ci95": [
+          0.2066115702479339,
+          0.371900826446281
+        ],
+        "null_mean": 0.056033057851239666,
+        "null_p95": 0.1322314049586777,
+        "null_max": 0.1487603305785124,
+        "p": 0.009900990099009901,
+        "excess": 0.23322314049586776,
+        "excess_ci95": [
+          0.14597107438016527,
+          0.3217665289256198
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "primary",
+        "ablated": "T",
+        "condition": "P",
+        "heads": [
+          "L20H3",
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "ablating H_T defeats the P override more than layer-matched random heads",
+        "logit_diff_change": {
+          "mean": 0.5118801652892562,
+          "null_mean": -0.004576471074380167,
+          "null_p95": 0.1740831818181818
+        }
+      }
+    },
+    "diagonal": {
+      "P->P": {
+        "n": 121,
+        "n_draws": 100,
+        "observed": 0.9586776859504132,
+        "count": 116,
+        "ci95": [
+          0.9256198347107438,
+          0.9917355371900827
+        ],
+        "null_mean": 0.019090909090909092,
+        "null_p95": 0.07479338842975204,
+        "null_max": 0.1322314049586777,
+        "p": 0.009900990099009901,
+        "excess": 0.9395867768595042,
+        "excess_ci95": [
+          0.8997520661157025,
+          0.9745495867768595
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "diagonal",
+        "ablated": "P",
+        "condition": "P",
+        "heads": [
+          "L15H7",
+          "L16H4",
+          "L17H7",
+          "L20H3",
+          "L22H1",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "ablating H_P defeats the P override more than layer-matched random heads",
+        "logit_diff_change": {
+          "mean": 3.74974132231405,
+          "null_mean": -0.1672984876033058,
+          "null_p95": 0.1118410330578512
+        }
+      },
+      "T->T": {
+        "n": 302,
+        "n_draws": 100,
+        "observed": 0.5364238410596026,
+        "count": 162,
+        "ci95": [
+          0.48013245033112584,
+          0.5894039735099338
+        ],
+        "null_mean": 0.021357615894039738,
+        "null_p95": 0.04966887417218543,
+        "null_max": 0.059602649006622516,
+        "p": 0.009900990099009901,
+        "excess": 0.5150662251655629,
+        "excess_ci95": [
+          0.45677649006622517,
+          0.5711879139072847
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "diagonal",
+        "ablated": "T",
+        "condition": "T",
+        "heads": [
+          "L20H3",
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "ablating H_T defeats the T override more than layer-matched random heads",
+        "logit_diff_change": {
+          "mean": 1.9655417218543048,
+          "null_mean": -0.1122126490066225,
+          "null_p95": 0.06504119205298012
+        }
+      }
+    },
+    "decomposition": {
+      "shared->P": {
+        "n": 121,
+        "n_draws": 100,
+        "observed": 0.7520661157024794,
+        "count": 91,
+        "ci95": [
+          0.6776859504132231,
+          0.8264462809917356
+        ],
+        "null_mean": 0.018264462809917358,
+        "null_p95": 0.04132231404958678,
+        "null_max": 0.05785123966942149,
+        "p": 0.009900990099009901,
+        "excess": 0.733801652892562,
+        "excess_ci95": [
+          0.6562789256198347,
+          0.8057995867768595
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "decomposition",
+        "ablated": "shared",
+        "condition": "P",
+        "heads": [
+          "L20H3",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "ablating H_shared defeats the P override more than layer-matched random heads",
+        "logit_diff_change": {
+          "mean": 1.990185950413223,
+          "null_mean": -0.06538472727272727,
+          "null_p95": 0.030256074380165286
+        }
+      },
+      "shared->T": {
+        "n": 302,
+        "n_draws": 100,
+        "observed": 0.08940397350993377,
+        "count": 27,
+        "ci95": [
+          0.059602649006622516,
+          0.12251655629139073
+        ],
+        "null_mean": 0.01480132450331126,
+        "null_p95": 0.036589403973509925,
+        "null_max": 0.04304635761589404,
+        "p": 0.009900990099009901,
+        "excess": 0.07460264900662252,
+        "excess_ci95": [
+          0.043898178807947025,
+          0.10851490066225165
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "decomposition",
+        "ablated": "shared",
+        "condition": "T",
+        "heads": [
+          "L20H3",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "ablating H_shared defeats the T override more than layer-matched random heads",
+        "logit_diff_change": {
+          "mean": 0.1858450331125828,
+          "null_mean": -0.060143158940397345,
+          "null_p95": 0.01029738410596026
+        }
+      },
+      "P_only->T": {
+        "n": 302,
+        "n_draws": 100,
+        "observed": 0.019867549668874173,
+        "count": 6,
+        "ci95": [
+          0.006622516556291391,
+          0.03642384105960265
+        ],
+        "null_mean": 0.03629139072847683,
+        "null_p95": 0.13245033112582782,
+        "null_max": 0.1423841059602649,
+        "p": 0.4752475247524752,
+        "excess": -0.016423841059602654,
+        "excess_ci95": [
+          -0.03030711920529801,
+          0.0001663907284768199
+        ],
+        "passes": false,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "decomposition",
+        "ablated": "P_only",
+        "condition": "T",
+        "heads": [
+          "L15H7",
+          "L16H4",
+          "L17H7",
+          "L22H1"
+        ],
+        "wording": "ablating H_P_only: not distinguishable from layer-matched random heads at this n",
+        "logit_diff_change": {
+          "mean": 0.08464503311258278,
+          "null_mean": 0.05437158278145697,
+          "null_p95": 0.5380283940397351
+        }
+      },
+      "T_only->P": {
+        "n": 121,
+        "n_draws": 100,
+        "observed": 0.0,
+        "count": 0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "null_mean": 0.054958677685950426,
+        "null_p95": 0.10785123966942146,
+        "null_max": 0.14049586776859505,
+        "p": 1.0,
+        "excess": -0.054958677685950426,
+        "excess_ci95": [
+          -0.08463223140495868,
+          -0.03007644628099174
+        ],
+        "passes": false,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "decomposition",
+        "ablated": "T_only",
+        "condition": "P",
+        "heads": [
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7"
+        ],
+        "wording": "ablating H_T_only: not distinguishable from layer-matched random heads at this n",
+        "logit_diff_change": {
+          "mean": -1.5108479338842975,
+          "null_mean": 0.06553202479338843,
+          "null_p95": 0.17923553719008264
+        }
+      }
+    },
+    "own_condition_subsets": {
+      "P_only->P": {
+        "n": 121,
+        "observed": 0.71900826446281,
+        "count": 87
+      },
+      "T_only->T": {
+        "n": 302,
+        "observed": 0.4205298013245033,
+        "count": 127
+      }
+    },
+    "transfer_ratio": {
+      "P->T": 0.14814814814814817,
+      "T->P": 0.3017241379310345
+    },
+    "mean_ablation": {
+      "tests": {
+        "P->T": {
+          "n": 302,
+          "n_draws": 50,
+          "observed": 0.11258278145695365,
+          "count": 34,
+          "ci95": [
+            0.076158940397351,
+            0.152317880794702
+          ],
+          "null_mean": 0.032119205298013244,
+          "null_p95": 0.07168874172185428,
+          "null_max": 0.08940397350993377,
+          "p": 0.0196078431372549,
+          "excess": 0.0804635761589404,
+          "excess_ci95": [
+            0.04449999999999999,
+            0.11929966887417218
+          ],
+          "passes": true,
+          "min_attainable_p": 0.0196078431372549,
+          "tier": "primary",
+          "ablated": "P",
+          "condition": "T",
+          "heads": [
+            "L15H7",
+            "L16H4",
+            "L17H7",
+            "L20H3",
+            "L22H1",
+            "L24H3",
+            "L25H2",
+            "L25H4"
+          ],
+          "wording": "ablating H_P defeats the T override more than layer-matched random heads",
+          "logit_diff_change": {
+            "mean": 0.4984483443708609,
+            "null_mean": 0.04334714569536424,
+            "null_p95": 0.31785076158940384
+          }
+        },
+        "T->P": {
+          "n": 121,
+          "n_draws": 50,
+          "observed": 0.5702479338842975,
+          "count": 69,
+          "ci95": [
+            0.4793388429752066,
+            0.6611570247933884
+          ],
+          "null_mean": 0.01900826446280992,
+          "null_p95": 0.05413223140495865,
+          "null_max": 0.0743801652892562,
+          "p": 0.0196078431372549,
+          "excess": 0.5512396694214876,
+          "excess_ci95": [
+            0.46328512396694216,
+            0.6388471074380165
+          ],
+          "passes": true,
+          "min_attainable_p": 0.0196078431372549,
+          "tier": "primary",
+          "ablated": "T",
+          "condition": "P",
+          "heads": [
+            "L20H3",
+            "L20H7",
+            "L22H4",
+            "L22H5",
+            "L23H7",
+            "L24H3",
+            "L25H2",
+            "L25H4"
+          ],
+          "wording": "ablating H_T defeats the P override more than layer-matched random heads",
+          "logit_diff_change": {
+            "mean": 1.4266528925619835,
+            "null_mean": -0.08926128925619835,
+            "null_p95": 0.05245351239669416
+          }
+        }
+      },
+      "same_wording_as_zero": false
+    },
+    "collateral_target_flips": {
+      "P": {
+        "none": {
+          "target_flip_rate": 0.0,
+          "null_mean_rP": 0.0184297520661157,
+          "null_mean_rT": 0.01727272727272727
+        },
+        "P": {
+          "target_flip_rate": 0.01652892561983471,
+          "null_mean_rP": 0.0184297520661157,
+          "null_mean_rT": 0.01727272727272727
+        },
+        "T": {
+          "target_flip_rate": 0.06611570247933884,
+          "null_mean_rP": 0.0184297520661157,
+          "null_mean_rT": 0.01727272727272727
+        },
+        "shared": {
+          "target_flip_rate": 0.0,
+          "null_mean_rP": 0.0184297520661157,
+          "null_mean_rT": 0.01727272727272727
+        },
+        "P_only": {
+          "target_flip_rate": 0.008264462809917356,
+          "null_mean_rP": 0.0184297520661157,
+          "null_mean_rT": 0.01727272727272727
+        },
+        "T_only": {
+          "target_flip_rate": 0.06611570247933884,
+          "null_mean_rP": 0.0184297520661157,
+          "null_mean_rT": 0.01727272727272727
+        }
+      },
+      "T": {
+        "none": {
+          "target_flip_rate": 0.0,
+          "null_mean_rP": 0.0,
+          "null_mean_rT": 0.0
+        },
+        "P": {
+          "target_flip_rate": 0.0033112582781456954,
+          "null_mean_rP": 0.0,
+          "null_mean_rT": 0.0
+        },
+        "T": {
+          "target_flip_rate": 0.009933774834437087,
+          "null_mean_rP": 0.0,
+          "null_mean_rT": 0.0
+        },
+        "shared": {
+          "target_flip_rate": 0.0033112582781456954,
+          "null_mean_rP": 0.0,
+          "null_mean_rT": 0.0
+        },
+        "P_only": {
+          "target_flip_rate": 0.0,
+          "null_mean_rP": 0.0,
+          "null_mean_rT": 0.0
+        },
+        "T_only": {
+          "target_flip_rate": 0.0,
+          "null_mean_rP": 0.0,
+          "null_mean_rT": 0.0
+        }
+      }
+    },
+    "clean_accuracy": {
+      "n_correct_unablated": 347,
+      "n_objects": 354,
+      "accuracy_kept": {
+        "none": 1.0,
+        "P": 0.9654178674351584,
+        "T": 0.8587896253602305,
+        "shared": 0.968299711815562,
+        "P_only": 0.9942363112391931,
+        "T_only": 0.9913544668587896
+      },
+      "random_mean_rP": 0.9948126801152737,
+      "random_mean_rT": 0.9939481268011529
+    },
+    "parameters": {
+      "n_boot": 1000,
+      "seed": 0
+    },
+    "knockout_cross_check": {
+      "n_compared": 121,
+      "max_abs_logit_diff": 0.125,
+      "source_flips_ours_vs_kush": [
+        116,
+        116
+      ],
+      "target_flips_ours_vs_kush": [
+        2,
+        2
+      ],
+      "flip_disagreements": 0
+    }
+  }
+}
