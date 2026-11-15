@@ -36,6 +36,8 @@
 \newcommand{\topSingleTwoLietzow}{37.0}  % knockout reported (Lietzow)
 
 % --- T circuit and J_PT, results/t_patching_qwen25vl3b.json, t_circuit_overlap_qwen25vl3b.json (D70-D72)
+\newcommand{\nBoot}{1000}  % parameters.n_boot (same for pg and V overlap)
+\newcommand{\nPerm}{10000}  % parameters.n_perm (same for pg and V overlap)
 \newcommand{\nT}{244}  % t_patching n_scored
 \newcommand{\nPromT}{12}  % t_patching promoting
 \newcommand{\nSupT}{6}  % t_patching suppressing
@@ -66,6 +68,8 @@
 
 % --- H2 cross-ablation, results/cross_ablation_analysis_qwen25vl3b.json (D73)
 \newcommand{\hTwoDraws}{100}  % primary P->T n_draws
+\newcommand{\hTwoAlpha}{0.025}  % alpha (same in pg_cross_ablation_analysis)
+\newcommand{\hTwoMinP}{0.0099}  % min_attainable_p, every zero-ablation test
 \newcommand{\hTwoPtoTObs}{2.5}  % cross_ablation P->T observed
 \newcommand{\hTwoPtoTLo}{0.8}  % cross_ablation P->T ci95[0]
 \newcommand{\hTwoPtoTHi}{4.5}  % cross_ablation P->T ci95[1]
@@ -231,3 +235,157 @@
 \newcommand{\foolSmall}{100}  % spatial on_object_small fool_rate
 \newcommand{\foolMedium}{87}  % spatial on_object_medium fool_rate
 \newcommand{\foolBeside}{68}  % spatial beside_object fool_rate
+
+% --- V condition, results/v_patching_qwen25vl3b.json, v_circuit_overlap_qwen25vl3b.json (D75)
+\newcommand{\nVselected}{392}  % v_patching n_selected
+\newcommand{\nV}{244}  % v_patching n_scored
+\newcommand{\nPromV}{7}  % v_circuit_overlap v_promoting
+\newcommand{\nSupV}{1}  % v_circuit_overlap v_suppressing
+\newcommand{\layersV}{31--34}  % layers of v_promoting
+\newcommand{\VceilingLo}{0.857}  % v_ceiling jaccard_promoting.p2_5
+\newcommand{\JVT}{0.583}  % j_vt primary.j_pt
+\newcommand{\JVTLo}{0.462}  % j_vt primary.ci95[0]
+\newcommand{\JVTHi}{0.583}  % j_vt primary.ci95[1]
+\newcommand{\JVTVerdict}{above chance, below self-agreement}  % j_vt primary.wording (D70 fixed phrase)
+\newcommand{\chanceEdgeVT}{0.056}  % j_vt primary.chance_floor_p95_at_observed_sizes
+\newcommand{\JPV}{0.231}  % j_pv primary.j_pt
+\newcommand{\JPVLo}{0.214}  % j_pv primary.ci95[0]
+\newcommand{\JPVHi}{0.250}  % j_pv primary.ci95[1]
+\newcommand{\JPVVerdict}{above chance, below self-agreement}  % j_pv primary.wording (D70 fixed phrase)
+\newcommand{\chanceEdgePV}{0.067}  % j_pv primary.chance_floor_p95_at_observed_sizes
+\newcommand{\nSharedPV}{3}  % j_pv shared_promoting
+\newcommand{\dJ}{+0.271}  % delta_j.delta_j
+\newcommand{\dJLo}{+0.163}  % delta_j.ci95[0]
+\newcommand{\dJHi}{+0.289}  % delta_j.ci95[1]
+\newcommand{\dJVerdict}{$J_{VT} > J_{PT}$}  % delta_j.wording (D75 fixed phrase)
+\newcommand{\nTonlyInV}{4}  % descriptive.t_only_heads_in_v.n
+\newcommand{\nSharedInV}{3}  % descriptive.shared_heads_in_v.n
+\newcommand{\containVinP}{0.43}  % descriptive.containment_v_in_p_promoting
+
+% --- PaliGemma replication, results/pg_replication_{patching,knockout}_paligemma2_3b.json, split_half_ceiling_p_paligemma2_3b.json (D76, D76a)
+\newcommand{\pgLayers}{26}  % pg_replication_patching pc1_scores shape
+\newcommand{\pgHeadsPerLayer}{8}  % pg_replication_patching pc1_scores shape
+\newcommand{\pgHeads}{208}  % pg_replication_patching pc1_scores size
+\newcommand{\pgNP}{121}  % pg_replication_patching n_scored
+\newcommand{\pgNPromP}{8}  % pg_replication_patching promoting
+\newcommand{\pgNSupP}{2}  % pg_replication_patching suppressing
+\newcommand{\pgMatchesLietzow}{identical to}  % promoting and suppressing == reference
+\newcommand{\pgPriorFlip}{95.9}  % pg knockout grp_promoting prior_flip_rate
+\newcommand{\pgPriorFlipCount}{116}  % pg knockout grp_promoting prior_flips
+\newcommand{\pgVisualFlip}{1.7}  % pg knockout grp_promoting visual_flip_rate
+\newcommand{\pgLietzowPriorFlip}{95.9}  % pg knockout reported (Lietzow)
+\newcommand{\pgLietzowVisualFlip}{0.8}  % pg knockout reported (Lietzow)
+\newcommand{\pgTopOne}{L15H7}  % pg knockout ind_*, ranked by prior_flip_rate
+\newcommand{\pgTopOneFlip}{56.2}  % pg knockout ind_L15H7 prior_flip_rate
+\newcommand{\pgTopOneLietzow}{58.7}  % pg knockout reported (Lietzow)
+\newcommand{\pgTopTwo}{L20H3}  % pg knockout ind_*, ranked by prior_flip_rate
+\newcommand{\pgTopTwoFlip}{38.8}  % pg knockout ind_L20H3 prior_flip_rate
+\newcommand{\pgTopTwoLietzow}{36.4}  % pg knockout reported (Lietzow)
+\newcommand{\pgCeilingMedian}{1.000}  % pg split_half jaccard_promoting.median
+\newcommand{\pgCeilingLo}{0.875}  % pg split_half jaccard_promoting.p2_5
+
+% --- PaliGemma T circuit and J_PT, results/pg_t_patching_paligemma2_3b.json, pg_t_circuit_overlap_paligemma2_3b.json (D77)
+\newcommand{\pgNT}{302}  % pg_t_patching n_scored
+\newcommand{\pgNPromT}{8}  % pg_t_patching promoting
+\newcommand{\pgNSupT}{3}  % pg_t_patching suppressing
+\newcommand{\pgNShared}{4}  % pg_t_circuit_overlap shared_promoting
+\newcommand{\pgJPT}{0.333}  % pg primary.j_pt
+\newcommand{\pgJPTLo}{0.333}  % pg primary.ci95[0]
+\newcommand{\pgJPTHi}{0.364}  % pg primary.ci95[1]
+\newcommand{\pgJPTVerdict}{above chance, below self-agreement}  % pg primary.wording (D70 fixed phrase)
+\newcommand{\pgChanceEdge}{0.067}  % pg primary.chance_floor_p95_at_observed_sizes
+\newcommand{\pgNSharedObjects}{69}  % pg shared_objects.n_objects
+\newcommand{\pgJPTshared}{0.286}  % pg shared_objects.j_pt
+\newcommand{\pgJPTsharedLo}{0.267}  % pg shared_objects.ci95[0]
+\newcommand{\pgJPTsharedHi}{0.333}  % pg shared_objects.ci95[1]
+\newcommand{\pgRankRho}{0.65}  % pg rank_correlation.rho
+\newcommand{\pgRankCeiling}{0.95}  % pg rank_correlation.p_ceiling_full_length
+
+% --- PaliGemma H2 cross-ablation, results/pg_cross_ablation_analysis_paligemma2_3b.json (D78)
+\newcommand{\pgDraws}{100}  % pg primary P->T n_draws
+\newcommand{\pgPtoTObs}{7.9}  % pg_cross_ablation P->T observed
+\newcommand{\pgPtoTLo}{5.3}  % pg_cross_ablation P->T ci95[0]
+\newcommand{\pgPtoTHi}{11.3}  % pg_cross_ablation P->T ci95[1]
+\newcommand{\pgPtoTNull}{3.5}  % pg_cross_ablation P->T null_mean
+\newcommand{\pgPtoTNullEdge}{10.6}  % pg_cross_ablation P->T null_p95
+\newcommand{\pgPtoTP}{0.12}  % pg_cross_ablation P->T p
+\newcommand{\pgPtoTCount}{24}  % pg_cross_ablation P->T count
+\newcommand{\pgPtoTN}{302}  % pg_cross_ablation P->T n
+\newcommand{\pgTtoPObs}{28.9}  % pg_cross_ablation T->P observed
+\newcommand{\pgTtoPLo}{20.7}  % pg_cross_ablation T->P ci95[0]
+\newcommand{\pgTtoPHi}{37.2}  % pg_cross_ablation T->P ci95[1]
+\newcommand{\pgTtoPNull}{5.6}  % pg_cross_ablation T->P null_mean
+\newcommand{\pgTtoPNullEdge}{13.2}  % pg_cross_ablation T->P null_p95
+\newcommand{\pgTtoPP}{0.0099}  % pg_cross_ablation T->P p
+\newcommand{\pgTtoPCount}{35}  % pg_cross_ablation T->P count
+\newcommand{\pgTtoPN}{121}  % pg_cross_ablation T->P n
+\newcommand{\pgPtoPObs}{95.9}  % pg_cross_ablation P->P observed
+\newcommand{\pgPtoPLo}{92.6}  % pg_cross_ablation P->P ci95[0]
+\newcommand{\pgPtoPHi}{99.2}  % pg_cross_ablation P->P ci95[1]
+\newcommand{\pgPtoPNull}{1.9}  % pg_cross_ablation P->P null_mean
+\newcommand{\pgPtoPNullEdge}{7.5}  % pg_cross_ablation P->P null_p95
+\newcommand{\pgPtoPP}{0.0099}  % pg_cross_ablation P->P p
+\newcommand{\pgPtoPCount}{116}  % pg_cross_ablation P->P count
+\newcommand{\pgPtoPN}{121}  % pg_cross_ablation P->P n
+\newcommand{\pgTtoTObs}{53.6}  % pg_cross_ablation T->T observed
+\newcommand{\pgTtoTLo}{48.0}  % pg_cross_ablation T->T ci95[0]
+\newcommand{\pgTtoTHi}{58.9}  % pg_cross_ablation T->T ci95[1]
+\newcommand{\pgTtoTNull}{2.1}  % pg_cross_ablation T->T null_mean
+\newcommand{\pgTtoTNullEdge}{5.0}  % pg_cross_ablation T->T null_p95
+\newcommand{\pgTtoTP}{0.0099}  % pg_cross_ablation T->T p
+\newcommand{\pgTtoTCount}{162}  % pg_cross_ablation T->T count
+\newcommand{\pgTtoTN}{302}  % pg_cross_ablation T->T n
+\newcommand{\pgStoPObs}{75.2}  % pg_cross_ablation shared->P observed
+\newcommand{\pgStoPLo}{67.8}  % pg_cross_ablation shared->P ci95[0]
+\newcommand{\pgStoPHi}{82.6}  % pg_cross_ablation shared->P ci95[1]
+\newcommand{\pgStoPNull}{1.8}  % pg_cross_ablation shared->P null_mean
+\newcommand{\pgStoPNullEdge}{4.1}  % pg_cross_ablation shared->P null_p95
+\newcommand{\pgStoPP}{0.0099}  % pg_cross_ablation shared->P p
+\newcommand{\pgStoPCount}{91}  % pg_cross_ablation shared->P count
+\newcommand{\pgStoPN}{121}  % pg_cross_ablation shared->P n
+\newcommand{\pgStoTObs}{8.9}  % pg_cross_ablation shared->T observed
+\newcommand{\pgStoTLo}{6.0}  % pg_cross_ablation shared->T ci95[0]
+\newcommand{\pgStoTHi}{12.3}  % pg_cross_ablation shared->T ci95[1]
+\newcommand{\pgStoTNull}{1.5}  % pg_cross_ablation shared->T null_mean
+\newcommand{\pgStoTNullEdge}{3.7}  % pg_cross_ablation shared->T null_p95
+\newcommand{\pgStoTP}{0.0099}  % pg_cross_ablation shared->T p
+\newcommand{\pgStoTCount}{27}  % pg_cross_ablation shared->T count
+\newcommand{\pgStoTN}{302}  % pg_cross_ablation shared->T n
+\newcommand{\pgPOtoTObs}{2.0}  % pg_cross_ablation P_only->T observed
+\newcommand{\pgPOtoTLo}{0.7}  % pg_cross_ablation P_only->T ci95[0]
+\newcommand{\pgPOtoTHi}{3.6}  % pg_cross_ablation P_only->T ci95[1]
+\newcommand{\pgPOtoTNull}{3.6}  % pg_cross_ablation P_only->T null_mean
+\newcommand{\pgPOtoTNullEdge}{13.2}  % pg_cross_ablation P_only->T null_p95
+\newcommand{\pgPOtoTP}{0.48}  % pg_cross_ablation P_only->T p
+\newcommand{\pgPOtoTCount}{6}  % pg_cross_ablation P_only->T count
+\newcommand{\pgPOtoTN}{302}  % pg_cross_ablation P_only->T n
+\newcommand{\pgTOtoPObs}{0.0}  % pg_cross_ablation T_only->P observed
+\newcommand{\pgTOtoPLo}{0.0}  % pg_cross_ablation T_only->P ci95[0]
+\newcommand{\pgTOtoPHi}{0.0}  % pg_cross_ablation T_only->P ci95[1]
+\newcommand{\pgTOtoPNull}{5.5}  % pg_cross_ablation T_only->P null_mean
+\newcommand{\pgTOtoPNullEdge}{10.8}  % pg_cross_ablation T_only->P null_p95
+\newcommand{\pgTOtoPP}{1.00}  % pg_cross_ablation T_only->P p
+\newcommand{\pgTOtoPCount}{0}  % pg_cross_ablation T_only->P count
+\newcommand{\pgTOtoPN}{121}  % pg_cross_ablation T_only->P n
+\newcommand{\pgPtoTVerdict}{ablating $\mathcal{H}_P$: not distinguishable from layer-matched random heads at this $n$}  % pg primary P->T wording (D73 fixed phrase)
+\newcommand{\pgTtoPVerdict}{ablating $\mathcal{H}_T$ defeats the P override more than layer-matched random heads}  % pg primary T->P wording (D73 fixed phrase)
+\newcommand{\pgTOtoTObs}{42.1}  % pg own_condition_subsets T_only->T
+\newcommand{\pgPOtoPObs}{71.9}  % pg own_condition_subsets P_only->P
+\newcommand{\pgTOonPShift}{$-$1.51}  % pg decomposition T_only->P logit_diff_change.mean
+\newcommand{\pgStoPShift}{+1.99}  % pg decomposition shared->P logit_diff_change.mean
+\newcommand{\pgMeanDraws}{50}  % pg mean_ablation P->T n_draws
+\newcommand{\pgMeanPtoTObs}{11.3}  % pg mean_ablation P->T observed
+\newcommand{\pgMeanPtoTLo}{7.6}  % pg mean_ablation P->T ci95[0]
+\newcommand{\pgMeanPtoTHi}{15.2}  % pg mean_ablation P->T ci95[1]
+\newcommand{\pgMeanPtoTNull}{3.2}  % pg mean_ablation P->T null_mean
+\newcommand{\pgMeanPtoTNullEdge}{7.2}  % pg mean_ablation P->T null_p95
+\newcommand{\pgMeanPtoTP}{0.0196}  % pg mean_ablation P->T p
+\newcommand{\pgMeanPtoTVerdict}{ablating $\mathcal{H}_P$ defeats the T override more than layer-matched random heads}  % pg mean_ablation P->T wording
+\newcommand{\pgMeanTtoPObs}{57.0}  % pg mean_ablation T->P observed
+\newcommand{\pgMeanTtoPLo}{47.9}  % pg mean_ablation T->P ci95[0]
+\newcommand{\pgMeanTtoPHi}{66.1}  % pg mean_ablation T->P ci95[1]
+\newcommand{\pgMeanTtoPNull}{1.9}  % pg mean_ablation T->P null_mean
+\newcommand{\pgMeanTtoPNullEdge}{5.4}  % pg mean_ablation T->P null_p95
+\newcommand{\pgMeanTtoPP}{0.0196}  % pg mean_ablation T->P p
+\newcommand{\pgMeanTtoPVerdict}{ablating $\mathcal{H}_T$ defeats the P override more than layer-matched random heads}  % pg mean_ablation T->P wording
+\newcommand{\pgMeanSentence}{Mean ablation changes at least one verdict, so the verdict is not robust to the ablation type.}  % pg mean_ablation.same_wording_as_zero

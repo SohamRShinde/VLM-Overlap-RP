@@ -142,6 +142,15 @@ def build() -> Macros:
     o = load(f"t_circuit_overlap_{MODEL}.json")
     c = load(f"split_half_ceiling_p_{MODEL}.json")
     pr, so, rc, de = o["primary"], o["shared_objects"], o["rank_correlation"], o["descriptive"]
+    # The Method section states these once for every overlap analysis, so they must agree.
+    params = o["parameters"]
+    for other in ("pg_t_circuit_overlap_paligemma2_3b.json", f"v_circuit_overlap_{MODEL}.json"):
+        op = load(other)["parameters"]
+        for key in ("n_boot", "n_perm"):
+            if op[key] != params[key]:
+                raise ValueError(f"{key} differs: {params[key]} here vs {op[key]} in {other}")
+    m.add("nBoot", str(params["n_boot"]), "parameters.n_boot (same for pg and V overlap)")
+    m.add("nPerm", str(params["n_perm"]), "parameters.n_perm (same for pg and V overlap)")
     m.add("nT", str(tp["n_scored"]), "t_patching n_scored")
     m.add("nPromT", str(len(tp["promoting"])), "t_patching promoting")
     m.add("nSupT", str(len(tp["suppressing"])), "t_patching suppressing")
@@ -179,6 +188,15 @@ def build() -> Macros:
     x = load(f"cross_ablation_analysis_{MODEL}.json")
     tests = {**x["primary"], **x["diagonal"], **x["decomposition"]}
     m.add("hTwoDraws", str(x["primary"]["P->T"]["n_draws"]), "primary P->T n_draws")
+    # The Method section states these once for both models, so they must agree.
+    pgx = load("pg_cross_ablation_analysis_paligemma2_3b.json")
+    if pgx["alpha"] != x["alpha"]:
+        raise ValueError(f"alpha differs between models: {x['alpha']} vs {pgx['alpha']}")
+    m.add("hTwoAlpha", f"{x['alpha']:g}", "alpha (same in pg_cross_ablation_analysis)")
+    min_ps = {t["min_attainable_p"] for t in tests.values()}
+    if len(min_ps) != 1:
+        raise ValueError(f"zero-ablation tests differ in min_attainable_p: {min_ps}")
+    m.add("hTwoMinP", pval(min_ps.pop()), "min_attainable_p, every zero-ablation test")
     for key, prefix in [("P->T", "hTwoPtoT"), ("T->P", "hTwoTtoP"), ("P->P", "hTwoPtoP"),
                         ("T->T", "hTwoTtoT"), ("shared->P", "hTwoStoP"), ("shared->T", "hTwoStoT"),
                         ("P_only->T", "hTwoPOtoT"), ("T_only->P", "hTwoTOtoP")]:
@@ -228,6 +246,124 @@ def build() -> Macros:
     sp = ds["spatial"]
     for k, word in [("on_object_small", "Small"), ("on_object_medium", "Medium"), ("beside_object", "Beside")]:
         m.add(f"fool{word}", pct(sp[k]["fool_rate"], 0), f"spatial {k} fool_rate")
+
+    # ------------------------------------------------------------ V condition (Qwen)
+    m.section("V condition, results/v_patching_qwen25vl3b.json, v_circuit_overlap_qwen25vl3b.json (D75)")
+    vp = load(f"v_patching_{MODEL}.json")
+    vo = load(f"v_circuit_overlap_{MODEL}.json")
+    m.add("nVselected", str(vp["n_selected"]), "v_patching n_selected")
+    m.add("nV", str(vp["n_scored"]), "v_patching n_scored")
+    m.add("nPromV", str(len(vo["v_promoting"])), "v_circuit_overlap v_promoting")
+    m.add("nSupV", str(len(vo["v_suppressing"])), "v_circuit_overlap v_suppressing")
+    m.add("layersV", layers(vo["v_promoting"]), "layers of v_promoting")
+    m.add("VceilingLo", f"{vo['v_ceiling']['jaccard_promoting']['p2_5']:.3f}", "v_ceiling jaccard_promoting.p2_5")
+    for key, name in [("j_vt", "JVT"), ("j_pv", "JPV")]:
+        pr = vo[key]["primary"]
+        m.add(name, f"{pr['j_pt']:.3f}", f"{key} primary.j_pt")
+        m.add(name + "Lo", f"{pr['ci95'][0]:.3f}", f"{key} primary.ci95[0]")
+        m.add(name + "Hi", f"{pr['ci95'][1]:.3f}", f"{key} primary.ci95[1]")
+        m.add(name + "Verdict", pr["wording"], f"{key} primary.wording (D70 fixed phrase)")
+        m.add("chanceEdge" + name[1:], f"{pr['chance_floor_p95_at_observed_sizes']:.3f}",
+              f"{key} primary.chance_floor_p95_at_observed_sizes")
+    m.add("nSharedPV", str(len(vo["j_pv"]["shared_promoting"])), "j_pv shared_promoting")
+    dj = vo["delta_j"]
+    m.add("dJ", num(dj["delta_j"], 3, True), "delta_j.delta_j")
+    m.add("dJLo", num(dj["ci95"][0], 3, True), "delta_j.ci95[0]")
+    m.add("dJHi", num(dj["ci95"][1], 3, True), "delta_j.ci95[1]")
+    m.add("dJVerdict", dj["wording"].replace("J_VT", "$J_{VT}$").replace("J_PT", "$J_{PT}$")
+          .replace("$ > $", " > "), "delta_j.wording (D75 fixed phrase)")
+    vd = vo["descriptive"]
+    m.add("nTonlyInV", str(vd["t_only_heads_in_v"]["n"]), "descriptive.t_only_heads_in_v.n")
+    m.add("nSharedInV", str(vd["shared_heads_in_v"]["n"]), "descriptive.shared_heads_in_v.n")
+    m.add("containVinP", f"{vd['containment_v_in_p_promoting']:.2f}", "descriptive.containment_v_in_p_promoting")
+
+    # ------------------------------------------------------------ PaliGemma
+    pg = "paligemma2_3b"
+    m.section("PaliGemma replication, results/pg_replication_{patching,knockout}_paligemma2_3b.json, "
+              "split_half_ceiling_p_paligemma2_3b.json (D76, D76a)")
+    pp = load(f"pg_replication_patching_{pg}.json")
+    pk = load(f"pg_replication_knockout_{pg}.json")
+    pc = load(f"split_half_ceiling_p_{pg}.json")
+    n_layers, n_heads = np.asarray(pp["pc1_scores"]).shape
+    m.add("pgLayers", str(n_layers), "pg_replication_patching pc1_scores shape")
+    m.add("pgHeadsPerLayer", str(n_heads), "pg_replication_patching pc1_scores shape")
+    m.add("pgHeads", str(n_layers * n_heads), "pg_replication_patching pc1_scores size")
+    m.add("pgNP", str(pp["n_scored"]), "pg_replication_patching n_scored")
+    m.add("pgNPromP", str(len(pp["promoting"])), "pg_replication_patching promoting")
+    m.add("pgNSupP", str(len(pp["suppressing"])), "pg_replication_patching suppressing")
+    same = ({tuple(h) for h in pp["promoting"]} == {tuple(h) for h in pp["reference_promoting"]}
+            and {tuple(h) for h in pp["suppressing"]} == {tuple(h) for h in pp["reference_suppressing"]})
+    m.add("pgMatchesLietzow", "identical to" if same else "different from",
+          "promoting and suppressing == reference")
+    g = pk["counts"]["grp_promoting"]
+    m.add("pgPriorFlip", pct(g["prior_flip_rate"]), "pg knockout grp_promoting prior_flip_rate")
+    m.add("pgPriorFlipCount", str(g["prior_flips"]), "pg knockout grp_promoting prior_flips")
+    m.add("pgVisualFlip", pct(g["visual_flip_rate"]), "pg knockout grp_promoting visual_flip_rate")
+    m.add("pgLietzowPriorFlip", f"{100 * pk['reported']['grp_promoting']['prior_flip']:.1f}", "pg knockout reported (Lietzow)")
+    m.add("pgLietzowVisualFlip", f"{100 * pk['reported']['grp_promoting']['visual_flip']:.1f}", "pg knockout reported (Lietzow)")
+    singles = sorted(((k[4:], v["prior_flip_rate"]) for k, v in pk["counts"].items()
+                      if k.startswith("ind_") and tuple(map(int, k[5:].split("H"))) in
+                      {tuple(h) for h in pp["promoting"]}), key=lambda kv: -kv[1])
+    for word, (name, rate) in zip(("One", "Two"), singles[:2]):
+        m.add(f"pgTop{word}", name, "pg knockout ind_*, ranked by prior_flip_rate")
+        m.add(f"pgTop{word}Flip", pct(rate), f"pg knockout ind_{name} prior_flip_rate")
+        lz = pk["reported"]["single_head_prior_flip_pct"].get(name)
+        m.add(f"pgTop{word}Lietzow", f"{lz:.1f}" if lz is not None else "n/a", "pg knockout reported (Lietzow)")
+    m.add("pgCeilingMedian", f"{pc['jaccard_promoting']['median']:.3f}", "pg split_half jaccard_promoting.median")
+    m.add("pgCeilingLo", f"{pc['jaccard_promoting']['p2_5']:.3f}", "pg split_half jaccard_promoting.p2_5")
+
+    m.section("PaliGemma T circuit and J_PT, results/pg_t_patching_paligemma2_3b.json, "
+              "pg_t_circuit_overlap_paligemma2_3b.json (D77)")
+    pt = load(f"pg_t_patching_{pg}.json")
+    po = load(f"pg_t_circuit_overlap_{pg}.json")
+    pr, so, rc = po["primary"], po["shared_objects"], po["rank_correlation"]
+    m.add("pgNT", str(pt["n_scored"]), "pg_t_patching n_scored")
+    m.add("pgNPromT", str(len(pt["promoting"])), "pg_t_patching promoting")
+    m.add("pgNSupT", str(len(pt["suppressing"])), "pg_t_patching suppressing")
+    m.add("pgNShared", str(len(po["shared_promoting"])), "pg_t_circuit_overlap shared_promoting")
+    m.add("pgJPT", f"{pr['j_pt']:.3f}", "pg primary.j_pt")
+    m.add("pgJPTLo", f"{pr['ci95'][0]:.3f}", "pg primary.ci95[0]")
+    m.add("pgJPTHi", f"{pr['ci95'][1]:.3f}", "pg primary.ci95[1]")
+    m.add("pgJPTVerdict", pr["wording"], "pg primary.wording (D70 fixed phrase)")
+    m.add("pgChanceEdge", f"{pr['chance_floor_p95_at_observed_sizes']:.3f}", "pg primary.chance_floor_p95_at_observed_sizes")
+    m.add("pgNSharedObjects", str(so["n_objects"]), "pg shared_objects.n_objects")
+    m.add("pgJPTshared", f"{so['j_pt']:.3f}", "pg shared_objects.j_pt")
+    m.add("pgJPTsharedLo", f"{so['ci95'][0]:.3f}", "pg shared_objects.ci95[0]")
+    m.add("pgJPTsharedHi", f"{so['ci95'][1]:.3f}", "pg shared_objects.ci95[1]")
+    m.add("pgRankRho", f"{rc['rho']:.2f}", "pg rank_correlation.rho")
+    m.add("pgRankCeiling", f"{rc['p_ceiling_full_length']:.2f}", "pg rank_correlation.p_ceiling_full_length")
+
+    m.section("PaliGemma H2 cross-ablation, results/pg_cross_ablation_analysis_paligemma2_3b.json (D78)")
+    px = load(f"pg_cross_ablation_analysis_{pg}.json")
+
+    def wording(s: str) -> str:   # the fixed phrase, typeset; words unchanged
+        return (s.replace("H_P", "$\\mathcal{H}_P$").replace("H_T", "$\\mathcal{H}_T$")
+                .replace("at this n", "at this $n$"))
+    tests = {**px["primary"], **px["diagonal"], **px["decomposition"]}
+    m.add("pgDraws", str(px["primary"]["P->T"]["n_draws"]), "pg primary P->T n_draws")
+    for key, prefix in [("P->T", "pgPtoT"), ("T->P", "pgTtoP"), ("P->P", "pgPtoP"), ("T->T", "pgTtoT"),
+                        ("shared->P", "pgStoP"), ("shared->T", "pgStoT"),
+                        ("P_only->T", "pgPOtoT"), ("T_only->P", "pgTOtoP")]:
+        test(m, prefix, tests[key], f"pg_cross_ablation {key}")
+        m.add(prefix + "Count", str(tests[key]["count"]), f"pg_cross_ablation {key} count")
+        m.add(prefix + "N", str(tests[key]["n"]), f"pg_cross_ablation {key} n")
+    for key, prefix in [("P->T", "pgPtoT"), ("T->P", "pgTtoP")]:
+        m.add(prefix + "Verdict", wording(px["primary"][key]["wording"]), f"pg primary {key} wording (D73 fixed phrase)")
+    own = px["own_condition_subsets"]
+    m.add("pgTOtoTObs", pct(own["T_only->T"]["observed"]), "pg own_condition_subsets T_only->T")
+    m.add("pgPOtoPObs", pct(own["P_only->P"]["observed"]), "pg own_condition_subsets P_only->P")
+    m.add("pgTOonPShift", num(px["decomposition"]["T_only->P"]["logit_diff_change"]["mean"], 2, True),
+          "pg decomposition T_only->P logit_diff_change.mean")
+    m.add("pgStoPShift", num(px["decomposition"]["shared->P"]["logit_diff_change"]["mean"], 2, True),
+          "pg decomposition shared->P logit_diff_change.mean")
+    ma = px["mean_ablation"]
+    m.add("pgMeanDraws", str(ma["tests"]["P->T"]["n_draws"]), "pg mean_ablation P->T n_draws")
+    for key, prefix in [("P->T", "pgMeanPtoT"), ("T->P", "pgMeanTtoP")]:
+        test(m, prefix, ma["tests"][key], f"pg mean_ablation {key}")
+        m.add(prefix + "Verdict", wording(ma["tests"][key]["wording"]), f"pg mean_ablation {key} wording")
+    m.add("pgMeanSentence", "Mean ablation gives the same verdicts." if ma["same_wording_as_zero"]
+          else "Mean ablation changes at least one verdict, so the verdict is not robust to the ablation type.",
+          "pg mean_ablation.same_wording_as_zero")
     return m
 
 

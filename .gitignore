@@ -76,3 +76,8 @@ paper/*.blg
 paper/*.log
 paper/*.out
 paper/main.pdf
+
+# AAAI-27 Author Kit: keep the .sty, .bst and .tex templates; Word versions and PDFs stay out
+AuthorKit27/Word/
+# generated single-file submission (scripts/flatten_paper.py)
+paper/*_flat.tex

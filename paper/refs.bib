@@ -1,56 +1,67 @@
-% Bibliography for the first draft (4 Nov 2026).
-% EVERY entry must be checked against the source before submission (plan risk
-% 10). Entries whose title we have not confirmed carry "[VERIFY]" in the title
-% so they show up in the PDF. Read Hua, Ortu, Nikankin, Golovanevsky 2025a/b and
-% Dyslexify before claiming novelty against them (STATE.md open questions).
+% Bibliography, AAAI-27 style (arXiv papers as @misc with eprint/archivePrefix).
+% Converted by Prism on 15 Nov 2026. Every arXiv entry (title, full author list,
+% eprint ID) was checked on 15 Nov 2026 against the arXiv API record for its ID;
+% Prism had swapped Rudman and Eickhoff in lietzow2026, fixed here. The
+% logit-lens URL was checked to resolve to that post. Not re-checked: the
+% non-arXiv entries (goh2021multimodal, meng2022rome, wang2023ioi,
+% dettmers2023qlora), unchanged from the 4 Nov draft.
+% Before claiming novelty, still read Hua, Ortu, Nooralahzadeh and
+% Golovanevsky 2024 in full (paper.tex \todo in Related Work).
 
-@article{lietzow2026,
-  author  = {Lietzow, Niclas and others},
-  title   = {Vision-Default, Prior-Override [VERIFY full title and author list]},
-  journal = {arXiv preprint arXiv:2606.28273},
-  year    = {2026}
+@misc{lietzow2026,
+  author        = {Lietzow, Niclas and Bitterman, Danielle and Eickhoff, Carsten and Rudman, William and Golovanevsky, Michal},
+  title         = {Vision-Default, Prior-Override: Causal Mechanisms of Perception-Knowledge Conflict in Vision-Language Models},
+  year          = {2026},
+  eprint        = {2606.28273},
+  archivePrefix = {arXiv}
 }
 
-@article{golovanevsky2025counterfact,
-  author  = {Golovanevsky, Michal and others},
-  title   = {Pixels Versus Priors: Controlling Knowledge Priors in Vision-Language Models through Visual Counterfacts [VERIFY]},
-  journal = {arXiv preprint arXiv:2505.17127},
-  year    = {2025}
+@misc{golovanevsky2025counterfact,
+  author        = {Golovanevsky, Michal and Rudman, William and Lepori, Michael and Bar, Amir and Singh, Ritambhara and Eickhoff, Carsten},
+  title         = {Pixels Versus Priors: Controlling Knowledge Priors in Vision-Language Models through Visual Counterfacts},
+  year          = {2025},
+  eprint        = {2505.17127},
+  archivePrefix = {arXiv}
 }
 
-@article{golovanevsky2024notice,
-  author  = {Golovanevsky, Michal and others},
-  title   = {What Do {VLMs} {NOTICE}? {A} Mechanistic Interpretability Pipeline for Gaussian-Noise-free Text-Image Corruption and Evaluation [VERIFY]},
-  journal = {arXiv preprint arXiv:2406.16320},
-  year    = {2024}
+@misc{golovanevsky2024notice,
+  author        = {Golovanevsky, Michal and Rudman, William and Palit, Vedant and Singh, Ritambhara and Eickhoff, Carsten},
+  title         = {What Do {VLMs} {NOTICE}? A Mechanistic Interpretability Pipeline for Gaussian-Noise-free Text-Image Corruption and Evaluation},
+  year          = {2024},
+  eprint        = {2406.16320},
+  archivePrefix = {arXiv}
 }
 
-@article{hua2025,
-  author  = {Hua and others},
-  title   = {[VERIFY title; image-vs-caption routing heads in Qwen2.5-VL]},
-  journal = {arXiv preprint arXiv:2507.01790},
-  year    = {2025}
+@misc{hua2025,
+  author        = {Hua, Tianze and Yun, Tian and Pavlick, Ellie},
+  title         = {How Do Vision-Language Models Process Conflicting Information Across Modalities?},
+  year          = {2025},
+  eprint        = {2507.01790},
+  archivePrefix = {arXiv}
 }
 
-@article{ortu2025,
-  author  = {Ortu and others},
-  title   = {[VERIFY title]},
-  journal = {arXiv preprint arXiv:2507.13868},
-  year    = {2025}
+@misc{ortu2025,
+  author        = {Ortu, Francesco and Jin, Zhijing and Doimo, Diego and Cazzaniga, Alberto},
+  title         = {When Seeing Overrides Knowing: Disentangling Knowledge Conflicts in Vision-Language Models},
+  year          = {2025},
+  eprint        = {2507.13868},
+  archivePrefix = {arXiv}
 }
 
-@article{nikankin2025,
-  author  = {Nikankin, Yaniv and others},
-  title   = {Same Task, Different Circuits: Disentangling Modality-Specific Mechanisms in {VLMs} [VERIFY]},
-  journal = {arXiv preprint arXiv:2506.09047},
-  year    = {2025}
+@misc{nikankin2025,
+  author        = {Nikankin, Yaniv and Arad, Dana and Gandelsman, Yossi and Belinkov, Yonatan},
+  title         = {Same Task, Different Circuits: Disentangling Modality-Specific Mechanisms in {VLMs}},
+  year          = {2025},
+  eprint        = {2506.09047},
+  archivePrefix = {arXiv}
 }
 
-@article{nooralahzadeh2026,
-  author  = {Nooralahzadeh and others},
-  title   = {Arbitration Failure, Not Perceptual Blindness [VERIFY title and arXiv ID]},
-  journal = {arXiv preprint arXiv:2604.09364},
-  year    = {2026}
+@misc{nooralahzadeh2026,
+  author        = {Nooralahzadeh, Farhad and Rohanian, Omid and Zhang, Yi and F{\"u}rst, Jonathan and Stockinger, Kurt},
+  title         = {Arbitration Failure, Not Perceptual Blindness: How Vision-Language Models Resolve Visual-Linguistic Conflicts},
+  year          = {2026},
+  eprint        = {2604.09364},
+  archivePrefix = {arXiv}
 }
 
 @article{goh2021multimodal,
@@ -60,25 +71,36 @@
   year    = {2021}
 }
 
-@article{westerhoff2025scam,
-  author  = {Westerhoff, Justus and others},
-  title   = {{SCAM}: A Real-World Typographic Robustness Evaluation for Multimodal Foundation Models [VERIFY]},
-  journal = {arXiv preprint arXiv:2504.04893},
-  year    = {2025}
+@misc{westerhoff2025scam,
+  author        = {Westerhoff, Justus and Purelku, Erblina and Hackstein, Jakob and Loos, Jonas and Pinetzki, Leo and Rodner, Erik and Hufe, Lorenz},
+  title         = {{SCAM}: A Real-World Typographic Robustness Evaluation for Multimodal Foundation Models},
+  year          = {2025},
+  eprint        = {2504.04893},
+  archivePrefix = {arXiv}
 }
 
-@article{dyslexify2025,
-  author  = {{Authors unverified}},
-  title   = {Dyslexify [VERIFY title; encoder-side typographic circuits]},
-  journal = {arXiv preprint arXiv:2508.20570},
-  year    = {2025}
+@misc{dyslexify2025,
+  author        = {Hufe, Lorenz and Venhoff, Constantin and Purelku, Erblina and Dreyer, Maximilian and Lapuschkin, Sebastian and Samek, Wojciech},
+  title         = {Dyslexify: A Mechanistic Defense Against Typographic Attacks in CLIP},
+  year          = {2025},
+  eprint        = {2508.20570},
+  archivePrefix = {arXiv}
 }
 
-@article{bai2025qwen25vl,
-  author  = {Bai, Shuai and others},
-  title   = {{Qwen2.5-VL} Technical Report},
-  journal = {arXiv preprint arXiv:2502.13923},
-  year    = {2025}
+@misc{bai2025qwen25vl,
+  author        = {Bai, Shuai and others},
+  title         = {{Qwen2.5-VL} Technical Report},
+  year          = {2025},
+  eprint        = {2502.13923},
+  archivePrefix = {arXiv}
+}
+
+@misc{steiner2024paligemma2,
+  author        = {Steiner, Andreas and Pinto, Andr{\'e} Susano and Tschannen, Michael and Keysers, Daniel and Wang, Xiao and Bitton, Yonatan and Gritsenko, Alexey and Minderer, Matthias and Sherbondy, Anthony and Long, Shangbang and Qin, Siyang and Ingle, Reeve and Bugliarello, Emanuele and Kazemzadeh, Sahar and Mesnard, Thomas and Alabdulmohsin, Ibrahim and Beyer, Lucas and Zhai, Xiaohua},
+  title         = {PaliGemma 2: A Family of Versatile VLMs for Transfer},
+  year          = {2024},
+  eprint        = {2412.03555},
+  archivePrefix = {arXiv}
 }
 
 @inproceedings{meng2022rome,
@@ -95,17 +117,19 @@
   year      = {2023}
 }
 
-@article{heimersheim2024patching,
-  author  = {Heimersheim, Stefan and Nanda, Neel},
-  title   = {How to use and interpret activation patching},
-  journal = {arXiv preprint arXiv:2404.15255},
-  year    = {2024}
+@misc{heimersheim2024patching,
+  author        = {Heimersheim, Stefan and Nanda, Neel},
+  title         = {How to use and interpret activation patching},
+  year          = {2024},
+  eprint        = {2404.15255},
+  archivePrefix = {arXiv}
 }
 
 @misc{nostalgebraist2020logitlens,
   author       = {nostalgebraist},
   title        = {interpreting {GPT}: the logit lens},
-  howpublished = {LessWrong},
+  howpublished = {\url{https://www.lesswrong.com/posts/AcKRB8wDpdaN6v6ru/interpreting-gpt-the-logit-lens}},
+  note         = {Accessed: 2026-11-15},
   year         = {2020}
 }
 
