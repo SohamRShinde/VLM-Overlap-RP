@@ -46,6 +46,7 @@ from .t_patching import sweep_order
 __all__ = [
     "V_ROLES",
     "V_CAP",
+    "PG_V_CAP",
     "V_VERDICTS",
     "DJ_WORDING",
     "is_v_conflicting",
@@ -64,6 +65,11 @@ V_ROLES = {
 
 # D75 (4): T's n, so V and T rest on equally many objects.
 V_CAP = 244
+
+# D79a: PaliGemma's cap is PaliGemma T's n (302), D75 (4)'s rule applied to
+# PaliGemma. The order only slices at the cap, so its first 244 objects are
+# exactly the ones a 244-cap run patches.
+PG_V_CAP = 302
 
 # D75 (7): D70's phrases, with the ceiling phrase no longer naming P.
 V_VERDICTS = {**VERDICTS, "ceiling": "not distinguishable from self-agreement"}
@@ -189,7 +195,7 @@ def analyse_v(p_records: Sequence[Mapping], v_records: Sequence[Mapping],
               t_records: Sequence[Mapping], p_ceiling: Mapping,
               p_result: Mapping, t_result: Mapping, n_boot: int = 1000, seed: int = 0,
               sigma: float = 2.0, n_splits: int = 1000, n_perm: int = 10_000,
-              core_threshold: float = 0.9) -> dict:
+              core_threshold: float = 0.9, cap: int = V_CAP) -> dict:
     """Everything D75 (6)-(9) asks for.
 
     p_ceiling:
@@ -266,5 +272,5 @@ def analyse_v(p_records: Sequence[Mapping], v_records: Sequence[Mapping],
         },
         "parameters": {"n_boot": n_boot, "seed": seed, "sigma": sigma,
                        "n_splits": n_splits, "n_perm": n_perm,
-                       "core_threshold": core_threshold, "cap": V_CAP},
+                       "core_threshold": core_threshold, "cap": cap},
     }

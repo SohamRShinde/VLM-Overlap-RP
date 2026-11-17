@@ -68,7 +68,7 @@ def test_d79_pieces():
     assert 'pathlib.Path("/kaggle/working/pg_v_patching")' in src
     assert 'run_cached(CKPT / "selection.jsonl", rows, select_object' in src           # all 469
     assert "is_v_conflicting(r, top1_orig, top1_cf, color_ids, ambiguous)" in src
-    assert "v_sweep_order(selected, p_ids, seed=0, cap=V_CAP)" in src                  # D75 (4)
+    assert "v_sweep_order(selected, p_ids, seed=0, cap=PG_V_CAP)" in src               # D79a
     assert 'build_inputs(original, prompt), build_inputs(counterfact, prompt)' in src  # source, target
     assert "LastTokenRunner" not in src                                                # full forward only
     assert "selection_drift" in src and "has_nonfinite(full)" in src

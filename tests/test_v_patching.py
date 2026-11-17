@@ -230,3 +230,12 @@ def test_script_reads_the_notebook_output_formats(tmp_path):
     saved = json.loads((tmp_path / "out.json").read_text())
     assert saved["result"]["delta_j"]["verdict"] == "greater"
     assert saved["decision"] == "D75" and saved["experiment"] == "v_circuit_overlap"
+
+
+def test_pg_cap_extends_the_244_run_without_reordering():
+    """D79a: a 302-cap resume patches the 244-cap run's objects plus 58 more."""
+    from circuit_overlap.v_patching import PG_V_CAP
+    selected, p_ids = list(range(469)), set(range(0, 469, 4))
+    long = v_sweep_order(selected, p_ids, seed=0, cap=PG_V_CAP)
+    assert PG_V_CAP == 302 and len(long) == 302
+    assert long[:V_CAP] == v_sweep_order(selected, p_ids, seed=0, cap=V_CAP)

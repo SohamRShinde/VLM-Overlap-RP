@@ -21,6 +21,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from analyze_v_circuit import main as v_main  # noqa: E402
 from circuit_overlap.t_patching import finite_records, load_patching_records  # noqa: E402
+from circuit_overlap.v_patching import PG_V_CAP  # noqa: E402
 
 MIN_V_OBJECTS = 60   # D79 (4), D77 (3)'s minimum
 
@@ -42,7 +43,8 @@ def main(v_path: str, out_path: str | None = None) -> dict | None:
     if len(v_records) < MIN_V_OBJECTS:
         print(f"fewer than {MIN_V_OBJECTS}: no D75 verdict (D79 (4))")
         return None
-    return v_main(str(P_FILE), str(T_RECORDS), v_path, str(P_CEILING), str(T_RESULT), out_path)
+    return v_main(str(P_FILE), str(T_RECORDS), v_path, str(P_CEILING), str(T_RESULT), out_path,
+                  cap=PG_V_CAP)
 
 
 if __name__ == "__main__":

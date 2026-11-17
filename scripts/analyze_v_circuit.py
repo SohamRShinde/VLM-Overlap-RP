@@ -67,7 +67,7 @@ def report_pair(name: str, block: dict, first: str, second: str) -> None:
 
 
 def main(p_path: str, t_path: str, v_path: str, ceiling_path: str, t_result_path: str,
-         out_path: str | None = None) -> dict:
+         out_path: str | None = None, cap: int | None = None) -> dict:
     p_records, p_bad = finite_records(load_patching_records(p_path))
     t_records, t_bad = finite_records(load_patching_records(t_path))
     v_records, v_bad = finite_records(load_patching_records(v_path))
@@ -77,7 +77,8 @@ def main(p_path: str, t_path: str, v_path: str, ceiling_path: str, t_result_path
 
     out = analyse_v(p_records, v_records, t_records, p_ceiling, p_result, t_result,
                     n_boot=N_BOOT, seed=SEED, sigma=SIGMA, n_splits=N_SPLITS, n_perm=N_PERM,
-                    core_threshold=CORE_THRESHOLD)
+                    core_threshold=CORE_THRESHOLD,
+                    **({} if cap is None else {"cap": cap}))  # D79a: PaliGemma records its own cap
 
     for tag, path, recs, bad in (("P", p_path, p_records, p_bad), ("T", t_path, t_records, t_bad),
                                  ("V", v_path, v_records, v_bad)):
