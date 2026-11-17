@@ -92,84 +92,199 @@ def observed(ax, y, value, ci, set_key, filled=True):
             color=colour if filled else "white", mec="white" if filled else colour)
 
 
-# --------------------------------------------------------------------------- 1
-def fig_heads(out: Path) -> list[Path]:
-    """All 576 heads: P's PC1 score against T's, in units of each condition's std."""
-    p, t = load(f"replication_patching_{MODEL}.json"), load(f"t_patching_{MODEL}.json")
-    zp = (np.asarray(p["pc1_scores"]) - p["pc1_mean"]) / p["pc1_std"]
-    zt = (np.asarray(t["pc1_scores"]) - t["pc1_mean"]) / t["pc1_std"]
-    sig = p["sigma"]
-    P = {tuple(h) for h in p["promoting"]}
-    T = {tuple(h) for h in t["promoting"]}
-    assert all(zp[h] > sig for h in P) and all(zt[h] > sig for h in T), "PC1 sign or scale mismatch"
-    rho = load(f"t_circuit_overlap_{MODEL}.json")["rank_correlation"]["rho"]
+# --------------------------------------------------------------------------- 0
+RED, PURPLE = "#d6453d", "#8e5cc8"            # the example object's colours (image content, not roles)
+NOTE_FILL, NOTE_EDGE, TILE = "#f6dc6b", "#d8bd45", "#f4f3ee"
 
-    fig, ax = plt.subplots(figsize=(COLUMN_W, 2.9))
+
+def strawberry(ax, cx, cy, colour, a=0.17, b=0.2) -> None:
+    """An egg-shaped fruit, wider at the top, with a leaf cap and a few seeds."""
+    t = np.linspace(0, 2 * np.pi, 120)
+    ax.add_patch(plt.Polygon(np.column_stack([cx + a * np.cos(t) * (1 + 0.28 * np.sin(t)),
+                                              cy + b * np.sin(t)]), color=colour, lw=0, zorder=2))
+    for dx in (-0.07, 0.0, 0.07):
+        ax.add_patch(plt.Polygon([(cx + dx - 0.045, cy + b - 0.02), (cx + 1.6 * dx, cy + b + 0.07),
+                                  (cx + dx + 0.045, cy + b - 0.02)], color="#3f8f4a", lw=0, zorder=3))
+    for sx, sy in [(-0.08, 0.06), (0.0, 0.1), (0.08, 0.05), (-0.04, -0.03), (0.05, -0.06), (0.0, -0.13)]:
+        ax.plot(cx + sx, cy + sy, "o", ms=1.1, color="#f3e7a1", zorder=3)
+
+
+def tile(ax, x, y, s, colour, note=None) -> None:
+    """One input image: the object, and optionally a note written on it."""
+    from matplotlib.patches import FancyBboxPatch
+    ax.add_patch(FancyBboxPatch((x, y), s, s, boxstyle="round,pad=0,rounding_size=0.04",
+                                fc=TILE, ec=AXIS, lw=0.6, zorder=1))
+    strawberry(ax, x + s / 2, y + s * 0.47, colour)
+    if note:
+        w, h = 0.36, 0.14
+        ax.add_patch(plt.Rectangle((x + s / 2 - w / 2, y + s * 0.38 - h / 2), w, h,
+                                   fc=NOTE_FILL, ec=NOTE_EDGE, lw=0.5, zorder=4))
+        ax.text(x + s / 2, y + s * 0.38, note, ha="center", va="center", fontsize=5.8,
+                color=INK, zorder=5, fontfamily="DejaVu Sans Mono")
+
+
+def fig_design(out: Path) -> list[Path]:
+    """Figure 1, a schematic of the three conflicts (illustrative; no result is drawn).
+
+    Each conflict is a pair of runs that differ in one factor; patching swaps one head's
+    last-token output between them, in both directions.
+    """
+    from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+    W, H, s = TEXT_W, 1.78, 0.62
+    prior_q, visual_q = "What color is a\nstrawberry usually?", "What color is this\nstrawberry here?"
+    blocks = [
+        ("P  prompted prior", "prompt varies",
+         [(PURPLE, None, prior_q, "red", RED, "memory"), (PURPLE, None, visual_q, "purple", PURPLE, "image")]),
+        ("T  typographic", "note's word varies",
+         [(RED, "purple", visual_q, "purple", PURPLE, "note"), (RED, "pencil", visual_q, "red", RED, "image")]),
+        ("V  image-varying", "pixels vary",
+         [(RED, None, visual_q, "red", RED, "image"), (PURPLE, None, visual_q, "purple", PURPLE, "image")]),
+    ]
+    fig = plt.figure(figsize=(W, H))
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.set_xlim(0, W)
+    ax.set_ylim(0, H)
+    ax.axis("off")
+    bw, gap = 2.27, 0.08
+    for i, (name, varies, runs) in enumerate(blocks):
+        x0 = 0.02 + i * (bw + gap)
+        ax.add_patch(FancyBboxPatch((x0, 0.03), bw, H - 0.06, boxstyle="round,pad=0,rounding_size=0.06",
+                                    fc="#fbfaf7", ec=GRID, lw=0.7, zorder=0))
+        ax.text(x0 + 0.1, H - 0.17, name, ha="left", va="center", fontsize=7.5, fontweight="bold", color=INK)
+        ax.text(x0 + bw - 0.1, H - 0.17, varies, ha="right", va="center", fontsize=6, color=MUTED)
+        xs = [x0 + 0.24, x0 + bw - 0.24 - s]
+        for x, role in zip(xs, ("source run", "target run")):
+            ax.text(x + s / 2, H - 0.36, role, ha="center", va="center", fontsize=5.8, color=INK2)
+        for x, (obj, note, prompt, answer, ans_col, basis) in zip(xs, runs):
+            tile(ax, x, 0.62, s, obj, note)
+            ax.text(x + s / 2, 0.47, prompt, ha="center", va="center", fontsize=5.4,
+                    color=INK2, linespacing=1.15, style="italic")
+            ax.text(x + s / 2 - 0.02, 0.17, f"$\\rightarrow$ {answer}", ha="right", va="center",
+                    fontsize=7, fontweight="bold", color=ans_col)
+            ax.text(x + s / 2 + 0.02, 0.17, f"({basis})", ha="left", va="center", fontsize=5.6, color=MUTED)
+        ax.add_patch(FancyArrowPatch((xs[0] + s + 0.05, 0.93), (xs[1] - 0.05, 0.93),
+                                     arrowstyle="<|-|>", mutation_scale=6, color=INK2, lw=0.8))
+        ax.text((xs[0] + s + xs[1]) / 2, 1.03, "patch", ha="center", va="bottom", fontsize=5.6, color=INK2)
+    return save(fig, out, "fig_design")
+
+
+# --------------------------------------------------------------------------- 1
+def _zscores(r: dict) -> np.ndarray:
+    return (np.asarray(r["pc1_scores"]) - r["pc1_mean"]) / r["pc1_std"]
+
+
+def _head_panel(ax, zx, zy, groups, labelled, sig, rho, xlabel, ylabel, note="", corner="right") -> None:
+    """Every head's PC1 score in one condition against another's; classified heads marked."""
     for v in (sig, -sig):
         ax.axvline(v, color=AXIS, lw=0.6, ls=(0, (3, 2)), zorder=0)
         ax.axhline(v, color=AXIS, lw=0.6, ls=(0, (3, 2)), zorder=0)
-    rest = [h for h in np.ndindex(zp.shape) if h not in P | T]
-    ax.scatter([zp[h] for h in rest], [zt[h] for h in rest], s=5, color=RANDOM, lw=0,
+    marked = set().union(*(set(heads) for *_, heads in groups))
+    rest = [h for h in np.ndindex(zx.shape) if h not in marked]
+    ax.scatter([zx[h] for h in rest], [zy[h] for h in rest], s=5, color=RANDOM, lw=0,
                zorder=1, label=f"other heads ({len(rest)})")
-    groups = [("P_only", sorted(P - T)), ("T_only", sorted(T - P)), ("shared", sorted(P & T))]
-    for key, heads in groups:
-        colour, marker, label = SET_STYLE[key]
-        ax.scatter([zp[h] for h in heads], [zt[h] for h in heads], s=26, marker=marker,
-                   color=colour, edgecolor="white", lw=0.6, zorder=3, label=label)
-    shared = sorted(P & T, key=lambda h: zp[h])   # direct labels on the shared heads:
-    for i, h in enumerate(shared):                 # below the point if the next one is in the way
-        nxt = shared[i + 1] if i + 1 < len(shared) else None
-        below = nxt is not None and zp[nxt] - zp[h] < 2.5 and abs(zt[nxt] - zt[h]) < 1.0
-        ax.annotate(head_name(*h), (zp[h], zt[h]), xytext=(0, -8) if below else (4, 0),
+    for colour, marker, label, heads in groups:   # an empty group stays in the legend: "(0)" is the finding
+        ax.scatter([zx[h] for h in heads], [zy[h] for h in heads], s=26, marker=marker,
+                   color=colour, edgecolor="white", lw=0.6, zorder=3, label=f"{label} ({len(heads)})")
+    shown = sorted(labelled, key=lambda h: zx[h])  # direct labels; below the point if the next is in the way
+    for i, h in enumerate(shown):
+        nxt = shown[i + 1] if i + 1 < len(shown) else None
+        below = nxt is not None and zx[nxt] - zx[h] < 2.5 and abs(zy[nxt] - zy[h]) < 1.0
+        ax.annotate(head_name(*h), (zx[h], zy[h]), xytext=(0, -8) if below else (4, 0),
                     textcoords="offset points", fontsize=5.8, color=INK2,
                     va="center", ha="center" if below else "left")
-    ax.set_xlabel(r"P condition: PC1 score ($\sigma$ units)")
-    ax.set_ylabel(r"T condition: PC1 score ($\sigma$ units)")
-    ax.text(0.98, 0.98, f"Spearman $\\rho$ = {rho:.2f} over all {zp.size} heads\n"
-                        f"dashed: $\\pm{sig:g}\\sigma$ classification cut",
-            transform=ax.transAxes, va="top", ha="right", fontsize=6, color=INK2)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.text(0.98 if corner == "right" else 0.03, 0.98, f"Spearman $\\rho$ = {rho:.2f} over all {zx.size} heads" + note,
+            transform=ax.transAxes, va="top", ha=corner, fontsize=6, color=INK2)
     ax.legend(loc="lower right", handletextpad=0.3, borderaxespad=0.2)
+
+
+def fig_heads(out: Path) -> list[Path]:
+    """All 576 heads, in units of each condition's std: (a) P against T, (b) V against T."""
+    p, t = load(f"replication_patching_{MODEL}.json"), load(f"t_patching_{MODEL}.json")
+    v = load(f"v_patching_{MODEL}.json")
+    zp, zt, zv = _zscores(p), _zscores(t), _zscores(v)
+    sig = p["sigma"]
+    P, T, V = ({tuple(h) for h in r["promoting"]} for r in (p, t, v))
+    assert all(zp[h] > sig for h in P) and all(zt[h] > sig for h in T) and all(zv[h] > sig for h in V), \
+        "PC1 sign or scale mismatch"
+    rho_pt = load(f"t_circuit_overlap_{MODEL}.json")["rank_correlation"]["rho"]
+    rho_vt = load(f"v_circuit_overlap_{MODEL}.json")["j_vt"]["rank_correlation"]["rho"]
+
+    fig, axes = plt.subplots(2, 1, figsize=(COLUMN_W, 4.8), gridspec_kw={"hspace": 0.45})
+    _head_panel(axes[0], zp, zt,
+                [(P_COL, "o", "P only", sorted(P - T)), (T_COL, "^", "T only", sorted(T - P)),
+                 (SHARED_COL, "D", "P and T", sorted(P & T))],
+                P & T, sig, rho_pt, r"P condition: PC1 score ($\sigma$ units)",
+                r"T condition: PC1 score ($\sigma$ units)",
+                note=f"\ndashed: $\\pm{sig:g}\\sigma$ classification cut")
+    _head_panel(axes[1], zv, zt,
+                [(MUTED, "s", "V only", sorted(V - T)), (T_COL, "^", "T only", sorted(T - V)),
+                 (SHARED_COL, "D", "V and T", sorted(V & T))],
+                set(), sig, rho_vt, r"V condition: PC1 score ($\sigma$ units)",
+                r"T condition: PC1 score ($\sigma$ units)", corner="left")
+    axes[0].set_title("a. prompted prior (P) vs typographic (T)", loc="left", color=INK)
+    axes[1].set_title("b. image-varying (V) vs typographic (T)", loc="left", color=INK)
     return save(fig, out, "fig_heads")
 
 
 # --------------------------------------------------------------------------- 2
 def fig_overlap(out: Path) -> list[Path]:
-    """J_PT on the ruler D70 reads it against: the chance floor and P's split-half ceiling."""
-    o, c = load(f"t_circuit_overlap_{MODEL}.json"), load(f"split_half_ceiling_p_{MODEL}.json")
-    pr, so = o["primary"], o["shared_objects"]
-    rows = []   # (label, kind, payload)
-    rows.append(("P vs P, split halves\n(self-agreement ceiling)", "band",
-                 (c["jaccard_promoting"]["p2_5"], c["jaccard_promoting"]["p97_5"],
-                  c["jaccard_promoting"]["median"], P_COL)))
-    v_path = RES / f"v_circuit_overlap_{MODEL}.json"
-    if v_path.exists():   # filled in once track A's V result is committed
-        print(f"note: {v_path.name} exists but fig_overlap does not plot it yet; add the J_VT row")
-    rows.append((f"P vs T, {so['n_objects']} objects in both", "dot",
-                 (so["j_pt"], so["ci95"], SHARED_COL, "D", False)))
-    rows.append((f"P vs T, all objects\n($J_{{PT}}$, headline)", "dot",
-                 (pr["j_pt"], pr["ci95"], SHARED_COL, "D", True)))
-    rows.append((f"random sets of {pr['set_sizes'][0]} and {pr['set_sizes'][1]}\n(chance floor)", "null",
-                 (pr["chance_floor_mean"], pr["chance_floor_p95_at_observed_sizes"])))
+    """Every circuit overlap on the ruler D70 reads it against (D72 computes, D75 extends it to V).
 
-    fig, ax = plt.subplots(figsize=(COLUMN_W, 1.75))
-    for y, (label, kind, d) in enumerate(rows):
-        if kind == "band":
-            lo, hi, med, col = d
-            ax.add_patch(plt.Rectangle((lo, y - 0.16), hi - lo, 0.32, color=col, alpha=0.3, lw=0))
-            ax.plot([med, med], [y - 0.16, y + 0.16], color=col, lw=1.4)
-        elif kind == "null":
-            null_band(ax, y, *d)
-        else:
-            val, ci, col, marker, filled = d
-            ax.plot(ci, [y, y], color=col, lw=1.4, solid_capstyle="round")
-            ax.plot(val, y, marker, ms=5, color=col if filled else "white", mec=col, mew=1.0)
-            ax.annotate(f"{val:.2f} [{ci[0]:.2f}, {ci[1]:.2f}]", (ci[1], y), xytext=(4, 0),
-                        textcoords="offset points", va="center", fontsize=6, color=INK2)
-    ax.set_yticks(range(len(rows)), [r[0] for r in rows])
-    ax.set_ylim(-0.6, len(rows) - 0.4)
-    ax.set_xlim(0, 1)
-    ax.set_xlabel("Jaccard overlap of promoting heads")
-    ax.grid(axis="y", visible=False)
+    One row per comparison: the observed Jaccard with its bootstrap CI; grey, random head sets of
+    the observed sizes (bar to the 95th percentile, tick at the mean); blue, the split-half
+    self-agreement the row is read against (2.5th-97.5th percentile, tick at the median). Hollow
+    rows use only the objects both conditions keep and carry no ruler of their own.
+    """
+    pt = load(f"t_circuit_overlap_{MODEL}.json")
+    v = load(f"v_circuit_overlap_{MODEL}.json")
+    pg = load("pg_t_circuit_overlap_paligemma2_3b.json")
+    ceilings = {"P": load(f"split_half_ceiling_p_{MODEL}.json")["jaccard_promoting"],
+                "V": v["v_ceiling"]["jaccard_promoting"],
+                "T": v["t_ceiling_summary"]["jaccard_promoting"],
+                "pgP": load("split_half_ceiling_p_paligemma2_3b.json")["jaccard_promoting"]}
+
+    def full(label, block, ceiling):
+        return (label, block["primary"]["j_pt"], block["primary"]["ci95"], True,
+                (block["primary"]["chance_floor_mean"], block["primary"]["chance_floor_p95_at_observed_sizes"]),
+                ceilings[ceiling])
+
+    def shared(label, block):
+        so = block["shared_objects"]
+        return (f"{label} ({so['n_objects']} shared)", so["j_pt"], so["ci95"], False, None, None)
+
+    panels = [
+        ("Qwen2.5-VL-3B", [full("P vs T", pt, "P"), shared("P vs T", pt),
+                           full("V vs T", v["j_vt"], v["j_vt"]["ceiling_binding"]),
+                           full("P vs V", v["j_pv"], v["j_pv"]["ceiling_binding"])]),
+        ("PaliGemma2-3B", [full("P vs T", pg, "pgP"), shared("P vs T", pg)]),
+    ]
+    fig, axes = plt.subplots(2, 1, figsize=(COLUMN_W - 0.3, 2.65), sharex=True,
+                             gridspec_kw={"height_ratios": [len(r) for _, r in panels], "hspace": 0.55})
+    for ax, (title, rows) in zip(axes, panels):
+        for y, (label, val, ci, filled, chance, ceiling) in enumerate(rows):
+            if chance is not None:
+                null_band(ax, y, *chance)
+            if ceiling is not None:
+                ax.add_patch(plt.Rectangle((ceiling["p2_5"], y - 0.16), ceiling["p97_5"] - ceiling["p2_5"],
+                                           0.32, color=P_COL, alpha=0.28, lw=0, zorder=1))
+                ax.plot([ceiling["median"]] * 2, [y - 0.16, y + 0.16], color=P_COL, lw=1.2, zorder=2)
+            ax.plot(ci, [y, y], color=SHARED_COL, lw=1.4, solid_capstyle="round", zorder=3)
+            ax.plot(val, y, "D", ms=4.5, zorder=4, mew=1.0,
+                    color=SHARED_COL if filled else "white", mec="white" if filled else SHARED_COL)
+            ax.annotate(f"{val:.2f} [{ci[0]:.2f}, {ci[1]:.2f}]", (val, y), xytext=(0, 5.5),
+                        textcoords="offset points", ha="center", fontsize=5.8, color=INK2)
+        ax.set_yticks(range(len(rows)), [r[0] for r in rows])
+        ax.set_ylim(len(rows) - 0.5, -0.75)
+        ax.set_title(title, loc="left", color=INK)
+        ax.grid(axis="y", visible=False)
+    dj = v["delta_j"]   # in the gap between the panels (the top panel's tick labels are hidden)
+    axes[0].text(1.0, -0.06, f"pre-registered test: $\\Delta J = J_{{VT}} - J_{{PT}}$ = {dj['delta_j']:+.2f} "
+                             f"[{dj['ci95'][0]:+.2f}, {dj['ci95'][1]:+.2f}]",
+                 transform=axes[0].transAxes, ha="right", va="top", fontsize=6, color=INK2)
+    axes[-1].set_xlim(0, 1)
+    axes[-1].set_xlabel("Jaccard overlap of promoting heads")   # grey/blue are explained in the caption
     return save(fig, out, "fig_overlap")
 
 
@@ -261,7 +376,7 @@ def fig_spatial(out: Path) -> list[Path]:
     names = {"on_object_small": "on object, small", "on_object_medium": "on object, medium",
              "beside_object": "beside object"}
     layouts = [k for k in names if k in sp]
-    fig, ax = plt.subplots(figsize=(COLUMN_W, 1.5))
+    fig, ax = plt.subplots(figsize=(COLUMN_W - 0.27, 1.5))
     for y, k in enumerate(layouts):
         s = sp[k]
         inc, neu = s["T_only_note_mass_incongruent"], s["T_only_note_mass_neutral"]
@@ -281,7 +396,7 @@ def fig_spatial(out: Path) -> list[Path]:
     return save(fig, out, "fig_spatial")
 
 
-FIGURES = [fig_heads, fig_overlap, fig_cross_ablation, fig_h3, fig_spatial]
+FIGURES = [fig_design, fig_heads, fig_overlap, fig_cross_ablation, fig_h3, fig_spatial]
 
 
 def main(out_dir: str | None = None) -> list[Path]:
