@@ -75,6 +75,10 @@ The workshop's page is copied in `docs/DAI.md`.
   vs 5.6%), unlike Qwen. Shared heads carry P (75.2%) and a little of T
   (8.9%). **Mean ablation passes both, so not robust to ablation type**
   (D73 (10)). See RESULTS.md.
+- **PaliGemma V: built, not run** (17 Nov, design D79 = D75 on PaliGemma):
+  selection over all 469, cap 244, patching by layer replay
+  (`replay.patch_example_replay`), checked against D76a's batched path on
+  every head of the first object, with an automatic fallback. ~8 h estimated.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
@@ -111,6 +115,7 @@ apply to both people and both sessions:
   | `notebooks/pg_replication.ipynb` | @SohamRShinde |
   | `notebooks/pg_t_patching.ipynb` | @SohamRShinde |
   | `notebooks/pg_cross_ablation.ipynb` | @SohamRShinde |
+  | `notebooks/pg_v_patching.ipynb` | @SohamRShinde |
 
   Update this table in the same commit when ownership changes. Commit
   notebooks with **outputs cleared**; results go to `results/`, not cell
@@ -142,7 +147,8 @@ apply to both people and both sessions:
   `/kaggle/working/v_patching/`; `pg_replication.ipynb` uses
   `/kaggle/working/pg_replication/` (checkpoints under `ckpt/`);
   `pg_t_patching.ipynb` uses `/kaggle/working/pg_t_patching/` (same layout);
-  `pg_cross_ablation.ipynb` uses `/kaggle/working/pg_cross_ablation/` (same layout).
+  `pg_cross_ablation.ipynb` uses `/kaggle/working/pg_cross_ablation/` (same layout);
+  `pg_v_patching.ipynb` uses `/kaggle/working/pg_v_patching/` (same layout).
   A new notebook gets its own prefix.
 
 ## Setup
@@ -230,6 +236,12 @@ python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
     results/pg_cross_ablation_paligemma2_3b.json \
     results/pg_cross_ablation_records_paligemma2_3b.jsonl.gz \
     results/pg_cross_ablation_analysis_paligemma2_3b.json
+
+# PaliGemma V condition read by D75 as D79 fixes (needs >= 60 V objects; uses the
+# committed PaliGemma P, T and P-ceiling files), CPU only
+.venv/bin/python scripts/analyze_pg_v_circuit.py \
+    results/pg_v_patching_records_paligemma2_3b.jsonl.gz \
+    results/pg_v_circuit_overlap_paligemma2_3b.json
 
 # paper figures (PDF + PNG) into figures/, drawn only from results/
 .venv/bin/python scripts/make_figures.py
