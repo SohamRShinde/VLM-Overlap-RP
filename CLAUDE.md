@@ -75,8 +75,8 @@ The workshop's page is copied in `docs/DAI.md`.
   vs 5.6%), unlike Qwen. Shared heads carry P (75.2%) and a little of T
   (8.9%). **Mean ablation passes both, so not robust to ablation type**
   (D73 (10)). See RESULTS.md.
-- **PaliGemma V: built, not run** (17 Nov, design D79 = D75 on PaliGemma):
-  selection over all 469, cap 244, patching by layer replay
+- **PaliGemma V: running** (17 Nov, design D79 = D75 on PaliGemma):
+  selection over all 469 (380 selected), cap 302 (D79a, PaliGemma T's n), patching by layer replay
   (`replay.patch_example_replay`), checked against D76a's batched path on
   every head of the first object, with an automatic fallback. ~8 h estimated.
 
