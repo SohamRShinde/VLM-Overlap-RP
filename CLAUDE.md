@@ -79,6 +79,11 @@ The workshop's page is copied in `docs/DAI.md`.
   selection over all 469 (380 selected), cap 302 (D79a, PaliGemma T's n), patching by layer replay
   (`replay.patch_example_replay`), checked against D76a's batched path on
   every head of the first object, with an automatic fallback. ~8 h estimated.
+- **PaliGemma H3: built, not run** (18 Nov, design D80 = D74 on PaliGemma):
+  302 T objects x 7 runs and 121 P x 2, eager attention, full forward passes,
+  all 26 layers; primary set T-only (L20H7, L22H4, L22H5, L23H7). GPU helpers
+  `pg_h3.py` (Gemma-2 post-attention norm in the direct effect; pixel-patch
+  check of token order). ~2 h; can run alongside PaliGemma V.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
@@ -116,6 +121,7 @@ apply to both people and both sessions:
   | `notebooks/pg_t_patching.ipynb` | @SohamRShinde |
   | `notebooks/pg_cross_ablation.ipynb` | @SohamRShinde |
   | `notebooks/pg_v_patching.ipynb` | @SohamRShinde |
+  | `notebooks/pg_h3_attention.ipynb` | @SohamRShinde |
 
   Update this table in the same commit when ownership changes. Commit
   notebooks with **outputs cleared**; results go to `results/`, not cell
@@ -148,7 +154,8 @@ apply to both people and both sessions:
   `/kaggle/working/pg_replication/` (checkpoints under `ckpt/`);
   `pg_t_patching.ipynb` uses `/kaggle/working/pg_t_patching/` (same layout);
   `pg_cross_ablation.ipynb` uses `/kaggle/working/pg_cross_ablation/` (same layout);
-  `pg_v_patching.ipynb` uses `/kaggle/working/pg_v_patching/` (same layout).
+  `pg_v_patching.ipynb` uses `/kaggle/working/pg_v_patching/` (same layout);
+  `pg_h3_attention.ipynb` uses `/kaggle/working/pg_h3_attention/` (same layout).
   A new notebook gets its own prefix.
 
 ## Setup
@@ -242,6 +249,13 @@ python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python scripts/analyze_pg_v_circuit.py \
     results/pg_v_patching_records_paligemma2_3b.jsonl.gz \
     results/pg_v_circuit_overlap_paligemma2_3b.json
+
+# PaliGemma H3 mechanism read by D74 as D80 fixes (all 26 layers; reports the
+# eager-attention drift rule; routing check descriptive), CPU only
+.venv/bin/python scripts/analyze_pg_h3.py \
+    results/pg_h3_attention_paligemma2_3b.json \
+    results/pg_h3_attention_records_paligemma2_3b.jsonl.gz \
+    results/pg_h3_analysis_paligemma2_3b.json
 
 # paper figures (PDF + PNG) into figures/, drawn only from results/
 .venv/bin/python scripts/make_figures.py
