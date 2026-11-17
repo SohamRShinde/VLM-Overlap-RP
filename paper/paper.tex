@@ -243,8 +243,9 @@ unclassified heads; the empirical p-value uses an add-one correction. The
 preregistered primary tests ablate $\HP$ on T objects and $\HT$ on P
 objects, at a pre-registered $\alpha=\hTwoAlpha$. With \hTwoDraws{} draws,
 the smallest attainable p-value is \hTwoMinP. We also decompose
-each set into shared, P-only and T-only heads. For PaliGemma,
-we use an exact replay from the earliest ablated layer, checked against full
+each set into shared, P-only and T-only heads. On Qwen, ablation uses the
+same cached last-token step as discovery, checked against full forward passes.
+For PaliGemma, we use an exact replay from the earliest ablated layer, checked against full
 forward passes. Mean ablation with \pgMeanDraws{} random draws on PaliGemma is
 the robustness check.
 
@@ -554,8 +555,9 @@ only.
 parameters and are quantised to 4 bits. Head indices do not correspond across
 models, and the PaliGemma cross-ablation verdict depends on the ablation type.
 \paragraph{Intervention position.} Interventions and attention are measured at
-the last token only. PaliGemma's bidirectional prefix requires an exact replay
-rather than Qwen's cached last-token step.
+the last token only. PaliGemma's bidirectional prefix rules out Qwen's cached
+last-token step, so its discovery uses full forward passes and its ablation an
+exact replay of the later layers.
 \paragraph{Statistics.} Head selection makes a positive direct effect for the
 T-only heads partly expected; the attention result does not share this problem.
 ``Object'' tokens cover only the recoloured region and can omit parts of an
