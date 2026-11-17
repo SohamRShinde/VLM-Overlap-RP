@@ -52,10 +52,13 @@ def line(name: str, t: dict | None) -> str:
             f"p = {t['p']:.4f}")
 
 
-def main(summary_path: str, records_path: str, out_path: str | None = None) -> dict:
+def main(summary_path: str, records_path: str, out_path: str | None = None,
+         first_layer: int | None = None) -> dict:
     summary = json.loads(Path(summary_path).read_text())
     plan = summary["result"]["plan"]
-    out = analyse_h3(plan, load_records(records_path), n_boot=N_BOOT, seed=SEED)
+    # D80 (3): PaliGemma stores every layer; Qwen's default (20) is unchanged.
+    kw = {} if first_layer is None else {"first_layer": first_layer}
+    out = analyse_h3(plan, load_records(records_path), n_boot=N_BOOT, seed=SEED, **kw)
 
     print(f"objects: P {out['n_objects']['P']} (dropped {out['n_dropped']['P']}), "
           f"T {out['n_objects']['T']} (dropped {out['n_dropped']['T']}); "
