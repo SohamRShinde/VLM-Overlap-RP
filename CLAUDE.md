@@ -53,7 +53,7 @@ The workshop's page is copied in `docs/DAI.md`.
   write the image's colour. Shared heads do neither. "Object" tokens are the
   recoloured pixels only. See RESULTS.md.
 - **V condition (track A): done** (4 Nov, kushviradiya; run at `ca080d5`,
-  design D75, proposed and awaiting @SohamRShinde). 244 of 392 selected
+  design D75, approved 17 Nov by @SohamRShinde). 244 of 392 selected
   objects patched; V's 7 promoting heads are all T heads. **dJ = J_VT - J_PT
   = +0.271 [+0.163, +0.289], verdict "J_VT > J_PT"** (J_VT 0.583, J_PV
   0.231). See RESULTS.md.
