@@ -81,3 +81,6 @@ paper/main.pdf
 AuthorKit27/Word/
 # generated single-file submission (scripts/flatten_paper.py)
 paper/*_flat.tex
+
+# local LaTeX build: the PDF and the Prism/Overleaf upload bundle
+paper/build/

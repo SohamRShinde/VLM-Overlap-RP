@@ -14,7 +14,9 @@
   `numbers.tex` is stale or the text uses an undefined macro.
 - Verdict sentences are the pre-registered phrases (D70, D73, D74); they come in
   as macros too.
-- `\todo{...}` marks anything unverified or unfinished; red in the PDF.
+- `\todo{...}` marked anything unverified or unfinished. All were resolved on 16 Nov
+  and the `\todo` / `\figplaceholder` definitions removed for submission; re-add
+  them to the preamble if drafting resumes.
 - `refs.bib`: every entry is checked against its source before submission;
   unconfirmed titles carry `[VERIFY]`.
 - `paper.tex` (15 Nov) uses the AAAI-27 Author Kit (`AuthorKit27/`) for the
@@ -22,3 +24,12 @@
   It is drafted in Prism with `paper/prism_prompts.md`. The local TeX install
   lacks `newtxtext.sty`, which `aaai2027.sty` needs, so it builds in Prism.
 - Build outputs (`main.pdf`, `.aux`, ...) are git-ignored; build locally.
+- **Local build (16 Nov, MiKTeX 25.12, packages auto-installed):** copy `paper.tex`,
+  `numbers.tex`, `refs.bib`, `AuthorKit27/aaai2027.sty`, `AuthorKit27/aaai2027.bst` and
+  `figures/*.pdf` (into a `figures/` subfolder) into one folder, then
+  `pdflatex paper && bibtex paper && pdflatex paper && pdflatex paper`. The same folder
+  layout is what Prism/Overleaf needs: if those files are missing there, every result
+  macro prints as `[JPT]`-style text and citations as `[?]`. `\graphicspath` also finds
+  `../figures/` when building inside `paper/`.
+- Page budget (Deployable AI long track): 7 pages of main text; references and the
+  appendices after them do not count. As of 16 Nov the main text ends on page 7.
