@@ -261,6 +261,10 @@
 \newcommand{\nTonlyInV}{4}  % descriptive.t_only_heads_in_v.n
 \newcommand{\nSharedInV}{3}  % descriptive.shared_heads_in_v.n
 \newcommand{\containVinP}{0.43}  % descriptive.containment_v_in_p_promoting
+\newcommand{\nSharedObjectsVT}{143}  % j_vt shared_objects.n_objects
+\newcommand{\JVTshared}{0.500}  % j_vt shared_objects.j_pt
+\newcommand{\JVTsharedLo}{0.385}  % j_vt shared_objects.ci95[0]
+\newcommand{\JVTsharedHi}{0.583}  % j_vt shared_objects.ci95[1]
 
 % --- PaliGemma replication, results/pg_replication_{patching,knockout}_paligemma2_3b.json, split_half_ceiling_p_paligemma2_3b.json (D76, D76a)
 \newcommand{\pgLayers}{26}  % pg_replication_patching pc1_scores shape
@@ -389,3 +393,15 @@
 \newcommand{\pgMeanTtoPP}{0.0196}  % pg mean_ablation T->P p
 \newcommand{\pgMeanTtoPVerdict}{ablating $\mathcal{H}_T$ defeats the P override more than layer-matched random heads}  % pg mean_ablation T->P wording
 \newcommand{\pgMeanSentence}{Mean ablation changes at least one verdict, so the verdict is not robust to the ablation type.}  % pg mean_ablation.same_wording_as_zero
+
+% --- Head lists, the promoting/suppressing fields of each discovery file (appendix table)
+\newcommand{\listPProm}{L26H0, L26H5, L26H6, L27H1, L27H4, L28H3, L31H3, L31H7, L34H14}  % replication_patching_qwen25vl3b.json promoting
+\newcommand{\listPSup}{L26H3, L27H2, L28H4, L30H3, L31H8, L34H10}  % replication_patching_qwen25vl3b.json suppressing
+\newcommand{\listTProm}{L26H0, L26H5, L29H2, L31H3, L31H7, L32H6, L32H7, L32H13, L33H1, L33H3, L33H14, L34H14}  % t_patching_qwen25vl3b.json promoting
+\newcommand{\listTSup}{L26H3, L26H7, L28H4, L30H3, L31H8, L34H10}  % t_patching_qwen25vl3b.json suppressing
+\newcommand{\listVProm}{L31H3, L31H7, L32H6, L32H13, L33H3, L33H14, L34H14}  % v_patching_qwen25vl3b.json promoting
+\newcommand{\listVSup}{L34H10}  % v_patching_qwen25vl3b.json suppressing
+\newcommand{\pgListPProm}{L15H7, L16H4, L17H7, L20H3, L22H1, L24H3, L25H2, L25H4}  % pg_replication_patching_paligemma2_3b.json promoting
+\newcommand{\pgListPSup}{L17H4, L25H5}  % pg_replication_patching_paligemma2_3b.json suppressing
+\newcommand{\pgListTProm}{L20H3, L20H7, L22H4, L22H5, L23H7, L24H3, L25H2, L25H4}  % pg_t_patching_paligemma2_3b.json promoting
+\newcommand{\pgListTSup}{L17H4, L24H2, L25H5}  % pg_t_patching_paligemma2_3b.json suppressing

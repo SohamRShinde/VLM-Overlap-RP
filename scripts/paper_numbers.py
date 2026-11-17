@@ -276,6 +276,11 @@ def build() -> Macros:
     m.add("nTonlyInV", str(vd["t_only_heads_in_v"]["n"]), "descriptive.t_only_heads_in_v.n")
     m.add("nSharedInV", str(vd["shared_heads_in_v"]["n"]), "descriptive.shared_heads_in_v.n")
     m.add("containVinP", f"{vd['containment_v_in_p_promoting']:.2f}", "descriptive.containment_v_in_p_promoting")
+    vs = vo["j_vt"]["shared_objects"]
+    m.add("nSharedObjectsVT", str(vs["n_objects"]), "j_vt shared_objects.n_objects")
+    m.add("JVTshared", f"{vs['j_pt']:.3f}", "j_vt shared_objects.j_pt")
+    m.add("JVTsharedLo", f"{vs['ci95'][0]:.3f}", "j_vt shared_objects.ci95[0]")
+    m.add("JVTsharedHi", f"{vs['ci95'][1]:.3f}", "j_vt shared_objects.ci95[1]")
 
     # ------------------------------------------------------------ PaliGemma
     pg = "paligemma2_3b"
@@ -364,6 +369,19 @@ def build() -> Macros:
     m.add("pgMeanSentence", "Mean ablation gives the same verdicts." if ma["same_wording_as_zero"]
           else "Mean ablation changes at least one verdict, so the verdict is not robust to the ablation type.",
           "pg mean_ablation.same_wording_as_zero")
+
+    # ------------------------------------------------------------ head lists (appendix table)
+    m.section("Head lists, the promoting/suppressing fields of each discovery file (appendix table)")
+
+    def head_list(heads) -> str:
+        return ", ".join(f"L{l}H{h}" for l, h in sorted(tuple(x) for x in heads)) or "none"
+    for stem, fname in [("listP", f"replication_patching_{MODEL}.json"), ("listT", f"t_patching_{MODEL}.json"),
+                        ("listV", f"v_patching_{MODEL}.json"),
+                        ("pgListP", f"pg_replication_patching_{pg}.json"),
+                        ("pgListT", f"pg_t_patching_{pg}.json")]:
+        r = load(fname)
+        m.add(stem + "Prom", head_list(r["promoting"]), f"{fname} promoting")
+        m.add(stem + "Sup", head_list(r["suppressing"]), f"{fname} suppressing")
     return m
 
 
