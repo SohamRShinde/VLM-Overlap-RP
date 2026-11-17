@@ -42,6 +42,9 @@ __all__ = [
     "ablate_rows_last_token",
     "start_layer",
     "replay_groups",
+    "patch_jobs",
+    "record_with_activations",
+    "patch_example_replay",
 ]
 
 SOFTCAP_TOL = 0.1      # |dlogit| allowed when matching the full pass's logits
@@ -75,6 +78,17 @@ def replay_groups(names: Sequence[str], configs: Mapping[str, Sequence], batch_s
         for k in range(0, len(group), batch_size):
             out.append((s, group[k:k + batch_size]))
     return out
+
+
+def patch_jobs(layers: Sequence[int], n_heads: int, batch_size: int) -> list[tuple[int, list[int]]]:
+    """Single-head patching jobs as (layer, heads) batches, one layer per batch (D79 (3)).
+
+    Each batch replays from its own layer, so a batch never mixes layers.
+    """
+    if batch_size < 1:
+        raise ValueError("batch_size must be positive")
+    heads = list(range(n_heads))
+    return [(int(l), heads[k:k + batch_size]) for l in layers for k in range(0, n_heads, batch_size)]
 
 
 def _decoder_layers(model):
@@ -235,3 +249,76 @@ class LayerReplay:
         with torch.no_grad(), ablate_rows_last_token(self.model, row_heads, head_dim, values):
             hidden = self._run(start, len(row_heads))
             return self._final(hidden)
+
+
+def record_with_activations(model, inputs, softcap="auto"):
+    """A ``LayerReplay`` from layer 0 plus the run's last-position ``o_proj`` inputs.
+
+    One full pass does both. The head's soft-capping is decided after the
+    capture hook is gone, so re-running the last layer cannot overwrite the
+    captured activations.
+    """
+    from circuit_overlap.patching import capture_last_token_o_proj_inputs
+
+    with capture_last_token_o_proj_inputs(model) as acts:
+        rep = LayerReplay(model, inputs, 0, softcap=None)
+    if softcap == "auto":
+        rep.head_check = rep._choose_head()
+    else:
+        rep.softcap = softcap
+    return rep, dict(acts)
+
+
+def patch_example_replay(model, source_inputs, target_inputs, head_dim: int, batch_size: int = 8,
+                         layers: Sequence[int] | None = None, softcap="auto") -> dict | None:
+    """``paligemma.patch_example_batched`` by layer replay (D79 (3)): same record, same skip rule.
+
+    Each run is recorded once from layer 0; the head patched at layer l then
+    recomputes layers l.. only. The record adds ``replay_check``: the larger of
+    the two runs' |unablated replay from layer 0 - full pass| (its
+    ``LayerReplay.logits``), which the notebook compares with a tolerance.
+    """
+    import torch
+
+    rep_source, acts_source = record_with_activations(model, source_inputs, softcap)
+    rep_target, acts_target = record_with_activations(model, target_inputs, rep_source.softcap)
+    out_source, out_target = rep_source.logits, rep_target.logits
+    a_prior, a_visual = int(out_source.argmax()), int(out_target.argmax())
+    if a_prior == a_visual:
+        return None
+
+    n_layers = rep_source.n_layers
+    layers = list(range(n_layers)) if layers is None else list(layers)
+    n_heads = acts_source[0].shape[0] // head_dim
+    jobs = patch_jobs(layers, n_heads, batch_size)
+
+    with torch.no_grad():
+        replay_check = max(float((rep.replay([[]], 0, head_dim)[0] - rep.logits).abs().max())
+                           for rep in (rep_source, rep_target))
+
+    def sweep(rep, acts):
+        logit_prior = [[float("nan")] * n_heads for _ in range(n_layers)]
+        logit_visual = [[float("nan")] * n_heads for _ in range(n_layers)]
+        for layer, heads in jobs:
+            values = {(layer, h): acts[layer][h * head_dim:(h + 1) * head_dim] for h in heads}
+            out = rep.replay([[(layer, h)] for h in heads], layer, head_dim, values)
+            for row, h in enumerate(heads):
+                logit_prior[layer][h] = float(out[row, a_prior])
+                logit_visual[layer][h] = float(out[row, a_visual])
+        return logit_prior, logit_visual
+
+    p2v_prior, p2v_visual = sweep(rep_target, acts_source)    # source's heads into the target run
+    v2p_prior, v2p_visual = sweep(rep_source, acts_target)
+    return {
+        "next_token_idx_prior": a_prior,
+        "next_token_idx_visual": a_visual,
+        "prior_token_logit_prior_run": float(out_source[a_prior]),
+        "visual_token_logit_prior_run": float(out_source[a_visual]),
+        "prior_token_logit_visual_run": float(out_target[a_prior]),
+        "visual_token_logit_visual_run": float(out_target[a_visual]),
+        "p2v_logit_prior": p2v_prior,
+        "p2v_logit_visual": p2v_visual,
+        "v2p_logit_prior": v2p_prior,
+        "v2p_logit_visual": v2p_visual,
+        "replay_check": replay_check,
+    }

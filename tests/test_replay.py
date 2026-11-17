@@ -43,3 +43,14 @@ def test_replay_groups_on_the_real_paligemma_plan():
         for start, chunk in groups:
             for n in chunk:
                 assert (start_layer(configs[n]) or first) == start
+
+
+def test_patch_jobs_cover_every_head_once_and_never_mix_layers():
+    from circuit_overlap.replay import patch_jobs
+
+    jobs = patch_jobs(range(26), n_heads=8, batch_size=8)
+    assert len(jobs) == 26 and all(heads == list(range(8)) for _, heads in jobs)
+    small = patch_jobs([3, 7], n_heads=8, batch_size=3)
+    assert small == [(3, [0, 1, 2]), (3, [3, 4, 5]), (3, [6, 7]), (7, [0, 1, 2]), (7, [3, 4, 5]), (7, [6, 7])]
+    flat = [(l, h) for l, heads in patch_jobs(range(26), 8, 5) for h in heads]
+    assert sorted(flat) == [(l, h) for l in range(26) for h in range(8)]
