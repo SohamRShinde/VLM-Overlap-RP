@@ -356,9 +356,9 @@ and T-only heads sit above the cut in one condition and near zero in the other.
 \includegraphics[width=\columnwidth]{fig_overlap}
 \caption{Every circuit overlap, with its bootstrap 95\% CI, on the scale it is
 read against: the chance floor (grey: random head sets of the observed sizes)
-and the split-half self-agreement of the noisier circuit (blue). Hollow markers
+and the split-half self-agreement of the noisier circuit (gold). Hatched bars
 use only the objects both conditions keep. The pre-registered test of
-$J_{VT}$ against $J_{PT}$ is printed above the Qwen panel.}
+$J_{VT}$ against $J_{PT}$ is printed below the Qwen panel.}
 \label{fig:overlap}
 \end{figure}
 
@@ -431,8 +431,8 @@ $\HT$ on P gives \pgMeanTtoPObs\% vs \pgMeanTtoPNull\%
 \includegraphics[width=0.66\textwidth]{fig_cross_ablation}
 \caption{Cross-ablation on Qwen. Share of objects whose override is defeated by
 zero-ablating each head set, with 95\% bootstrap CIs. Grey: \hTwoDraws{}
-layer-matched random sets (bar to the 95th percentile, tick at the mean). Hollow
-markers have no random control (descriptive).}
+layer-matched random sets (bar at the mean, whisker to the 95th percentile).
+Hatched bars have no random control (descriptive).}
 \label{fig:h2}
 \end{figure*}
 
@@ -475,8 +475,8 @@ $p=\hThreeRoutingP$). V gives independent support: \nTonlyInV{} of these
 set's heads; (b) the set's summed direct effect toward the note's colour, both on
 T objects with the incongruent note. (c) The T-only heads' direct effect with the
 note, and with no note on T's clean images and P's Visual-prompt runs (negative =
-toward the image's colour). Grey as in Fig.~\ref{fig:h2}; whiskers are 95\%
-bootstrap CIs.}
+toward the image's colour). Grey as in Fig.~\ref{fig:h2} (whisker to the 5th
+percentile where the test is one-sided below); black whiskers are 95\% bootstrap CIs.}
 \label{fig:h3}
 \end{figure*}
 
@@ -609,9 +609,9 @@ neutral word (Fig.~\ref{fig:spatial}).
 \begin{figure}[h]
 \centering
 \includegraphics[width=\columnwidth]{fig_spatial}
-\caption{Attention mass of Qwen's T-only heads on note tokens, by note
-placement, with a neutral word (hollow) and with the colour word (filled), and
-the share of T objects the incongruent note fools at that placement.}
+\caption{(a) Attention mass of Qwen's T-only heads on note tokens, by note
+placement, with a neutral word (grey circles) and with the colour word (orange
+triangles); (b) the share of T objects the incongruent note fools at that placement.}
 \label{fig:spatial}
 \end{figure}
 
