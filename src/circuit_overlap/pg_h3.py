@@ -199,7 +199,7 @@ def check_direct_effect_formula_gemma(model, runner, tok_a: int, tok_b: int, lay
     """The logit-lens pieces must reproduce the model (D80 (5)-(6)).
 
     (a) the lens on the final residual gives the model's own logit difference,
-    with no final soft-capping; (b) one layer's per-head residual contributions
+    plain or soft-capped, whichever the model does (D80a); (b) one layer's per-head residual contributions
     sum to ``post_attention_layernorm``'s output. Raises if either fails.
     """
     import torch
@@ -220,11 +220,17 @@ def check_direct_effect_formula_gemma(model, runner, tok_a: int, tok_b: int, lay
         "logit_diff_lens": float(lens[tok_a] - lens[tok_b]),
         "head_sum_vs_post_norm": float((parts - whole).abs().max() / whole.abs().max().clamp_min(1e-6)),
     }
+    # D80a: the head is whichever form reproduces the model, plain or soft-capped
+    # (D78's replay decides it the same way). Direct effects stay pre-cap: the cap
+    # is a monotone squash applied after the heads' contributions are summed.
+    out["head"], out["lens_error"] = "plain", abs(out["logit_diff_model"] - out["logit_diff_lens"])
     cap = getattr(model.config.text_config, "final_logit_softcapping", None)
     if cap:
         capped = torch.tanh(lens / cap) * cap
         out["logit_diff_lens_if_capped"] = float(capped[tok_a] - capped[tok_b])
-    out["lens_error"] = abs(out["logit_diff_model"] - out["logit_diff_lens"])
+        err = abs(out["logit_diff_model"] - out["logit_diff_lens_if_capped"])
+        if err < out["lens_error"]:
+            out["head"], out["lens_error"] = f"softcapped at {cap}", err
     if out["lens_error"] > atol or out["head_sum_vs_post_norm"] > 2e-2:
         raise RuntimeError(f"direct-effect pieces disagree with the model: {out}. Do not run H3.")
     return out
