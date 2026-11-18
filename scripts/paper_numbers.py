@@ -370,6 +370,75 @@ def build() -> Macros:
           else "Mean ablation changes at least one verdict, so the verdict is not robust to the ablation type.",
           "pg mean_ablation.same_wording_as_zero")
 
+    m.section("PaliGemma H3 mechanism, results/pg_h3_analysis_paligemma2_3b.json (D80, D80a)")
+    ph = load(f"pg_h3_analysis_{pg}.json")
+    pht = {**ph["primary"], **ph["secondary"], **ph["validation"]}
+    m.add("pgThreeNT", str(ph["n_objects"]["T"]), "pg_h3 n_objects.T")
+    m.add("pgThreeNP", str(ph["n_objects"]["P"]), "pg_h3 n_objects.P")
+    m.add("pgThreeDropT", str(ph["n_dropped"]["T"]), "pg_h3 n_dropped.T (drift under eager attention)")
+    m.add("pgThreeDropP", str(ph["n_dropped"]["P"]), "pg_h3 n_dropped.P (drift under eager attention)")
+    m.add("pgThreeMechanism", ph["mechanism"], "pg_h3 mechanism (D74 fixed phrase)")
+    for key, prefix, d in [
+            ("A", "pgThreeA", 3), ("W", "pgThreeW", 2),
+            ("A:shared", "pgThreeAS", 3), ("W:shared", "pgThreeWS", 2),
+            ("A:P_only", "pgThreeAPO", 3), ("W:P_only", "pgThreeWPO", 2),
+            ("A_rise:T_only", "pgThreeRise", 3), ("A_rise:shared", "pgThreeRiseS", 3),
+            ("object:clean", "pgThreeObjClean", 3), ("image_colour:clean", "pgThreeColClean", 2),
+            ("object:P_visual", "pgThreeObjPV", 3), ("image_colour:P_visual", "pgThreeColPV", 2),
+            ("routing:P", "pgThreeRouting", 3)]:
+        test(m, prefix, pht[key], f"pg_h3 {key}", scale=1, d=d, sign=(d == 2))
+    pds = ph["descriptive"]
+    m.add("pgNoteShare", pct(pds["note_token_share"]), "pg_h3 descriptive.note_token_share")
+    pen = pds["note_enrichment"]
+    m.add("pgEnrichInc", f"{pen['T_only:on_object_small/incongruent']:.1f}", "pg_h3 note_enrichment T_only incongruent")
+    m.add("pgEnrichNeu", f"{pen['T_only:on_object_small/neutral']:.1f}", "pg_h3 note_enrichment T_only neutral")
+    for k, word in [("on_object_small", "Small"), ("on_object_medium", "Medium"), ("beside_object", "Beside")]:
+        m.add(f"pgFool{word}", pct(pds["spatial"][k]["fool_rate"], 1), f"pg_h3 spatial {k} fool_rate")
+
+    m.section("PaliGemma V condition, results/pg_v_patching_paligemma2_3b.json, "
+              "pg_v_circuit_overlap_paligemma2_3b.json (D79, D79a, D79b)")
+    pvp = load(f"pg_v_patching_{pg}.json")
+    pvo = load(f"pg_v_circuit_overlap_{pg}.json")
+    if pvo["parameters"]["n_boot"] != params["n_boot"] or pvo["parameters"]["n_perm"] != params["n_perm"]:
+        raise ValueError("pg V overlap parameters differ from the ones the Method section states")
+    m.add("pgNVselected", str(pvp["n_selected"]), "pg_v_patching n_selected")
+    m.add("pgNV", str(pvp["n_scored"]), "pg_v_patching n_scored")
+    m.add("pgVcap", str(pvp["cap"]), "pg_v_patching cap (D79a)")
+    m.add("pgNPromV", str(len(pvo["v_promoting"])), "pg_v_circuit_overlap v_promoting")
+    m.add("pgNSupV", str(len(pvo["v_suppressing"])), "pg_v_circuit_overlap v_suppressing")
+    m.add("pgLayersV", layers(pvo["v_promoting"]), "layers of pg v_promoting")
+    m.add("pgVceilingLo", f"{pvo['v_ceiling']['jaccard_promoting']['p2_5']:.3f}", "pg v_ceiling jaccard_promoting.p2_5")
+    for key, name in [("j_vt", "pgJVT"), ("j_pv", "pgJPV")]:
+        pr = pvo[key]["primary"]
+        m.add(name, f"{pr['j_pt']:.3f}", f"pg {key} primary.j_pt")
+        m.add(name + "Lo", f"{pr['ci95'][0]:.3f}", f"pg {key} primary.ci95[0]")
+        m.add(name + "Hi", f"{pr['ci95'][1]:.3f}", f"pg {key} primary.ci95[1]")
+        m.add(name + "Verdict", pr["wording"], f"pg {key} primary.wording (D70 fixed phrase)")
+        m.add(name + "ChanceEdge", f"{pr['chance_floor_p95_at_observed_sizes']:.3f}",
+              f"pg {key} primary.chance_floor_p95_at_observed_sizes")
+    m.add("pgNSharedPV", str(len(pvo["j_pv"]["shared_promoting"])), "pg j_pv shared_promoting")
+    m.add("pgNSharedVT", str(len(pvo["j_vt"]["shared_promoting"])), "pg j_vt shared_promoting")
+    pdj = pvo["delta_j"]
+    m.add("pgdJ", num(pdj["delta_j"], 3, True), "pg delta_j.delta_j")
+    m.add("pgdJLo", num(pdj["ci95"][0], 3, True), "pg delta_j.ci95[0]")
+    m.add("pgdJHi", num(pdj["ci95"][1], 3, True), "pg delta_j.ci95[1]")
+    m.add("pgdJVerdict", pdj["wording"].replace("J_VT", "$J_{VT}$").replace("J_PT", "$J_{PT}$")
+          .replace("$ > $", " > "), "pg delta_j.wording (D75 fixed phrase)")
+    pvd = pvo["descriptive"]
+    m.add("pgNTonlyInV", str(pvd["t_only_heads_in_v"]["n"]), "pg descriptive.t_only_heads_in_v.n")
+    m.add("pgNTonly", str(pvd["t_only_heads_in_v"]["of"]), "pg descriptive.t_only_heads_in_v.of")
+    m.add("pgNSharedInV", str(pvd["shared_heads_in_v"]["n"]), "pg descriptive.shared_heads_in_v.n")
+    m.add("pgContainVinP", f"{pvd['containment_v_in_p_promoting']:.2f}", "pg descriptive.containment_v_in_p_promoting")
+    pvs = pvo["j_vt"]["shared_objects"]
+    m.add("pgNSharedObjectsVT", str(pvs["n_objects"]), "pg j_vt shared_objects.n_objects")
+    m.add("pgJVTshared", f"{pvs['j_pt']:.3f}", "pg j_vt shared_objects.j_pt")
+    m.add("pgJVTsharedLo", f"{pvs['ci95'][0]:.3f}", "pg j_vt shared_objects.ci95[0]")
+    m.add("pgJVTsharedHi", f"{pvs['ci95'][1]:.3f}", "pg j_vt shared_objects.ci95[1]")
+    m.add("pgSoftcapSentence", "Analysing the logits as recorded gives the same head sets and verdict."
+          if pvo["d79b"]["same_as_primary"] else
+          "Analysing the logits as recorded changes the head sets or the verdict.",
+          "pg d79b.same_as_primary")
+
     # ------------------------------------------------------------ head lists (appendix table)
     m.section("Head lists, the promoting/suppressing fields of each discovery file (appendix table)")
 
@@ -382,6 +451,11 @@ def build() -> Macros:
         r = load(fname)
         m.add(stem + "Prom", head_list(r["promoting"]), f"{fname} promoting")
         m.add(stem + "Sup", head_list(r["suppressing"]), f"{fname} suppressing")
+    # PaliGemma V: the D79b (uncapped) analysis's sets, which the text reports.
+    def label_list(labels) -> str:
+        return ", ".join(sorted(labels, key=lambda s: tuple(map(int, s[1:].split("H"))))) or "none"
+    m.add("pgListVProm", label_list(pvo["v_promoting"]), f"pg_v_circuit_overlap_{pg}.json v_promoting")
+    m.add("pgListVSup", label_list(pvo["v_suppressing"]), f"pg_v_circuit_overlap_{pg}.json v_suppressing")
     return m
 
 
