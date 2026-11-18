@@ -26,7 +26,7 @@ text** (D01a, 15 Nov). **Due 20 Nov 2026 AoE** on OpenReview; notification
 2 Dec. Framing stays interpretability, which the workshop lists in scope (D04).
 The workshop's page is copied in `docs/DAI.md`.
 
-## Status, 11 Nov 2026
+## Status, 18 Nov 2026
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
 - **Replication gate (D40): PASSED** on all six criteria (thresholds
@@ -75,10 +75,11 @@ The workshop's page is copied in `docs/DAI.md`.
   vs 5.6%), unlike Qwen. Shared heads carry P (75.2%) and a little of T
   (8.9%). **Mean ablation passes both, so not robust to ablation type**
   (D73 (10)). See RESULTS.md.
-- **PaliGemma V: running** (17 Nov, design D79 = D75 on PaliGemma):
-  selection over all 469 (380 selected), cap 302 (D79a, PaliGemma T's n), patching by layer replay
-  (`replay.patch_example_replay`), checked against D76a's batched path on
-  every head of the first object, with an automatic fallback. ~8 h estimated.
+- **PaliGemma V: done** (18 Nov, design D79, amendments D79a cap 302 and D79b
+  uncapped logits; transformers 5.23.0). 302 of 380 selected objects patched by
+  layer replay. **dJ = J_VT - J_PT = +0.467 [+0.336, +0.467], verdict "J_VT >
+  J_PT"**, as on Qwen (J_VT 0.800: every T head is a V head; J_PV 0.385). See
+  RESULTS.md.
 - **PaliGemma H3: done** (18 Nov, run at `89eeb7c`, design D80, amendment D80a):
   297 T and 115 P objects (11 drift). **Both primary tests pass: "the T-only heads
   read the note and write its colour"**, as on Qwen (note mass 0.150 vs random

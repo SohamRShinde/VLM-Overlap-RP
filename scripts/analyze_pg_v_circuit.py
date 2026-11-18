@@ -67,7 +67,26 @@ def main(v_path: str, out_path: str | None = None) -> dict | None:
           f"dJ {raw['delta_j']['delta_j']:+.3f} [{raw['delta_j']['ci95'][0]:+.3f}, {raw['delta_j']['ci95'][1]:+.3f}] -> {raw['delta_j']['wording']}")
     print("  same head sets and dJ verdict as the primary analysis" if same
           else "  DIFFERS from the primary analysis: report both")
+    if out_path:
+        record_d79b(out_path, v_path, raw, same)
     return out
+
+
+def record_d79b(out_path: str, v_path: str, raw: dict, same: bool) -> None:
+    """Point the file's V source at the real records (not the temporary uncapped copy)
+    and add the as-recorded check (D79b (1))."""
+    env = json.loads(Path(out_path).read_text())
+    env["sources"]["v"] = v_path
+    env["decision"] = "D75 as fixed by D79, D79a, D79b"
+    env["result"]["d79b"] = {
+        "v_logits": f"mapped back from the head's soft-cap at {PG_HEAD_SOFTCAP:g} before analysis",
+        "as_recorded": {"v_promoting": raw["v_promoting"], "v_suppressing": raw["v_suppressing"],
+                        "delta_j": raw["delta_j"]["delta_j"], "ci95": raw["delta_j"]["ci95"],
+                        "verdict": raw["delta_j"]["verdict"]},
+        "same_as_primary": same,
+    }
+    Path(out_path).write_text(json.dumps(env, indent=2) + "\n")
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
