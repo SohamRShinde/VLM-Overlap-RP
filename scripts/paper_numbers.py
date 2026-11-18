@@ -67,6 +67,14 @@ def pval(p: float) -> str:
     return f"{p:.2f}" if p >= 0.1 else f"{p:.4f}".rstrip("0")
 
 
+def binding_ceiling(vo: dict, key: str, p_ceiling: dict) -> tuple[float, str]:
+    """2.5th percentile of the split-half ceiling a V comparison is read against (the lower one, D75)."""
+    b = vo[key]["ceiling_binding"]
+    src = {"P": p_ceiling, "V": vo["v_ceiling"]["jaccard_promoting"],
+           "T": vo["t_ceiling_summary"]["jaccard_promoting"]}[b]
+    return src["p2_5"], b
+
+
 def test(m: Macros, prefix: str, t: dict, src: str, scale=100.0, d=1, sign=False) -> None:
     """Observed value, CI, random-set mean, the random 95th (or 5th) percentile, p."""
     f = (lambda v: f"{v * scale:.{d}f}") if scale == 100.0 else (lambda v: num(v, d, sign))
@@ -265,6 +273,8 @@ def build() -> Macros:
         m.add(name + "Verdict", pr["wording"], f"{key} primary.wording (D70 fixed phrase)")
         m.add("chanceEdge" + name[1:], f"{pr['chance_floor_p95_at_observed_sizes']:.3f}",
               f"{key} primary.chance_floor_p95_at_observed_sizes")
+        lo, b = binding_ceiling(vo, key, load(f"split_half_ceiling_p_{MODEL}.json")["jaccard_promoting"])
+        m.add("ceiling" + name[1:] + "Lo", f"{lo:.3f}", f"{key} ceiling_binding {b}, p2_5")
     m.add("nSharedPV", str(len(vo["j_pv"]["shared_promoting"])), "j_pv shared_promoting")
     dj = vo["delta_j"]
     m.add("dJ", num(dj["delta_j"], 3, True), "delta_j.delta_j")
@@ -416,6 +426,8 @@ def build() -> Macros:
         m.add(name + "Verdict", pr["wording"], f"pg {key} primary.wording (D70 fixed phrase)")
         m.add(name + "ChanceEdge", f"{pr['chance_floor_p95_at_observed_sizes']:.3f}",
               f"pg {key} primary.chance_floor_p95_at_observed_sizes")
+        lo, b = binding_ceiling(pvo, key, load(f"split_half_ceiling_p_{pg}.json")["jaccard_promoting"])
+        m.add("pgCeiling" + name[3:] + "Lo", f"{lo:.3f}", f"pg {key} ceiling_binding {b}, p2_5")
     m.add("pgNSharedPV", str(len(pvo["j_pv"]["shared_promoting"])), "pg j_pv shared_promoting")
     m.add("pgNSharedVT", str(len(pvo["j_vt"]["shared_promoting"])), "pg j_vt shared_promoting")
     pdj = pvo["delta_j"]

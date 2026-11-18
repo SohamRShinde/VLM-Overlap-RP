@@ -45,15 +45,17 @@ GRID, FRAME = "#e4e4e4", "#a8a8a8"
 RANDOM, RANDOM_DARK = "#c4c4c4", "#5a5a5a"
 P_COL, T_COL, SHARED_COL, V_COL = "#1e6fd9", "#ec5f0d", "#12a150", "#c2187a"
 CEIL_COL = "#f2b705"
-SET_STYLE = {   # colour, marker, label
-    "P": (P_COL, "o", r"$\mathcal{H}_P$ (all 9)"),
-    "T": (T_COL, "^", r"$\mathcal{H}_T$ (all 12)"),
-    "shared": (SHARED_COL, "D", "shared (5)"),
-    "P_only": (P_COL, "o", "P-only (4)"),
-    "T_only": (T_COL, "^", "T-only (7)"),
-}
-SHORT = {"P": "$\\mathcal{H}_P$\n(all 9)", "T": "$\\mathcal{H}_T$\n(all 12)", "shared": "shared\n(5)",
-         "P_only": "P-only\n(4)", "T_only": "T-only\n(7)"}
+SET_COL = {"P": P_COL, "T": T_COL, "shared": SHARED_COL, "P_only": P_COL, "T_only": T_COL}
+MODELS = [("Qwen2.5-VL-3B", MODEL, ""), ("PaliGemma2-3B", "paligemma2_3b", "pg_")]   # title, file suffix, prefix
+
+
+def short_labels(sets: dict) -> dict:
+    """Tick labels with each set's size, read from the analysis file's `sets`."""
+    n = {k: len(v) for k, v in sets.items()}
+    return {"P": f"$\\mathcal{{H}}_P$\n(all {n['P']})", "T": f"$\\mathcal{{H}}_T$\n(all {n['T']})",
+            "shared": f"shared\n({n['shared']})", "P_only": f"P-only\n({n['P_only']})",
+            "T_only": f"T-only\n({n['T_only']})"}
+
 
 COLUMN_W, TEXT_W = 3.3, 7.0   # AAAI two-column widths, inches
 
@@ -219,14 +221,41 @@ def _zscores(r: dict) -> np.ndarray:
     return (np.asarray(r["pc1_scores"]) - r["pc1_mean"]) / r["pc1_std"]
 
 
+def _place_labels(ax, labels, points) -> None:
+    """Direct labels that avoid each other and the points: try right, left, above, below, in turn."""
+    fig = ax.figure
+    renderer = fig.canvas.get_renderer()
+    pts = ax.transData.transform(np.asarray(points))
+    placed = []
+    offsets = [((5, 0), "left", "center"), ((-5, 0), "right", "center"), ((0, 7), "center", "bottom"),
+               ((0, -7), "center", "top"), ((5, 8), "left", "bottom"), ((5, -8), "left", "top")]
+    for text, x, y in labels:
+        best = None
+        for off, ha, va in offsets:
+            t = ax.annotate(text, (x, y), xytext=off, textcoords="offset points", fontsize=6, color=INK,
+                            fontweight="bold", ha=ha, va=va, zorder=5)
+            bb = t.get_window_extent(renderer).expanded(1.05, 1.15)
+            hits = sum(bb.overlaps(b) for b in placed) * 10 + sum(bb.contains(*p) for p in pts)
+            if best is None or hits < best[0]:
+                if best is not None:
+                    best[1].remove()
+                best = (hits, t, bb)
+            else:
+                t.remove()
+            if hits == 0:
+                break
+        placed.append(best[2])
+
+
 def _head_panel(ax, zx, zy, groups, labelled, sig, rho, xlabel, ylabel, xcode, ycode) -> None:
     """Every head's PC1 score in one condition against another's; classified heads marked."""
     lim_x = (min(zx.min(), -sig) - 1.2, zx.max() + 1.6)
-    lim_y = (min(zy.min(), -sig) - 1.2, zy.max() + 1.6)
+    lim_y = (min(zy.min(), -sig) - 1.2, zy.max() + 0.27 * (zy.max() - min(zy.min(), -sig)))
     # shaded zone: promoting in both conditions
     ax.add_patch(plt.Rectangle((sig, sig), lim_x[1] - sig, lim_y[1] - sig, color=SHARED_COL, alpha=0.12,
                                lw=0, zorder=0))
-    ax.text(lim_x[1] - 0.3, lim_y[1] - 0.4, f"promoting in\n{xcode} and {ycode}", ha="right", va="top",
+    ax.text(sig + 0.02 * (lim_x[1] - lim_x[0]), lim_y[1] - 0.02 * (lim_y[1] - lim_y[0]),
+            f"promoting in\n{xcode} and {ycode}", ha="left", va="top",
             fontsize=6.3, color=SHARED_COL, fontweight="bold", linespacing=1.1)
     for v in (sig, -sig):
         ax.axvline(v, color=MUTED, lw=0.7, ls=(0, (3, 2)), zorder=1)
@@ -234,271 +263,174 @@ def _head_panel(ax, zx, zy, groups, labelled, sig, rho, xlabel, ylabel, xcode, y
     marked = set().union(*(set(heads) for *_, heads in groups))
     rest = [h for h in np.ndindex(zx.shape) if h not in marked]
     ax.scatter([zx[h] for h in rest], [zy[h] for h in rest], s=7, color=RANDOM, edgecolor="none",
-               zorder=2, label=f"other heads ({len(rest)})")
-    for colour, marker, label, heads in groups:   # an empty group stays in the legend: "(0)" is the finding
+               zorder=2, label="other heads")
+    for colour, marker, label, heads in groups:   # an empty group still gets a legend entry (in fig_heads)
         ax.scatter([zx[h] for h in heads], [zy[h] for h in heads], s=38, marker=marker,
-                   color=colour, edgecolor="white", lw=0.7, zorder=4, label=f"{label} ({len(heads)})")
-    shown = sorted(labelled, key=lambda h: zx[h])  # direct labels; below the point if the next is in the way
-    for i, h in enumerate(shown):
-        nxt = shown[i + 1] if i + 1 < len(shown) else None
-        below = nxt is not None and zx[nxt] - zx[h] < 2.5 and abs(zy[nxt] - zy[h]) < 1.0
-        ax.annotate(head_name(*h), (zx[h], zy[h]), xytext=(0, -8.5) if below else (5, 0),
-                    textcoords="offset points", fontsize=6, color=INK, fontweight="bold",
-                    va="center", ha="center" if below else "left", zorder=5)
+                   color=colour, edgecolor="white", lw=0.7, zorder=4, label=label)
     ax.set_xlim(*lim_x)
     ax.set_ylim(*lim_y)
+    _place_labels(ax, [(head_name(*h), zx[h], zy[h]) for h in sorted(labelled, key=lambda h: -zx[h])],
+                  [(zx[h], zy[h]) for h in np.ndindex(zx.shape)])
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    leg = ax.legend(loc="lower right", handletextpad=0.2, borderaxespad=0.3, labelspacing=0.12,
-                    borderpad=0.3, fontsize=6.2, markerscale=0.85,
-                    title=f"Spearman $\\rho$ = {rho:.2f} (all {zx.size} heads)", title_fontsize=6.2)
-    leg.get_title().set_color(INK)
+    ax.annotate(f"Spearman $\\rho$ = {rho:.2f} over all {zx.size} heads", (0.5, 0), xycoords="axes fraction",
+                xytext=(0, -27), textcoords="offset points", ha="center", va="top", fontsize=6.8, color=INK2)
 
 
 def fig_heads(out: Path) -> list[Path]:
-    """All 576 heads, in units of each condition's std: (a) P against T, (b) V against T."""
-    p, t = load(f"replication_patching_{MODEL}.json"), load(f"t_patching_{MODEL}.json")
-    v = load(f"v_patching_{MODEL}.json")
-    zp, zt, zv = _zscores(p), _zscores(t), _zscores(v)
-    sig = p["sigma"]
-    P, T, V = ({tuple(h) for h in r["promoting"]} for r in (p, t, v))
-    assert all(zp[h] > sig for h in P) and all(zt[h] > sig for h in T) and all(zv[h] > sig for h in V), \
-        "PC1 sign or scale mismatch"
-    rho_pt = load(f"t_circuit_overlap_{MODEL}.json")["rank_correlation"]["rho"]
-    rho_vt = load(f"v_circuit_overlap_{MODEL}.json")["j_vt"]["rank_correlation"]["rho"]
+    """Every head, in units of each condition's std: P against T and V against T, one row per model.
 
-    fig, axes = plt.subplots(2, 1, figsize=(COLUMN_W, 5.2), gridspec_kw={"hspace": 0.42})
-    _head_panel(axes[0], zp, zt,
-                [(P_COL, "o", "P only", sorted(P - T)), (T_COL, "^", "T only", sorted(T - P)),
-                 (SHARED_COL, "D", "P and T", sorted(P & T))],
-                P & T, sig, rho_pt, r"P condition: PC1 score ($\sigma$ units)",
-                r"T condition: PC1 score ($\sigma$ units)", "P", "T")
-    _head_panel(axes[1], zv, zt,
-                [(V_COL, "s", "V only", sorted(V - T)), (T_COL, "^", "T only", sorted(T - V)),
-                 (SHARED_COL, "D", "V and T", sorted(V & T))],
-                set(), sig, rho_vt, r"V condition: PC1 score ($\sigma$ units)",
-                r"T condition: PC1 score ($\sigma$ units)", "V", "T")
-    axes[0].set_title("(a) prompted prior (P) vs typographic (T)", loc="left")
-    axes[1].set_title("(b) image-varying (V) vs typographic (T)", loc="left")
-    bottom_legend(fig, [Line2D([], [], color=MUTED, lw=0.8, ls=(0, (3, 2)),
-                               label=f"$\\pm{sig:g}\\sigma$ classification cut")], 1, y=0.045)
-    return save(fig, out, "fig_heads")
-
-
-# --------------------------------------------------------------------------- 2
-def fig_overlap(out: Path) -> list[Path]:
-    """Every circuit overlap on the ruler D70 reads it against (D72 computes, D75 extends it to V).
-
-    One row per comparison: the observed Jaccard (bar) with its bootstrap CI; grey band, random
-    head sets of the observed sizes (to the 95th percentile, tick at the mean); gold band, the
-    split-half self-agreement the row is read against (2.5th-97.5th percentile, tick at the
-    median). Hatched rows use only the objects both conditions keep and carry no ruler of their own.
+    PaliGemma's V scores are those of the patching file (logits as recorded, soft-capped); D79b's
+    analysis on uncapped logits classifies the same heads, which the assert below checks.
     """
-    pt = load(f"t_circuit_overlap_{MODEL}.json")
-    v = load(f"v_circuit_overlap_{MODEL}.json")
-    pg = load("pg_t_circuit_overlap_paligemma2_3b.json")
-    ceilings = {"P": load(f"split_half_ceiling_p_{MODEL}.json")["jaccard_promoting"],
-                "V": v["v_ceiling"]["jaccard_promoting"],
-                "T": v["t_ceiling_summary"]["jaccard_promoting"],
-                "pgP": load("split_half_ceiling_p_paligemma2_3b.json")["jaccard_promoting"]}
-
-    def full(label, block, ceiling):
-        return (label, block["primary"]["j_pt"], block["primary"]["ci95"], True,
-                (block["primary"]["chance_floor_mean"], block["primary"]["chance_floor_p95_at_observed_sizes"]),
-                ceilings[ceiling])
-
-    def shared(label, block):
-        so = block["shared_objects"]
-        return (f"{label}\n({so['n_objects']} shared objects)", so["j_pt"], so["ci95"], False, None, None)
-
-    panels = [
-        ("Qwen2.5-VL-3B", [full("P vs T", pt, "P"), shared("P vs T", pt),
-                           full("V vs T", v["j_vt"], v["j_vt"]["ceiling_binding"]),
-                           full("P vs V", v["j_pv"], v["j_pv"]["ceiling_binding"])]),
-        ("PaliGemma2-3B", [full("P vs T", pg, "pgP"), shared("P vs T", pg)]),
-    ]
-    fig, axes = plt.subplots(2, 1, figsize=(COLUMN_W, 3.35), sharex=True,
-                             gridspec_kw={"height_ratios": [len(r) for _, r in panels], "hspace": 0.32})
-    for ax, (title, rows) in zip(axes, panels):
-        for y, (label, val, ci, filled, chance, ceiling) in enumerate(rows):
-            if chance is not None:
-                mean, edge = chance
-                ax.add_patch(plt.Rectangle((0, y - 0.38), edge, 0.76, color=RANDOM, alpha=0.7, lw=0, zorder=1))
-                ax.plot([mean] * 2, [y - 0.38, y + 0.38], color=RANDOM_DARK, lw=1.0, zorder=2)
-            if ceiling is not None:
-                ax.add_patch(plt.Rectangle((ceiling["p2_5"], y - 0.38), ceiling["p97_5"] - ceiling["p2_5"], 0.76,
-                                           color=CEIL_COL, alpha=0.45, lw=0, zorder=1))
-                ax.plot([ceiling["median"]] * 2, [y - 0.38, y + 0.38], color="#b38600", lw=1.2, zorder=2)
-            h = 0.42
-            ax.barh(y, val, h, color=SHARED_COL if filled else "white", edgecolor=SHARED_COL,
-                    hatch=None if filled else "////", lw=0 if filled else 1.0, zorder=3)
-            ax.errorbar(val, y, xerr=[[val - ci[0]], [ci[1] - val]], fmt="none", ecolor=INK,
-                        elinewidth=0.9, capsize=2.2, capthick=0.9, zorder=4)
-            ax.annotate(f"{val:.2f} [{ci[0]:.2f}, {ci[1]:.2f}]", (ci[1], y), xytext=(4, 0),
-                        textcoords="offset points", va="center", ha="left", fontsize=6.3, color=INK,
-                        fontweight="bold" if filled else "normal")
-        ax.set_yticks(range(len(rows)), [r[0] for r in rows])
-        ax.set_ylim(len(rows) - 0.5, -0.5)
-        ax.set_title(title, loc="left")
-        ax.grid(axis="y", visible=False)
-        ax.tick_params(axis="y", length=0)
-    dj = v["delta_j"]
-    axes[0].text(1.0, -0.045, f"pre-registered: $\\Delta J = J_{{VT}} - J_{{PT}}$ = {dj['delta_j']:+.2f} "
-                             f"[{dj['ci95'][0]:+.2f}, {dj['ci95'][1]:+.2f}]",
-                 transform=axes[0].transAxes, ha="right", va="top", fontsize=6.2, color=INK,
-                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="#cfcfcf", lw=0.6), zorder=6)
-    axes[-1].set_xlim(0, 1)
-    axes[-1].set_xlabel("Jaccard overlap of promoting heads")
-    bottom_legend(fig, [
-        Patch(color=SHARED_COL, label="observed overlap (95% CI)"),
-        Patch(fc="white", ec=SHARED_COL, hatch="////", label="observed, shared objects only"),
-        Patch(color=RANDOM, alpha=0.7, label="chance: random head sets"),
-        Patch(color=CEIL_COL, alpha=0.45, label="ceiling: split-half self-agreement"),
-    ], 2, y=0.01)
-    return save(fig, out, "fig_overlap")
-
-
-# --------------------------------------------------------------------------- 3
-def fig_cross_ablation(out: Path) -> list[Path]:
-    """Flip rate of the override when a head set is zero-ablated, against layer-matched random sets."""
-    x = load(f"cross_ablation_analysis_{MODEL}.json")
-    tests = {**x["primary"], **x["diagonal"], **x["decomposition"]}
-    own = x["own_condition_subsets"]
-    order = ["P", "T", "shared", "P_only", "T_only"]
-
-    fig, axes = plt.subplots(1, 2, figsize=(TEXT_W * 0.66, 2.2), sharey=True, gridspec_kw={"wspace": 0.06})
-    for ax, cond, title in zip(axes, ("P", "T"), ("(a) on P objects", "(b) on T objects")):
-        for i, s in enumerate(order):
-            key = f"{s}->{cond}"
-            colour = SET_STYLE[s][0]
-            if key in tests:
-                r = tests[key]
-                bar_pair(ax, i, 100 * r["observed"], [100 * v for v in r["ci95"]], colour,
-                         null=(100 * r["null_mean"], 100 * r["null_p95"]), label=f"{100 * r['observed']:.1f}%")
-            else:   # reported without a random control (descriptive in D73)
-                r = own[key]
-                bar_pair(ax, i, 100 * r["observed"], None, colour, hatch="////", w=0.5,
-                         label=f"{100 * r['observed']:.1f}%*")
-        ax.set_title(title, loc="left")
-        ax.set_xticks(range(len(order)), [SHORT[s] for s in order])
-        ax.set_xlim(-0.6, len(order) - 0.4)
-        ax.grid(axis="x", visible=False)
-        ax.tick_params(axis="x", length=0)
-    axes[0].set_ylim(0, 112)
-    axes[0].set_yticks(range(0, 101, 25))
-    axes[0].set_ylabel("override defeated (% of objects)")
-    bottom_legend(fig, [
-        Patch(color=P_COL, label="P heads"), Patch(color=T_COL, label="T heads"),
-        Patch(color=SHARED_COL, label="shared"),
-        Patch(color=RANDOM, label="100 random sets: mean,\nwhisker to 95th pct."),
-        Patch(fc="white", ec=MUTED, hatch="////", label="* no random\ncontrol"),
-    ], 5, y=-0.03)
-    return save(fig, out, "fig_cross_ablation")
+    fig, axes = plt.subplots(2, 2, figsize=(TEXT_W, 5.0), gridspec_kw={"hspace": 0.58, "wspace": 0.25})
+    for row, (title, model, pre) in zip(axes, MODELS):
+        p = load(f"{pre}replication_patching_{model}.json")
+        t, v = load(f"{pre}t_patching_{model}.json"), load(f"{pre}v_patching_{model}.json")
+        vo = load(f"{pre}v_circuit_overlap_{model}.json")
+        zp, zt, zv = _zscores(p), _zscores(t), _zscores(v)
+        sig = p["sigma"]
+        P, T, V = ({tuple(h) for h in r["promoting"]} for r in (p, t, v))
+        assert all(zp[h] > sig for h in P) and all(zt[h] > sig for h in T) and all(zv[h] > sig for h in V), \
+            "PC1 sign or scale mismatch"
+        assert {head_name(*h) for h in V} == {h if isinstance(h, str) else head_name(*h) for h in vo["v_promoting"]}, \
+            "V set in the patching file differs from the analysed one"
+        rho_pt = load(f"{pre}t_circuit_overlap_{model}.json")["rank_correlation"]["rho"]
+        rho_vt = vo["j_vt"]["rank_correlation"]["rho"]
+        _head_panel(row[0], zp, zt,
+                    [(P_COL, "o", "P only", sorted(P - T)), (T_COL, "^", "T only", sorted(T - P)),
+                     (SHARED_COL, "D", "P and T", sorted(P & T))],
+                    set(), sig, rho_pt, r"P: PC1 score ($\sigma$ units)", r"T: PC1 score ($\sigma$ units)", "P", "T")
+        _head_panel(row[1], zv, zt,
+                    [(V_COL, "s", "V only", sorted(V - T)), (T_COL, "^", "T only", sorted(T - V)),
+                     (SHARED_COL, "D", "V and T", sorted(V & T))],
+                    set(), sig, rho_vt, r"V: PC1 score ($\sigma$ units)", r"T: PC1 score ($\sigma$ units)", "V", "T")
+        row[0].set_title(f"{title}: (a) P vs T", loc="left")
+        row[1].set_title(f"{title}: (b) V vs T", loc="left")
+    cut = Line2D([], [], color=MUTED, lw=0.8, ls=(0, (3, 2)), label=f"$\\pm{sig:g}\\sigma$ cut")
+    other = Line2D([], [], ls="", marker="o", ms=3, color=RANDOM, label="other heads")
+    for col, (a, a_col, a_mk, b_name) in enumerate([("P", P_COL, "o", "P and T"), ("V", V_COL, "s", "V and T")]):
+        handles = [Line2D([], [], ls="", marker=a_mk, ms=5.5, color=a_col, mec="white", label=f"{a} only"),
+                   Line2D([], [], ls="", marker="^", ms=6, color=T_COL, mec="white", label="T only"),
+                   Line2D([], [], ls="", marker="D", ms=5, color=SHARED_COL, mec="white", label=b_name),
+                   other, cut]
+        box = axes[1, col].get_position()
+        fig.legend(handles=handles, loc="upper center", bbox_to_anchor=((box.x0 + box.x1) / 2, -0.005), ncol=5,
+                   columnspacing=0.8, handletextpad=0.2, fontsize=6.6, borderpad=0.35)
+    return save(fig, out, "fig_heads")
 
 
 # --------------------------------------------------------------------------- 4
 def fig_h3(out: Path) -> list[Path]:
-    """H3: do the heads attend to the note, and write its colour? And the T-only heads with no note."""
-    h = load(f"h3_analysis_{MODEL}.json")
-    tests = {**h["primary"], **h["secondary"]}
+    """H3: do the heads attend to the note, and write its colour? And the T-only heads with no note.
+
+    One row per model; attention masses are not on one scale across models (different image grids).
+    """
     order = ["T_only", "shared", "P_only", "T"]
     key = {"m_note": {"T_only": "A", "shared": "A:shared", "P_only": "A:P_only", "T": "A:T"},
            "dla": {"T_only": "W", "shared": "W:shared", "P_only": "W:P_only", "T": "W:T"}}
+    fig, axes = plt.subplots(2, 3, figsize=(TEXT_W, 4.3), gridspec_kw={"wspace": 0.42, "hspace": 0.72})
+    for row, (model_title, model, pre) in zip(axes, MODELS):
+        h = load(f"{pre}h3_analysis_{model}.json")
+        tests = {**h["primary"], **h["secondary"]}
+        short = short_labels(h["sets"])
+        panels = [("m_note", "(a) attention to note", "attention on note", "{:.2f}"),
+                  ("dla", "(b) push to note's colour", "direct effect (logits)", "{:+.2f}")]
+        for ax, (measure, title, ylabel, fmt) in zip(row, panels):
+            for i, s in enumerate(order):
+                r = tests[key[measure][s]]
+                bar_pair(ax, i, r["observed"], r["ci95"], SET_COL[s], null=(r["null_mean"], null_edge(r)),
+                         label=fmt.format(r["observed"]))
+            ax.set_title(title, loc="left")
+            ax.set_ylabel(ylabel)
+            ax.set_xticks(range(len(order)), [short[s] for s in order], fontsize=6.4)
+            ax.set_xlim(-0.6, len(order) - 0.4)
+            ax.grid(axis="x", visible=False)
+            ax.tick_params(axis="x", length=0)
+        row[0].set_ylim(0, row[0].get_ylim()[1] * 1.15)
+        lo, hi = row[1].get_ylim()
+        row[1].set_ylim(min(lo, 0) - 0.35, hi * 1.18)
+        row[1].axhline(0, color=INK2, lw=0.7, zorder=2)
 
-    fig, axes = plt.subplots(1, 3, figsize=(TEXT_W, 2.25), gridspec_kw={"wspace": 0.42})
-    panels = [("m_note", "(a) attention to note", "attention mass on note tokens", "{:.2f}"),
-              ("dla", "(b) push to note's colour", "direct effect (logits)", "{:+.2f}")]
-    for ax, (measure, title, ylabel, fmt) in zip(axes, panels):
-        for i, s in enumerate(order):
-            r = tests[key[measure][s]]
-            bar_pair(ax, i, r["observed"], r["ci95"], SET_STYLE[s][0], null=(r["null_mean"], null_edge(r)),
-                     label=fmt.format(r["observed"]))
-        ax.set_title(title, loc="left")
-        ax.set_ylabel(ylabel)
-        ax.set_xticks(range(len(order)), [SHORT[s] for s in order])
-        ax.set_xlim(-0.6, len(order) - 0.4)
+        ax = row[2]   # the T-only heads' direct effect on three kinds of input
+        rows = [("W", "note\n(T)"), ("image_colour:clean", "no note\n(T clean)"),
+                ("image_colour:P_visual", "no note\n(P Visual)")]
+        for i, (k, label) in enumerate(rows):
+            r = tests[k]
+            bar_pair(ax, i, r["observed"], r["ci95"], T_COL, null=(r["null_mean"], null_edge(r)),
+                     label=f"{r['observed']:+.2f}")
+        ax.axhline(0, color=INK2, lw=0.7, zorder=2)
+        ax.set_xticks(range(len(rows)), [r[1] for r in rows], fontsize=6.2)
+        ax.set_xlim(-0.6, len(rows) - 0.4)
+        lo, hi = ax.get_ylim()
+        ax.set_ylim(lo * 1.3, hi * 1.3)
+        ax.set_title("(c) T-only heads by input", loc="left")
+        row[0].text(-0.3, 1.17, model_title, transform=row[0].transAxes, fontsize=8.5, fontweight="bold",
+                    ha="left", va="bottom")
+        ax.set_ylabel("direct effect (logits)")
+        ax.text(1.03, 0.97, "toward competing\ncolour $\\uparrow$", transform=ax.transAxes, ha="left", va="top",
+                fontsize=6, color=MUTED, linespacing=1.1)
+        ax.text(1.03, 0.03, "toward image's\ncolour $\\downarrow$", transform=ax.transAxes, ha="left",
+                va="bottom", fontsize=6, color=MUTED, linespacing=1.1)
         ax.grid(axis="x", visible=False)
         ax.tick_params(axis="x", length=0)
-    axes[0].set_ylim(0, axes[0].get_ylim()[1] * 1.12)
-    lo, hi = axes[1].get_ylim()
-    axes[1].set_ylim(lo - 0.35, hi * 1.16)
-    axes[1].axhline(0, color=INK2, lw=0.7, zorder=2)
-
-    ax = axes[2]   # the T-only heads' direct effect on three kinds of input
-    rows = [("W", "note\n(T)"), ("image_colour:clean", "no note\n(T clean)"),
-            ("image_colour:P_visual", "no note\n(P Visual)")]
-    for i, (k, label) in enumerate(rows):
-        r = tests[k]
-        bar_pair(ax, i, r["observed"], r["ci95"], T_COL, null=(r["null_mean"], null_edge(r)),
-                 label=f"{r['observed']:+.2f}")
-    ax.axhline(0, color=INK2, lw=0.7, zorder=2)
-    ax.set_xticks(range(len(rows)), [r[1] for r in rows], fontsize=6.4)
-    ax.set_xlim(-0.6, len(rows) - 0.4)
-    lo, hi = ax.get_ylim()
-    ax.set_ylim(lo * 1.25, hi * 1.25)
-    ax.set_title("(c) T-only heads by input", loc="left")
-    ax.set_ylabel("direct effect (logits)")
-    ax.text(1.03, 0.97, "toward competing\ncolour $\\uparrow$", transform=ax.transAxes, ha="left", va="top",
-            fontsize=6, color=MUTED, linespacing=1.1)
-    ax.text(1.03, 0.03, "toward image's\ncolour $\\downarrow$", transform=ax.transAxes, ha="left", va="bottom",
-            fontsize=6, color=MUTED, linespacing=1.1)
-    ax.grid(axis="x", visible=False)
-    ax.tick_params(axis="x", length=0)
     bottom_legend(fig, [
         Patch(color=T_COL, label="T heads"), Patch(color=SHARED_COL, label="shared heads"),
         Patch(color=P_COL, label="P heads"),
         Patch(color=RANDOM, label="100 random sets (as H2): mean, whisker to 95th/5th pct."),
         Line2D([], [], color=INK, marker="_", ms=6, lw=0.9, label="95% bootstrap CI"),
-    ], 5, y=-0.03)
+    ], 5, y=0.0)
     return save(fig, out, "fig_h3")
 
 
 # --------------------------------------------------------------------------- 5
 def fig_spatial(out: Path) -> list[Path]:
-    """Plan 3.7, descriptive: T-only attention to the note and the fool rate, by note layout."""
-    sp = load(f"h3_analysis_{MODEL}.json")["descriptive"]["spatial"]
+    """Plan 3.7, descriptive: T-only attention to the note and the fool rate, by note layout, per model."""
     names = {"on_object_small": "on object,\nsmall", "on_object_medium": "on object,\nmedium",
              "beside_object": "beside\nobject"}
-    layouts = [k for k in names if k in sp]
-    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(COLUMN_W, 1.75), sharey=True,
-                                  gridspec_kw={"width_ratios": [1.75, 1], "wspace": 0.08})
     NEUTRAL = "#7a7a7a"
-    for y, k in enumerate(layouts):
-        s = sp[k]
-        inc, neu = s["T_only_note_mass_incongruent"], s["T_only_note_mass_neutral"]
-        ax.annotate("", (inc, y), (neu, y), arrowprops=dict(arrowstyle="-|>", color=T_COL, lw=1.3,
-                                                            shrinkA=3.5, shrinkB=4, mutation_scale=7), zorder=2)
-        ax.plot(neu, y, "o", ms=6, color=NEUTRAL, mec="white", mew=0.7, zorder=3)
-        ax.plot(inc, y, "^", ms=7, color=T_COL, mec="white", mew=0.7, zorder=3)
-        ax.annotate(f"{inc:.2f}", (inc, y), xytext=(0, 6), textcoords="offset points", ha="center",
-                    fontsize=6, color=T_COL, fontweight="bold")
-        ax.annotate(f"{neu:.2f}", (neu, y), xytext=(0, 6), textcoords="offset points", ha="center",
-                    fontsize=6, color=NEUTRAL)
-        fr = 100 * s["fool_rate"]
-        ax2.barh(y, fr, 0.5, color=T_COL, alpha=0.85, lw=0, zorder=3)
-        ax2.annotate(f"{fr:.0f}%", (fr, y), xytext=(-3, 0), textcoords="offset points", va="center",
-                     ha="right", fontsize=6.3, color="white", fontweight="bold")
-    ax.set_yticks(range(len(layouts)), [names[k] for k in layouts])
-    ax.set_ylim(len(layouts) - 0.5, -0.65)
-    ax.set_xlim(0.1, max(sp[k]["T_only_note_mass_incongruent"] for k in layouts) * 1.12)
-    ax.set_xlabel("T-only attention on note")
-    ax.set_title("(a) attention", loc="left")
-    ax.grid(axis="y", visible=False)
-    ax.tick_params(axis="y", length=0)
-    ax2.set_xlim(0, 100)
-    ax2.set_xticks([0, 50, 100])
-    ax2.set_xlabel("objects fooled (%)")
-    ax2.set_title("(b) fooled", loc="left")
-    ax2.grid(axis="y", visible=False)
-    ax2.tick_params(axis="y", length=0)
+    fig, axes = plt.subplots(2, 2, figsize=(COLUMN_W, 3.5), sharey=True,
+                             gridspec_kw={"width_ratios": [1.75, 1], "wspace": 0.08, "hspace": 1.0})
+    for (ax, ax2), (title, model, pre) in zip(axes, MODELS):
+        sp = load(f"{pre}h3_analysis_{model}.json")["descriptive"]["spatial"]
+        layouts = [k for k in names if k in sp]
+        for y, k in enumerate(layouts):
+            s = sp[k]
+            inc, neu = s["T_only_note_mass_incongruent"], s["T_only_note_mass_neutral"]
+            ax.annotate("", (inc, y), (neu, y), arrowprops=dict(arrowstyle="-|>", color=T_COL, lw=1.3,
+                                                                shrinkA=3.5, shrinkB=4, mutation_scale=7), zorder=2)
+            ax.plot(neu, y, "o", ms=6, color=NEUTRAL, mec="white", mew=0.7, zorder=3)
+            ax.plot(inc, y, "^", ms=7, color=T_COL, mec="white", mew=0.7, zorder=3)
+            ax.annotate(f"{inc:.2f}", (inc, y), xytext=(0, 6), textcoords="offset points", ha="center",
+                        fontsize=6, color=T_COL, fontweight="bold")
+            ax.annotate(f"{neu:.2f}", (neu, y), xytext=(0, 6), textcoords="offset points", ha="center",
+                        fontsize=6, color=NEUTRAL)
+            fr = 100 * s["fool_rate"]
+            ax2.barh(y, fr, 0.5, color=T_COL, alpha=0.85, lw=0, zorder=3)
+            ax2.annotate(f"{fr:.0f}%", (fr, y), xytext=(-3, 0), textcoords="offset points", va="center",
+                         ha="right", fontsize=6.3, color="white", fontweight="bold")
+        ax.set_yticks(range(len(layouts)), [names[k] for k in layouts])
+        ax.set_ylim(len(layouts) - 0.5, -0.65)
+        lo = min(min(sp[k]["T_only_note_mass_neutral"] for k in layouts), 0.1)
+        ax.set_xlim(lo * 0.8, max(sp[k]["T_only_note_mass_incongruent"] for k in layouts) * 1.12)
+        ax.set_xlabel("T-only attention on note")
+        ax.set_title("(a) attention", loc="left")
+        ax.text(-0.55, 1.28, title, transform=ax.transAxes, fontsize=8, fontweight="bold", ha="left", va="bottom")
+        ax2.set_xlim(0, 100)
+        ax2.set_xticks([0, 50, 100])
+        ax2.set_xlabel("objects fooled (%)")
+        ax2.set_title("(b) fooled", loc="left")
+        for a in (ax, ax2):
+            a.grid(axis="y", visible=False)
+            a.tick_params(axis="y", length=0)
     bottom_legend(fig, [
         Line2D([], [], ls="", marker="o", ms=5, color=NEUTRAL, label="neutral word"),
         Line2D([], [], ls="", marker="^", ms=6, color=T_COL, label="colour word (incongruent)"),
-    ], 2, y=-0.07)
+    ], 2, y=0.0)
     return save(fig, out, "fig_spatial")
 
 
-FIGURES = [fig_design, fig_heads, fig_overlap, fig_cross_ablation, fig_h3, fig_spatial]
+FIGURES = [fig_design, fig_heads, fig_h3, fig_spatial]
 
 
 def main(out_dir: str | None = None) -> list[Path]:
