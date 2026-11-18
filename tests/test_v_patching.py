@@ -239,3 +239,26 @@ def test_pg_cap_extends_the_244_run_without_reordering():
     long = v_sweep_order(selected, p_ids, seed=0, cap=PG_V_CAP)
     assert PG_V_CAP == 302 and len(long) == 302
     assert long[:V_CAP] == v_sweep_order(selected, p_ids, seed=0, cap=V_CAP)
+
+
+def test_uncap_record_inverts_the_head_soft_cap_exactly():
+    """D79b: cap * atanh(y / cap) undoes cap * tanh(x / cap) on every logit field."""
+    import math
+    from circuit_overlap.v_patching import PG_HEAD_SOFTCAP, uncap_record
+    cap = lambda x: PG_HEAD_SOFTCAP * math.tanh(x / PG_HEAD_SOFTCAP)
+    raw = {"i": 3, "status": "patched", "prior_token_logit_prior_run": 12.875,
+           "visual_token_logit_prior_run": 10.4375, "prior_token_logit_visual_run": -2.0,
+           "visual_token_logit_visual_run": 14.0,
+           **{k: [[12.0, -3.5], [0.0, 20.0]] for k in ("p2v_logit_prior", "p2v_logit_visual",
+                                                     "v2p_logit_prior", "v2p_logit_visual")}}
+    capped = {k: (cap(v) if isinstance(v, float) else [[cap(x) for x in row] for row in v])
+              if k not in ("i", "status") else v for k, v in raw.items()}
+    back = uncap_record(capped)
+    assert back["i"] == 3 and back["status"] == "patched"
+    for k, v in raw.items():
+        if isinstance(v, float):
+            assert back[k] == pytest.approx(v, abs=1e-9)
+        elif isinstance(v, list):
+            assert np.allclose(back[k], v, atol=1e-9)
+    with pytest.raises(ValueError):
+        uncap_record({"prior_token_logit_prior_run": 30.0})

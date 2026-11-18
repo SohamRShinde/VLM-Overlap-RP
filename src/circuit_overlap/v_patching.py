@@ -47,6 +47,8 @@ __all__ = [
     "V_ROLES",
     "V_CAP",
     "PG_V_CAP",
+    "PG_HEAD_SOFTCAP",
+    "uncap_record",
     "V_VERDICTS",
     "DJ_WORDING",
     "is_v_conflicting",
@@ -70,6 +72,37 @@ V_CAP = 244
 # PaliGemma. The order only slices at the cap, so its first 244 objects are
 # exactly the ones a 244-cap run patches.
 PG_V_CAP = 302
+
+# D79b: transformers 5.23.0 soft-caps PaliGemma's final logits at 30; P and T
+# were recorded on 5.22.x without the cap.
+PG_HEAD_SOFTCAP = 30.0
+
+
+def uncap_record(record: Mapping, cap: float = PG_HEAD_SOFTCAP) -> dict:
+    """A patching record with ``cap * tanh(x / cap)`` logits mapped back to x (D79b).
+
+    Exact inverse, ``cap * atanh(y / cap)``, on the four run logits and the four
+    patching grids; everything else is copied. Raises on a value at or beyond
+    the cap, which a capped head cannot produce.
+    """
+    from .t_patching import _GRID_FIELDS, _LOGIT_FIELDS
+
+    def inv(y):
+        y = float(y)
+        if not abs(y) < cap:
+            if y != y:          # NaN stays NaN; finite_records drops it
+                return y
+            raise ValueError(f"logit {y} is not below the soft-cap {cap}")
+        return float(cap * np.arctanh(y / cap))
+
+    out = dict(record)
+    for key in _LOGIT_FIELDS:
+        if key in out:
+            out[key] = inv(out[key])
+    for key in _GRID_FIELDS:
+        if key in out:
+            out[key] = [[inv(v) for v in row] for row in out[key]]
+    return out
 
 # D75 (7): D70's phrases, with the ceiling phrase no longer naming P.
 V_VERDICTS = {**VERDICTS, "ceiling": "not distinguishable from self-agreement"}

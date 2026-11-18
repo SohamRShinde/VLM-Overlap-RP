@@ -57,7 +57,10 @@ def test_outputs_are_cleared():
 def test_install_and_model_cells_are_the_ones_that_ran():
     t = ["".join(c["source"]) for c in json.loads((ROOT / "notebooks" / "pg_t_patching.ipynb").read_text())["cells"]]
     ours = ["".join(c["source"]) for c in cells()]
-    assert ours[3] == t[3] and ours[5] == t[5], "install / model cells not copied verbatim"
+    pinned = t[3].replace('!pip install -q -U "transformers>=4.49"',
+                          "# D79b: pinned to V session 1's version (5.23.0 soft-caps the head; 5.22.x did not).\n"
+                          '!pip install -q -U "transformers==5.23.0"')
+    assert ours[3] == pinned and ours[5] == t[5], "install / model cells not copied verbatim (D79b pin aside)"
     for piece in ("labels_max_dlogit", "promoting_ablation_max_dlogit", "logits_to_keep_max_dlogit",
                   "square_image_block", "BATCH = min(per_row", "last_token_reaches_earlier_positions"):
         assert piece in ours[7], piece
