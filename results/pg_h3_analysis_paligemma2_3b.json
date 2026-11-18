@@ -1,0 +1,1095 @@
+{
+  "experiment": "h3_analysis",
+  "timestamp_utc": "2026-11-18T05:26:04+00:00",
+  "commit": "89eeb7c-dirty",
+  "model": "PaliGemma2-3B-mix-448",
+  "checkpoint": "google/paligemma2-3b-mix-448",
+  "n": 412,
+  "seed": 0,
+  "prompt": "T: visual='What color is this {object} here? Respond with the color name only.', incongruent vs neutral note, 3 layouts, and no note; P: prior='What color is {a_object} usually? Respond with the color name only.' vs visual, counterfactual image",
+  "python": "3.11.18",
+  "decision": "D74 as fixed by D80",
+  "sources": {
+    "summary": "results/pg_h3_attention_paligemma2_3b.json",
+    "records": "results/pg_h3_attention_records_paligemma2_3b.jsonl.gz",
+    "run_commit": "89eeb7c"
+  },
+  "result": {
+    "decision": "D74",
+    "alpha": 0.025,
+    "n_objects": {
+      "P": 115,
+      "T": 297
+    },
+    "n_dropped": {
+      "P": 6,
+      "T": 5
+    },
+    "dropped_status": {
+      "P": [
+        "drift"
+      ],
+      "T": [
+        "drift"
+      ]
+    },
+    "sets": {
+      "P": [
+        "L15H7",
+        "L16H4",
+        "L17H7",
+        "L20H3",
+        "L22H1",
+        "L24H3",
+        "L25H2",
+        "L25H4"
+      ],
+      "T": [
+        "L20H3",
+        "L20H7",
+        "L22H4",
+        "L22H5",
+        "L23H7",
+        "L24H3",
+        "L25H2",
+        "L25H4"
+      ],
+      "shared": [
+        "L20H3",
+        "L24H3",
+        "L25H2",
+        "L25H4"
+      ],
+      "P_only": [
+        "L15H7",
+        "L16H4",
+        "L17H7",
+        "L22H1"
+      ],
+      "T_only": [
+        "L20H7",
+        "L22H4",
+        "L22H5",
+        "L23H7"
+      ]
+    },
+    "primary": {
+      "A": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.14969840909090906,
+        "ci95": [
+          0.14528540572390575,
+          0.15389862436868687
+        ],
+        "null_mean": 0.037491696180976426,
+        "null_p5": 0.018189178674242426,
+        "null_p95": 0.07004810054713805,
+        "p": 0.009900990099009901,
+        "excess": 0.11220671290993264,
+        "excess_ci95": [
+          0.10861117459526515,
+          0.11561291312765148
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "primary",
+        "set": "T_only",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7"
+        ],
+        "wording": "T-only heads attend to the note more than layer-matched random heads"
+      },
+      "W": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 2.7010910612794614,
+        "ci95": [
+          2.536955066178451,
+          2.8505100090740743
+        ],
+        "null_mean": 0.0454285917925926,
+        "null_p5": -0.24837126806565651,
+        "null_p95": 0.2350466619595959,
+        "p": 0.009900990099009901,
+        "excess": 2.655662469486869,
+        "excess_ci95": [
+          2.481909937215623,
+          2.8189399526153873
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "primary",
+        "set": "T_only",
+        "condition": "T",
+        "measure": "dla",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7"
+        ],
+        "wording": "T-only heads write the note's colour more than layer-matched random heads"
+      }
+    },
+    "mechanism": "the T-only heads read the note and write its colour",
+    "secondary": {
+      "A:shared": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.037489428451178454,
+        "ci95": [
+          0.03591977502104378,
+          0.03909074436026936
+        ],
+        "null_mean": 0.006390967479797981,
+        "null_p5": 0.0031539596801346804,
+        "null_p95": 0.009699594196127946,
+        "p": 0.009900990099009901,
+        "excess": 0.031098460971380474,
+        "excess_ci95": [
+          0.02963047238903198,
+          0.03256646980912458
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "shared",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L20H3",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "shared heads attend to the note more than layer-matched random heads"
+      },
+      "W:shared": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.606425404040404,
+        "ci95": [
+          0.4854016877104377,
+          0.7231001785353536
+        ],
+        "null_mean": -0.07334724377407408,
+        "null_p5": -0.1890685906060606,
+        "null_p95": 0.037754560296296286,
+        "p": 0.009900990099009901,
+        "excess": 0.6797726478144781,
+        "excess_ci95": [
+          0.5558501196531902,
+          0.799560884677803
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "shared",
+        "condition": "T",
+        "measure": "dla",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L20H3",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "shared heads write the note's colour more than layer-matched random heads"
+      },
+      "A:P_only": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.09673814924242424,
+        "ci95": [
+          0.0922284388699495,
+          0.10114801228956229
+        ],
+        "null_mean": 0.048929755449158244,
+        "null_p5": 0.013808729882154883,
+        "null_p95": 0.10851219593855217,
+        "p": 0.16831683168316833,
+        "excess": 0.047808393793266,
+        "excess_ci95": [
+          0.044575824472912445,
+          0.05111601138803452
+        ],
+        "passes": false,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "P_only",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L15H7",
+          "L16H4",
+          "L17H7",
+          "L22H1"
+        ],
+        "wording": "P-only heads: not distinguishable from layer-matched random heads at this n"
+      },
+      "W:P_only": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.01402111111111111,
+        "ci95": [
+          -0.025721139629629627,
+          0.05170756091750842
+        ],
+        "null_mean": 0.055951034215151504,
+        "null_p5": -0.023646613414141412,
+        "null_p95": 0.20488010109932658,
+        "p": 0.6336633663366337,
+        "excess": -0.041929923104040395,
+        "excess_ci95": [
+          -0.08617001319771045,
+          -0.0017721596088804742
+        ],
+        "passes": false,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "P_only",
+        "condition": "T",
+        "measure": "dla",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L15H7",
+          "L16H4",
+          "L17H7",
+          "L22H1"
+        ],
+        "wording": "P-only heads: not distinguishable from layer-matched random heads at this n"
+      },
+      "A:T": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.09359391877104377,
+        "ci95": [
+          0.0909434851746633,
+          0.09651175857533668
+        ],
+        "null_mean": 0.0233659137226431,
+        "null_p5": 0.01330971246212121,
+        "null_p95": 0.038176963583754206,
+        "p": 0.009900990099009901,
+        "excess": 0.07022800504840067,
+        "excess_ci95": [
+          0.06807385265450337,
+          0.07253090069620162
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L20H3",
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "H_T heads attend to the note more than layer-matched random heads"
+      },
+      "W:T": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 3.307516465319865,
+        "ci95": [
+          3.0698274496296296,
+          3.5344491743602697
+        ],
+        "null_mean": -0.02403210683164983,
+        "null_p5": -0.3868551101734007,
+        "null_p95": 0.22682971584006734,
+        "p": 0.009900990099009901,
+        "excess": 3.331548572151515,
+        "excess_ci95": [
+          3.0709840746942594,
+          3.5657541727552022
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T",
+        "condition": "T",
+        "measure": "dla",
+        "run": "on_object_small/incongruent",
+        "baseline": null,
+        "heads": [
+          "L20H3",
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "H_T heads write the note's colour more than layer-matched random heads"
+      },
+      "A_rise:T_only": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.02516697643097643,
+        "ci95": [
+          0.02148878341750842,
+          0.028701064183501684
+        ],
+        "null_mean": -0.011481394054713807,
+        "null_p5": -0.034469746014309764,
+        "null_p95": 0.0020827841245791173,
+        "p": 0.009900990099009901,
+        "excess": 0.03664837048569024,
+        "excess_ci95": [
+          0.03363877742952441,
+          0.03977751204530723
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T_only",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": "on_object_small/neutral",
+        "heads": [
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7"
+        ],
+        "wording": "T-only heads attend to the note more when it names a colour more than layer-matched random heads"
+      },
+      "A_rise:shared": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.007182844191919191,
+        "ci95": [
+          0.005836639215067341,
+          0.008422997133838383
+        ],
+        "null_mean": -0.00023879389875420875,
+        "null_p5": -0.0026186521964646466,
+        "null_p95": 0.00197026034090909,
+        "p": 0.009900990099009901,
+        "excess": 0.0074216380906734,
+        "excess_ci95": [
+          0.006112166561976431,
+          0.008700834903187711
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "shared",
+        "condition": "T",
+        "measure": "m_note",
+        "run": "on_object_small/incongruent",
+        "baseline": "on_object_small/neutral",
+        "heads": [
+          "L20H3",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "shared heads attend to the note more when it names a colour more than layer-matched random heads"
+      },
+      "object:clean": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.23385091414141415,
+        "ci95": [
+          0.22255762634680135,
+          0.24543283093434343
+        ],
+        "null_mean": 0.08529582402693603,
+        "null_p5": 0.06318669242424242,
+        "null_p95": 0.10707831632996634,
+        "p": 0.009900990099009901,
+        "excess": 0.14855509011447812,
+        "excess_ci95": [
+          0.14217560668038717,
+          0.15489589465660772
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T_only",
+        "condition": "T",
+        "measure": "m_object",
+        "run": "clean",
+        "baseline": null,
+        "heads": [
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7"
+        ],
+        "wording": "T-only heads attend to the object more than layer-matched random heads"
+      },
+      "image_colour:clean": {
+        "n": 297,
+        "n_draws": 100,
+        "direction": "less",
+        "observed": -2.8381923387205386,
+        "ci95": [
+          -2.936919047272727,
+          -2.74030514537037
+        ],
+        "null_mean": 0.009749672575420873,
+        "null_p5": -0.0923916802020202,
+        "null_p95": 0.17814629466498313,
+        "p": 0.009900990099009901,
+        "excess": -2.8479420112959595,
+        "excess_ci95": [
+          -2.9504746786849414,
+          -2.746484618389099
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T_only",
+        "condition": "T",
+        "measure": "dla",
+        "run": "clean",
+        "baseline": null,
+        "heads": [
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7"
+        ],
+        "wording": "T-only heads write the image's colour more than layer-matched random heads"
+      },
+      "object:P_visual": {
+        "n": 115,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.25422167391304346,
+        "ci95": [
+          0.2399714293478261,
+          0.2713768918478261
+        ],
+        "null_mean": 0.09688951756521741,
+        "null_p5": 0.06915631978260871,
+        "null_p95": 0.12122599163043478,
+        "p": 0.009900990099009901,
+        "excess": 0.15733215634782605,
+        "excess_ci95": [
+          0.14831519237880433,
+          0.1670101062103261
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T_only",
+        "condition": "P",
+        "measure": "m_object",
+        "run": "visual",
+        "baseline": null,
+        "heads": [
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7"
+        ],
+        "wording": "T-only heads attend to the object more than layer-matched random heads"
+      },
+      "image_colour:P_visual": {
+        "n": 115,
+        "n_draws": 100,
+        "direction": "less",
+        "observed": -3.0352151826086953,
+        "ci95": [
+          -3.2339105343478263,
+          -2.8323468621739125
+        ],
+        "null_mean": 0.0375140630747826,
+        "null_p5": -0.09662024688695653,
+        "null_p95": 0.37075679693043473,
+        "p": 0.009900990099009901,
+        "excess": -3.072729245683478,
+        "excess_ci95": [
+          -3.2788807068833914,
+          -2.858822935091782
+        ],
+        "passes": true,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "secondary",
+        "set": "T_only",
+        "condition": "P",
+        "measure": "dla",
+        "run": "visual",
+        "baseline": null,
+        "heads": [
+          "L20H7",
+          "L22H4",
+          "L22H5",
+          "L23H7"
+        ],
+        "wording": "T-only heads write the image's colour more than layer-matched random heads"
+      }
+    },
+    "validation": {
+      "routing:P": {
+        "n": 115,
+        "n_draws": 100,
+        "direction": "greater",
+        "observed": 0.05817473913043479,
+        "ci95": [
+          0.05015976277173912,
+          0.06656271820652174
+        ],
+        "null_mean": 0.01808835497826087,
+        "null_p5": -0.01982588097826087,
+        "null_p95": 0.05867166407608693,
+        "p": 0.07920792079207921,
+        "excess": 0.04008638415217392,
+        "excess_ci95": [
+          0.03364742243097827,
+          0.047028716811956514
+        ],
+        "passes": false,
+        "min_attainable_p": 0.009900990099009901,
+        "tier": "validation",
+        "set": "P",
+        "condition": "P",
+        "measure": "m_image",
+        "run": "visual",
+        "baseline": "prior",
+        "heads": [
+          "L15H7",
+          "L16H4",
+          "L17H7",
+          "L20H3",
+          "L22H1",
+          "L24H3",
+          "L25H2",
+          "L25H4"
+        ],
+        "wording": "H_P heads: not distinguishable from layer-matched random heads at this n"
+      }
+    },
+    "descriptive": {
+      "note_token_share": 0.029819681186868688,
+      "note_enrichment": {
+        "T_only:on_object_small/incongruent": 7.40366122395174,
+        "T_only:on_object_small/neutral": 6.121422052771508,
+        "T_only:clean": 1.5785691388845347,
+        "shared:on_object_small/incongruent": 2.0770530595135774,
+        "shared:on_object_small/neutral": 1.4980883714124313,
+        "shared:clean": 0.7068839445636087,
+        "P_only:on_object_small/incongruent": 6.888240144444252,
+        "P_only:on_object_small/neutral": 1.5893221285228603,
+        "P_only:clean": 1.3841451557968065,
+        "T:on_object_small/incongruent": 4.891389544849829,
+        "T:on_object_small/neutral": 3.8162146965661248,
+        "T:clean": 1.1230497667412624
+      },
+      "spatial": {
+        "on_object_small": {
+          "fool_rate": 1.0,
+          "note_tokens_mean": 30.535353535353536,
+          "n_objects_without_note_tokens": 0,
+          "T_only_note_mass_incongruent": 0.14969840909090906,
+          "T_only_note_mass_neutral": 0.12453143265993266,
+          "fooled_minus_not_incongruent": {
+            "n": [
+              297,
+              0
+            ],
+            "a": 0.14969840909090906,
+            "b": null
+          }
+        },
+        "on_object_medium": {
+          "fool_rate": 0.9663299663299664,
+          "note_tokens_mean": 60.66329966329966,
+          "n_objects_without_note_tokens": 0,
+          "T_only_note_mass_incongruent": 0.2021510016835017,
+          "T_only_note_mass_neutral": 0.16680339225589225,
+          "fooled_minus_not_incongruent": {
+            "n": [
+              287,
+              10
+            ],
+            "a": 0.20254908536585364,
+            "b": 0.190726,
+            "diff": 0.011823085365853636,
+            "ci95": [
+              -0.0034664363675958256,
+              0.02669173416811848
+            ]
+          }
+        },
+        "beside_object": {
+          "fool_rate": 0.7138047138047138,
+          "note_tokens_mean": 53.82491582491583,
+          "n_objects_without_note_tokens": 0,
+          "T_only_note_mass_incongruent": 0.16232295454545453,
+          "T_only_note_mass_neutral": 0.11155339225589223,
+          "fooled_minus_not_incongruent": {
+            "n": [
+              212,
+              85
+            ],
+            "a": 0.16592084905660376,
+            "b": 0.15334938235294118,
+            "diff": 0.012571466703662576,
+            "ci95": [
+              0.0026986545123473854,
+              0.023146994121115455
+            ]
+          }
+        }
+      },
+      "layer_profile_note_mass": {
+        "0": {
+          "unclassified_mean": 0.01402970070328283,
+          "classified": {}
+        },
+        "1": {
+          "unclassified_mean": 0.007639088678451182,
+          "classified": {}
+        },
+        "2": {
+          "unclassified_mean": 0.009126021590909092,
+          "classified": {}
+        },
+        "3": {
+          "unclassified_mean": 0.005525687928030305,
+          "classified": {}
+        },
+        "4": {
+          "unclassified_mean": 0.0037390372053872052,
+          "classified": {}
+        },
+        "5": {
+          "unclassified_mean": 0.0074273238257575765,
+          "classified": {}
+        },
+        "6": {
+          "unclassified_mean": 0.010380955374579127,
+          "classified": {}
+        },
+        "7": {
+          "unclassified_mean": 0.007989556771885524,
+          "classified": {}
+        },
+        "8": {
+          "unclassified_mean": 0.029301149873737376,
+          "classified": {}
+        },
+        "9": {
+          "unclassified_mean": 0.02911754515151515,
+          "classified": {}
+        },
+        "10": {
+          "unclassified_mean": 0.03090808905723906,
+          "classified": {}
+        },
+        "11": {
+          "unclassified_mean": 0.031885243097643096,
+          "classified": {}
+        },
+        "12": {
+          "unclassified_mean": 0.1153893021043771,
+          "classified": {}
+        },
+        "13": {
+          "unclassified_mean": 0.008023633135521888,
+          "classified": {}
+        },
+        "14": {
+          "unclassified_mean": 0.04294515816498317,
+          "classified": {}
+        },
+        "15": {
+          "unclassified_mean": 0.020803262501202503,
+          "classified": {
+            "L15H7": 0.006964979124579122
+          }
+        },
+        "16": {
+          "unclassified_mean": 0.07508671909571905,
+          "classified": {
+            "L16H4": 0.2974799663299663
+          }
+        },
+        "17": {
+          "unclassified_mean": 0.06855567431457431,
+          "classified": {
+            "L17H7": 0.005123678451178459
+          }
+        },
+        "18": {
+          "unclassified_mean": 0.06584077483164985,
+          "classified": {}
+        },
+        "19": {
+          "unclassified_mean": 0.043674210058922545,
+          "classified": {}
+        },
+        "20": {
+          "unclassified_mean": 0.01289529500561167,
+          "classified": {
+            "L20H3": 0.09598356902356904,
+            "L20H7": 0.2094122895622894
+          }
+        },
+        "21": {
+          "unclassified_mean": 0.034685308922558916,
+          "classified": {}
+        },
+        "22": {
+          "unclassified_mean": 0.04750164377104375,
+          "classified": {
+            "L22H1": 0.0773839730639731,
+            "L22H4": 0.12392858585858593,
+            "L22H5": 0.11551319865319867
+          }
+        },
+        "23": {
+          "unclassified_mean": 0.044790243386243385,
+          "classified": {
+            "L23H7": 0.14993956228956234
+          }
+        },
+        "24": {
+          "unclassified_mean": 0.005035583020683021,
+          "classified": {
+            "L24H3": 0.008591437710437706
+          }
+        },
+        "25": {
+          "unclassified_mean": 0.003946762401795736,
+          "classified": {
+            "L25H2": 0.03827178451178452,
+            "L25H4": 0.007110922558922563
+          }
+        }
+      },
+      "per_head_T": {
+        "L15H7": {
+          "on_object_small/incongruent:m_note": 0.0069649791245791235,
+          "on_object_small/incongruent:m_object": 0.0125631265993266,
+          "on_object_small/incongruent:m_image": 0.10549050505050507,
+          "on_object_small/incongruent:dla": 0.02013986397306397,
+          "on_object_small/neutral:m_note": 0.008691517171717173,
+          "on_object_small/neutral:m_object": 0.015581588215488216,
+          "on_object_small/neutral:m_image": 0.1297473063973064,
+          "on_object_small/neutral:dla": 0.0021407090909090908,
+          "clean:m_note": 0.0011661723905723907,
+          "clean:m_object": 0.015374984511784512,
+          "clean:m_image": 0.11320303030303029,
+          "clean:dla": 0.00044887205387205374
+        },
+        "L16H4": {
+          "on_object_small/incongruent:m_note": 0.2974799663299663,
+          "on_object_small/incongruent:m_object": 0.3108170707070707,
+          "on_object_small/incongruent:m_image": 0.9065127946127944,
+          "on_object_small/incongruent:dla": -0.007048129966329964,
+          "on_object_small/neutral:m_note": 0.04914266498316498,
+          "on_object_small/neutral:m_object": 0.5682127609427609,
+          "on_object_small/neutral:m_image": 0.8894326599326599,
+          "on_object_small/neutral:dla": -0.28552847811447807,
+          "clean:m_note": 0.053779050168350176,
+          "clean:m_object": 0.5299527878787879,
+          "clean:m_image": 0.9097107744107744,
+          "clean:dla": -0.3122643521885522
+        },
+        "L17H7": {
+          "on_object_small/incongruent:m_note": 0.005123678451178451,
+          "on_object_small/incongruent:m_object": 0.021001401683501682,
+          "on_object_small/incongruent:m_image": 0.21381040404040405,
+          "on_object_small/incongruent:dla": -0.01904326936026936,
+          "on_object_small/neutral:m_note": 0.0037264707070707066,
+          "on_object_small/neutral:m_object": 0.026546158249158246,
+          "on_object_small/neutral:m_image": 0.2124932323232323,
+          "on_object_small/neutral:dla": -0.04186221548821549,
+          "clean:m_note": 0.0021107044781144783,
+          "clean:m_object": 0.03352152154882155,
+          "clean:m_image": 0.270076531986532,
+          "clean:dla": -0.037082691582491584
+        },
+        "L20H3": {
+          "on_object_small/incongruent:m_note": 0.09598356902356903,
+          "on_object_small/incongruent:m_object": 0.1900677441077441,
+          "on_object_small/incongruent:m_image": 0.7810666666666666,
+          "on_object_small/incongruent:dla": 0.271388303030303,
+          "on_object_small/neutral:m_note": 0.049769865319865325,
+          "on_object_small/neutral:m_object": 0.2525355892255893,
+          "on_object_small/neutral:m_image": 0.7648892255892256,
+          "on_object_small/neutral:dla": -1.028383973063973,
+          "clean:m_note": 0.02768931986531987,
+          "clean:m_object": 0.25261279461279457,
+          "clean:m_image": 0.7608259259259259,
+          "clean:dla": -1.0550006734006734
+        },
+        "L20H7": {
+          "on_object_small/incongruent:m_note": 0.20941228956228955,
+          "on_object_small/incongruent:m_object": 0.1338345117845118,
+          "on_object_small/incongruent:m_image": 0.7568161616161616,
+          "on_object_small/incongruent:dla": 0.8317474612794613,
+          "on_object_small/neutral:m_note": 0.0833234074074074,
+          "on_object_small/neutral:m_object": 0.2375260942760943,
+          "on_object_small/neutral:m_image": 0.655863973063973,
+          "on_object_small/neutral:dla": -0.2563064511784512,
+          "clean:m_note": 0.02805502121212121,
+          "clean:m_object": 0.22548968350168347,
+          "clean:m_image": 0.5885589225589225,
+          "clean:dla": -0.2635969494949495
+        },
+        "L22H1": {
+          "on_object_small/incongruent:m_note": 0.07738397306397306,
+          "on_object_small/incongruent:m_object": 0.16143882154882155,
+          "on_object_small/incongruent:m_image": 0.6580370370370371,
+          "on_object_small/incongruent:dla": 0.01997264646464646,
+          "on_object_small/neutral:m_note": 0.031112259259259263,
+          "on_object_small/neutral:m_object": 0.2302400336700337,
+          "on_object_small/neutral:m_image": 0.7237370370370371,
+          "on_object_small/neutral:dla": -0.4479300336700337,
+          "clean:m_note": 0.027307060942760943,
+          "clean:m_object": 0.24689444444444447,
+          "clean:m_image": 0.7509457912457913,
+          "clean:dla": -0.48232746801346804
+        },
+        "L22H4": {
+          "on_object_small/incongruent:m_note": 0.12392858585858586,
+          "on_object_small/incongruent:m_object": 0.19250619528619528,
+          "on_object_small/incongruent:m_image": 0.6903757575757576,
+          "on_object_small/incongruent:dla": 1.1488700303030304,
+          "on_object_small/neutral:m_note": 0.09646262626262626,
+          "on_object_small/neutral:m_object": 0.2671306734006734,
+          "on_object_small/neutral:m_image": 0.7072959595959595,
+          "on_object_small/neutral:dla": -0.728900731986532,
+          "clean:m_note": 0.036016631380471384,
+          "clean:m_object": 0.284246531986532,
+          "clean:m_image": 0.6805602693602694,
+          "clean:dla": -0.76889678989899
+        },
+        "L22H5": {
+          "on_object_small/incongruent:m_note": 0.11551319865319866,
+          "on_object_small/incongruent:m_object": 0.1866147138047138,
+          "on_object_small/incongruent:m_image": 0.5937010101010102,
+          "on_object_small/incongruent:dla": -0.14710533265993267,
+          "on_object_small/neutral:m_note": 0.1869163973063973,
+          "on_object_small/neutral:m_object": 0.18119949494949494,
+          "on_object_small/neutral:m_image": 0.7088104377104377,
+          "on_object_small/neutral:dla": -0.81743465993266,
+          "clean:m_note": 0.025784450808080808,
+          "clean:m_object": 0.22687619528619526,
+          "clean:m_image": 0.5275383838383838,
+          "clean:dla": -0.9794530437710438
+        },
+        "L23H7": {
+          "on_object_small/incongruent:m_note": 0.1499395622895623,
+          "on_object_small/incongruent:m_object": 0.15274717171717173,
+          "on_object_small/incongruent:m_image": 0.6713441077441078,
+          "on_object_small/incongruent:dla": 0.8675789023569023,
+          "on_object_small/neutral:m_note": 0.13142329966329966,
+          "on_object_small/neutral:m_object": 0.1881235016835017,
+          "on_object_small/neutral:m_image": 0.6569047138047138,
+          "on_object_small/neutral:dla": -0.508190047138047,
+          "clean:m_note": 0.022089913468013467,
+          "clean:m_object": 0.1987912457912458,
+          "clean:m_image": 0.5815077441077441,
+          "clean:dla": -0.8262455555555556
+        },
+        "L24H3": {
+          "on_object_small/incongruent:m_note": 0.00859143771043771,
+          "on_object_small/incongruent:m_object": 0.07535570707070707,
+          "on_object_small/incongruent:m_image": 0.5554299663299663,
+          "on_object_small/incongruent:dla": 0.15369527946127945,
+          "on_object_small/neutral:m_note": 0.008054447811447811,
+          "on_object_small/neutral:m_object": 0.09065544781144781,
+          "on_object_small/neutral:m_image": 0.6605269360269359,
+          "on_object_small/neutral:dla": -0.6933958922558923,
+          "clean:m_note": 0.006615787205387205,
+          "clean:m_object": 0.08327448484848485,
+          "clean:m_image": 0.6335545454545455,
+          "clean:dla": -0.7528834680134681
+        },
+        "L25H2": {
+          "on_object_small/incongruent:m_note": 0.03827178451178451,
+          "on_object_small/incongruent:m_object": 0.11320108080808079,
+          "on_object_small/incongruent:m_image": 0.5784279461279461,
+          "on_object_small/incongruent:dla": 0.09295375757575758,
+          "on_object_small/neutral:m_note": 0.058728441077441074,
+          "on_object_small/neutral:m_object": 0.12955307070707073,
+          "on_object_small/neutral:m_image": 0.6629380471380472,
+          "on_object_small/neutral:dla": -0.9848992929292929,
+          "clean:m_note": 0.012905689898989896,
+          "clean:m_object": 0.12038330976430978,
+          "clean:m_image": 0.5871292929292931,
+          "clean:dla": -1.0351581144781146
+        },
+        "L25H4": {
+          "on_object_small/incongruent:m_note": 0.007110922558922558,
+          "on_object_small/incongruent:m_object": 0.07436334680134679,
+          "on_object_small/incongruent:m_image": 0.5062060606060605,
+          "on_object_small/incongruent:dla": 0.08838806397306398,
+          "on_object_small/neutral:m_note": 0.0046735828282828285,
+          "on_object_small/neutral:m_object": 0.10138234343434342,
+          "on_object_small/neutral:m_image": 0.6253127946127945,
+          "on_object_small/neutral:dla": -0.7652096632996633,
+          "clean:m_note": 0.00765903063973064,
+          "clean:m_object": 0.09518044646464646,
+          "clean:m_image": 0.6215400673400673,
+          "clean:dla": -0.8185370033670034
+        }
+      },
+      "eager_vs_discovery_max_abs_logit_T": 0.9375,
+      "per_head_P": {
+        "L15H7": {
+          "prior:m_object": 0.005682442608695651,
+          "prior:m_image": 0.05218965217391305,
+          "prior:dla": 0.06235009304347827,
+          "visual:m_object": 0.019277043478260873,
+          "visual:m_image": 0.11313521739130433,
+          "visual:dla": -0.0018894869565217413
+        },
+        "L16H4": {
+          "prior:m_object": 0.12359593043478262,
+          "prior:m_image": 0.3648702608695652,
+          "prior:dla": 0.06889069217391305,
+          "visual:m_object": 0.5981413043478261,
+          "visual:m_image": 0.9602139130434783,
+          "visual:dla": -0.289983252173913
+        },
+        "L17H7": {
+          "prior:m_object": 0.014583611304347826,
+          "prior:m_image": 0.2832026086956522,
+          "prior:dla": 0.062398765217391294,
+          "visual:m_object": 0.04049564347826087,
+          "visual:m_image": 0.23706347826086957,
+          "visual:dla": -0.018673838260869564
+        },
+        "L20H3": {
+          "prior:m_object": 0.12600801739130435,
+          "prior:m_image": 0.7396913043478262,
+          "prior:dla": 0.7909489565217392,
+          "visual:m_object": 0.29686443478260865,
+          "visual:m_image": 0.7779095652173914,
+          "visual:dla": -0.9151619999999998
+        },
+        "L20H7": {
+          "prior:m_object": 0.19979034782608693,
+          "prior:m_image": 0.6146608695652175,
+          "prior:dla": -0.3308348956521739,
+          "visual:m_object": 0.3033709565217392,
+          "visual:m_image": 0.681726956521739,
+          "visual:dla": -0.6299234782608697
+        },
+        "L22H1": {
+          "prior:m_object": 0.1597822956521739,
+          "prior:m_image": 0.8057704347826086,
+          "prior:dla": 0.14381739130434784,
+          "visual:m_object": 0.2824148695652175,
+          "visual:m_image": 0.8045043478260869,
+          "visual:dla": -0.4963878782608696
+        },
+        "L22H4": {
+          "prior:m_object": 0.23313121739130435,
+          "prior:m_image": 0.6310634782608695,
+          "prior:dla": -0.992355147826087,
+          "visual:m_object": 0.31383600000000006,
+          "visual:m_image": 0.7028234782608698,
+          "visual:dla": -1.4341712
+        },
+        "L22H5": {
+          "prior:m_object": 0.15571539130434783,
+          "prior:m_image": 0.44101565217391303,
+          "prior:dla": -0.08607749565217392,
+          "visual:m_object": 0.21379904347826087,
+          "visual:m_image": 0.49857391304347826,
+          "visual:dla": -0.2546958260869565
+        },
+        "L23H7": {
+          "prior:m_object": 0.15272252173913042,
+          "prior:m_image": 0.5447391304347826,
+          "prior:dla": -0.47041377391304345,
+          "visual:m_object": 0.1858806956521739,
+          "visual:m_image": 0.5472834782608696,
+          "visual:dla": -0.7164246782608695
+        },
+        "L24H3": {
+          "prior:m_object": 0.09572151304347826,
+          "prior:m_image": 0.7787808695652173,
+          "prior:dla": 0.4771087652173913,
+          "visual:m_object": 0.1210516608695652,
+          "visual:m_image": 0.672508695652174,
+          "visual:dla": -0.4108613217391305
+        },
+        "L25H2": {
+          "prior:m_object": 0.12353817391304349,
+          "prior:m_image": 0.6390469565217392,
+          "prior:dla": 0.3639613739130435,
+          "visual:m_object": 0.15736217391304347,
+          "visual:m_image": 0.6293626086956521,
+          "visual:dla": -0.9402125217391306
+        },
+        "L25H4": {
+          "prior:m_object": 0.1152900347826087,
+          "prior:m_image": 0.7276878260869565,
+          "prior:dla": 0.3679881565217391,
+          "visual:m_object": 0.13628952173913045,
+          "visual:m_image": 0.66194,
+          "visual:dla": -0.4431230347826088
+        }
+      },
+      "eager_vs_discovery_max_abs_logit_P": 1.0
+    },
+    "parameters": {
+      "n_boot": 1000,
+      "seed": 0,
+      "first_layer": 0
+    },
+    "d80_drift": {
+      "P": {
+        "n": 121,
+        "drift": 6,
+        "fraction": 0.049586776859504134,
+        "no_claim": false
+      },
+      "T": {
+        "n": 302,
+        "drift": 5,
+        "fraction": 0.016556291390728478,
+        "no_claim": false
+      }
+    }
+  }
+}

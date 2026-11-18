@@ -79,11 +79,11 @@ The workshop's page is copied in `docs/DAI.md`.
   selection over all 469 (380 selected), cap 302 (D79a, PaliGemma T's n), patching by layer replay
   (`replay.patch_example_replay`), checked against D76a's batched path on
   every head of the first object, with an automatic fallback. ~8 h estimated.
-- **PaliGemma H3: built, not run** (18 Nov, design D80 = D74 on PaliGemma):
-  302 T objects x 7 runs and 121 P x 2, eager attention, full forward passes,
-  all 26 layers; primary set T-only (L20H7, L22H4, L22H5, L23H7). GPU helpers
-  `pg_h3.py` (Gemma-2 post-attention norm in the direct effect; pixel-patch
-  check of token order). ~2 h; can run alongside PaliGemma V.
+- **PaliGemma H3: done** (18 Nov, run at `89eeb7c`, design D80, amendment D80a):
+  297 T and 115 P objects (11 drift). **Both primary tests pass: "the T-only heads
+  read the note and write its colour"**, as on Qwen (note mass 0.150 vs random
+  0.038; +2.70 logits). Unlike Qwen, the shared heads also attend and write.
+  See RESULTS.md.
 
 ## Two people, one repo
 Two of us work on this from separate machines through the same GitHub repo.
