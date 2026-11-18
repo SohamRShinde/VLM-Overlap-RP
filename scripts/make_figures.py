@@ -319,7 +319,7 @@ def fig_h3(out: Path) -> list[Path]:
     order = ["T_only", "shared", "P_only", "T"]
     key = {"m_note": {"T_only": "A", "shared": "A:shared", "P_only": "A:P_only", "T": "A:T"},
            "dla": {"T_only": "W", "shared": "W:shared", "P_only": "W:P_only", "T": "W:T"}}
-    fig, axes = plt.subplots(2, 3, figsize=(TEXT_W, 4.3), gridspec_kw={"wspace": 0.42, "hspace": 0.72})
+    fig, axes = plt.subplots(2, 3, figsize=(TEXT_W, 3.6), gridspec_kw={"wspace": 0.42, "hspace": 0.78})
     for row, (model_title, model, pre) in zip(axes, MODELS):
         h = load(f"{pre}h3_analysis_{model}.json")
         tests = {**h["primary"], **h["secondary"]}
