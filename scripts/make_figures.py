@@ -264,8 +264,7 @@ def _head_panel(ax, zx, zy, groups, labelled, sig, rho, xlabel, ylabel, xcode, y
                   [(zx[h], zy[h]) for h in np.ndindex(zx.shape)])
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.annotate(f"Spearman $\\rho$ = {rho:.2f} over all {zx.size} heads", (0.5, 0), xycoords="axes fraction",
-                xytext=(0, -27), textcoords="offset points", ha="center", va="top", fontsize=6.8, color=INK2)
+    ax.set_title(f"$\\rho$ = {rho:.2f}", loc="right", fontsize=7, fontweight="normal", color=INK2)
 
 
 def fig_heads(out: Path) -> list[Path]:
@@ -274,7 +273,7 @@ def fig_heads(out: Path) -> list[Path]:
     PaliGemma's V scores are those of the patching file (logits as recorded, soft-capped); D79b's
     analysis on uncapped logits classifies the same heads, which the assert below checks.
     """
-    fig, axes = plt.subplots(2, 2, figsize=(TEXT_W, 5.0), gridspec_kw={"hspace": 0.58, "wspace": 0.25})
+    fig, axes = plt.subplots(2, 2, figsize=(TEXT_W, 3.6), gridspec_kw={"hspace": 0.42, "wspace": 0.2})
     for row, (title, model, pre) in zip(axes, MODELS):
         p = load(f"{pre}replication_patching_{model}.json")
         t, v = load(f"{pre}t_patching_{model}.json"), load(f"{pre}v_patching_{model}.json")
@@ -296,8 +295,8 @@ def fig_heads(out: Path) -> list[Path]:
                     [(V_COL, "s", "V only", sorted(V - T)), (T_COL, "^", "T only", sorted(T - V)),
                      (SHARED_COL, "D", "V and T", sorted(V & T))],
                     set(), sig, rho_vt, r"V: PC1 score ($\sigma$ units)", r"T: PC1 score ($\sigma$ units)", "V", "T")
-        row[0].set_title(f"{title}: (a) P vs T", loc="left")
-        row[1].set_title(f"{title}: (b) V vs T", loc="left")
+        row[0].set_title(f"{title}: (a) P vs T", loc="left", fontsize=7.5)
+        row[1].set_title(f"{title}: (b) V vs T", loc="left", fontsize=7.5)
     cut = Line2D([], [], color=MUTED, lw=0.8, ls=(0, (3, 2)), label=f"$\\pm{sig:g}\\sigma$ cut")
     other = Line2D([], [], ls="", marker="o", ms=3, color=RANDOM, label="other heads")
     for col, (a, a_col, a_mk, b_name) in enumerate([("P", P_COL, "o", "P and T"), ("V", V_COL, "s", "V and T")]):
@@ -306,7 +305,7 @@ def fig_heads(out: Path) -> list[Path]:
                    Line2D([], [], ls="", marker="D", ms=5, color=SHARED_COL, mec="white", label=b_name),
                    other, cut]
         box = axes[1, col].get_position()
-        fig.legend(handles=handles, loc="upper center", bbox_to_anchor=((box.x0 + box.x1) / 2, -0.005), ncol=5,
+        fig.legend(handles=handles, loc="upper center", bbox_to_anchor=((box.x0 + box.x1) / 2, 0.0), ncol=5,
                    columnspacing=0.8, handletextpad=0.2, fontsize=6.6, borderpad=0.35)
     return save(fig, out, "fig_heads")
 
