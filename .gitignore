@@ -90,3 +90,5 @@ paper/build/
 !figures/
 !figures/*.pdf
 !figures/*.png
+!figures/inputs/
+!figures/inputs/*.png

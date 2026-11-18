@@ -1,0 +1,10 @@
+{
+  "dataset": "mgolov/Visual-Counterfact",
+  "split": "color",
+  "row": 422,
+  "object": "strawberry",
+  "original_colors": "['red']",
+  "counterfactual_color": "blue",
+  "layout": "on_object_small",
+  "neutral_word": "metal"
+}

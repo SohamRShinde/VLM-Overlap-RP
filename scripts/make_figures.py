@@ -131,39 +131,30 @@ def bar_pair(ax, x, observed, ci, colour, null=None, w=0.36, hatch=None, label=N
 
 
 # --------------------------------------------------------------------------- 0
-RED, PURPLE = "#d6453d", "#8e5cc8"            # the example object's colours (image content, not roles)
-NOTE_FILL, NOTE_EDGE, TILE = "#ffe066", "#e0b400", "#ffffff"
+RED, BLUE = "#d6453d", "#2b8ad6"             # the example object's colours (image content, not roles)
+TILE = "#ffffff"
 COND_COL = {"P": P_COL, "T": T_COL, "V": V_COL}
+INPUTS = ROOT / "figures" / "inputs"         # real Visual-Counterfact images, from scripts/fig1_inputs.py
 
 
-def strawberry(ax, cx, cy, colour, a=0.17, b=0.2) -> None:
-    """An egg-shaped fruit, wider at the top, with a leaf cap and a few seeds."""
-    t = np.linspace(0, 2 * np.pi, 120)
-    ax.add_patch(plt.Polygon(np.column_stack([cx + a * np.cos(t) * (1 + 0.28 * np.sin(t)),
-                                              cy + b * np.sin(t)]), color=colour, lw=0, zorder=2))
-    for dx in (-0.07, 0.0, 0.07):
-        ax.add_patch(plt.Polygon([(cx + dx - 0.045, cy + b - 0.02), (cx + 1.6 * dx, cy + b + 0.07),
-                                  (cx + dx + 0.045, cy + b - 0.02)], color="#3f8f4a", lw=0, zorder=3))
-    for sx, sy in [(-0.08, 0.06), (0.0, 0.1), (0.08, 0.05), (-0.04, -0.03), (0.05, -0.06), (0.0, -0.13)]:
-        ax.plot(cx + sx, cy + sy, "o", ms=1.1, color="#f3e7a1", zorder=3)
-
-
-def tile(ax, x, y, s, colour, edge, note=None) -> None:
-    """One input image: the object, and optionally a note written on it."""
+def tile(ax, x, y, s, image, edge) -> None:
+    """One input image from the dataset (figures/inputs/<image>.png), framed in the condition's colour."""
     from matplotlib.patches import FancyBboxPatch
-    ax.add_patch(FancyBboxPatch((x, y), s, s, boxstyle="round,pad=0,rounding_size=0.04",
-                                fc=TILE, ec=edge, lw=0.9, zorder=1))
-    strawberry(ax, x + s / 2, y + s * 0.47, colour)
-    if note:
-        w, h = 0.36, 0.14
-        ax.add_patch(plt.Rectangle((x + s / 2 - w / 2, y + s * 0.38 - h / 2), w, h,
-                                   fc=NOTE_FILL, ec=NOTE_EDGE, lw=0.6, zorder=4))
-        ax.text(x + s / 2, y + s * 0.38, note, ha="center", va="center", fontsize=5.8,
-                color=INK, zorder=5, fontfamily="DejaVu Sans Mono", fontweight="bold")
+    img = plt.imread(INPUTS / f"{image}.png")
+    frame = FancyBboxPatch((x, y), s, s, boxstyle="round,pad=0,rounding_size=0.04",
+                           fc=TILE, ec=edge, lw=0.9, zorder=3)
+    ax.imshow(img, extent=(x, x + s, y, y + s), zorder=2, interpolation="lanczos")
+    clip = FancyBboxPatch((x, y), s, s, boxstyle="round,pad=0,rounding_size=0.04", transform=ax.transData)
+    ax.images[-1].set_clip_path(clip)
+    frame.set_facecolor("none")
+    ax.add_patch(frame)
 
 
 def fig_design(out: Path) -> list[Path]:
-    """Figure 1, a schematic of the three conflicts (illustrative; no result is drawn).
+    """Figure 1, a schematic of the three conflicts (no result is drawn).
+
+    The tiles are real Visual-Counterfact inputs (the strawberry, row 422) and, for T, the
+    experiment's own notes on it; see scripts/fig1_inputs.py.
 
     Each conflict is a pair of runs that differ in one factor; patching swaps one head's
     last-token output between them, in both directions.
@@ -174,11 +165,11 @@ def fig_design(out: Path) -> list[Path]:
     prior_q, visual_q = "What color is a\nstrawberry usually?", "What color is this\nstrawberry here?"
     blocks = [
         ("P", "prompted prior", "prompt varies",
-         [(PURPLE, None, prior_q, "red", RED, "memory"), (PURPLE, None, visual_q, "purple", PURPLE, "image")]),
+         [("counterfact", prior_q, "red", RED, "memory"), ("counterfact", visual_q, "blue", BLUE, "image")]),
         ("T", "typographic", "note's word varies",
-         [(RED, "purple", visual_q, "purple", PURPLE, "note"), (RED, "pencil", visual_q, "red", RED, "image")]),
+         [("note_attack", visual_q, "blue", BLUE, "note"), ("note_neutral", visual_q, "red", RED, "image")]),
         ("V", "image-varying", "pixels vary",
-         [(RED, None, visual_q, "red", RED, "image"), (PURPLE, None, visual_q, "purple", PURPLE, "image")]),
+         [("original", visual_q, "red", RED, "image"), ("counterfact", visual_q, "blue", BLUE, "image")]),
     ]
     fig = plt.figure(figsize=(W, H))
     ax = fig.add_axes([0, 0, 1, 1])
@@ -202,8 +193,8 @@ def fig_design(out: Path) -> list[Path]:
         for x, role in zip(xs, ("source run", "target run")):
             ax.text(x + s / 2, H - 0.45, role, ha="center", va="center", fontsize=6.3, color=INK,
                     fontweight="bold")
-        for x, (obj, note, prompt, answer, ans_col, basis) in zip(xs, runs):
-            tile(ax, x, 0.68, s, obj, col, note)
+        for x, (image, prompt, answer, ans_col, basis) in zip(xs, runs):
+            tile(ax, x, 0.68, s, image, col)
             ax.text(x + s / 2, 0.5, prompt, ha="center", va="center", fontsize=5.6,
                     color=INK2, linespacing=1.15, style="italic")
             ax.text(x + s / 2, 0.24, f"$\\rightarrow$ {answer}", ha="center", va="center",
