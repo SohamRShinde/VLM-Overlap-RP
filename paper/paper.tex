@@ -26,7 +26,7 @@
 \setcounter{secnumdepth}{0}
 
 \title{Does In-Image Text Hijack the Same Heads as Prompted Priors?\\
-A Circuit-Overlap Test in Two Vision-Language Models}
+A Circuit-Level Comparison in Two Vision-Language Models}
 \author{Anonymous Submission}
 \affiliations{}
 
@@ -34,7 +34,7 @@ A Circuit-Overlap Test in Two Vision-Language Models}
 \maketitle
 
 \begin{abstract}
-Vision-language models (VLMs) answer from the image by default, but other signals can override it. Prior work found that a sparse set of late attention heads lets a prompt asking for an object's \emph{usual} colour override a recoloured image. We ask whether the same heads let a colour word \emph{written in the image}, a typographic attack, override the object's appearance. In Qwen2.5-VL-3B and PaliGemma2-3B, we hold the task, objects and circuit-discovery pipeline fixed and vary only where the competing signal comes from. Our pipeline re-discovers the published prior-override circuit exactly in both models. The typographic circuit overlaps it only partly (Jaccard \JPT{} and \pgJPT): above chance, but far below the prior circuit's agreement with itself. In both models, the heads unique to the typographic circuit attend to the note and write its colour into the answer; with no note, the same heads read the object's colour from its pixels. A circuit found by varying only the image overlaps the typographic one far more than the prior circuit does (\JVT{} vs \JPT{} in Qwen, \pgJVT{} vs \pgJPT{} in PaliGemma). In Qwen, the overlap with the prior circuit lies in head selection, not in cause: ablating the prior-override heads leaves the typographic attack intact. In PaliGemma the causal separation is partial and depends on the ablation type. For deployment, our results suggest that interpretability-based defences built on the prior-override circuit would not cover in-image text, which rides the model's ordinary route from image colour to answer.
+Vision-language models (VLMs) answer from the image by default, but other signals can override it. Prior work found that a sparse set of late attention heads lets a prompt asking for an object's \emph{usual} colour override a recoloured image. We ask whether the same heads let a colour word \emph{written in the image}, a typographic attack, override the object's appearance. In Qwen2.5-VL-3B and PaliGemma2-3B, we hold the task, objects and circuit-discovery pipeline fixed and vary only where the competing signal comes from. Our pipeline re-discovers the published prior-override circuit exactly in both models. The typographic circuit overlaps it only partly (Jaccard \JPT{} and \pgJPT): above chance, but far below the prior circuit's agreement with itself. In both models, the heads unique to the typographic circuit attend to the note and write its colour into the answer; with no note, the same heads read the colour off the object itself. The heads found by changing only the object's colour overlap the typographic circuit far more than the prior circuit does (\JVT{} vs \JPT{} in Qwen, \pgJVT{} vs \pgJPT{} in PaliGemma). In Qwen, the overlap with the prior circuit lies in head selection, not in cause: ablating the prior-override heads leaves the typographic attack intact. In PaliGemma the causal separation is partial and depends on the ablation type. For deployment, our results suggest that interpretability-based defences built on the prior-override circuit would not cover in-image text, which rides the model's ordinary route from image colour to answer.
 \end{abstract}
 
 \section{Introduction}
@@ -100,7 +100,8 @@ image's colour (V). An object enters a condition only if the model gives the
 answers shown in both runs. For every attention head we patch its last-token
 output from one run into the other, in both directions, and keep the heads
 whose patch moves the answer most (promoting heads); the overlap of these sets
-across conditions is our measure of shared mechanism.}
+across conditions is our measure of shared mechanism. The strip below gives the
+analyses that follow, in order. Tiles are cropped to the object.}
 \label{fig:design}
 \end{figure*}
 
@@ -568,15 +569,6 @@ shared heads also respond to the note, so the causal account rests on Qwen.
 Both its routing~\citep{lietzow2026} and our intervention on it differ from
 Qwen's.
 
-\section{Conclusion}
-Prompted priors and in-image text both override what a VLM sees, and patching
-selects partly the same heads for both. In Qwen, however, the typographic attack
-runs through heads that carry colour from the image, not through the
-prior-override heads; PaliGemma repeats the overlap and the mechanism with only
-partial causal separation. For deployed systems, this suggests seeking
-robustness to text in images at the heads that move colour from image to answer,
-not in the circuit that lets prompted knowledge override vision.
-
 \section{Limitations}
 \paragraph{Task and conflict types.} We study one task, naming an object's
 colour, with one note style, and discover T's circuit at one note placement.
@@ -596,6 +588,15 @@ T-only heads partly expected; the attention result does not share this problem.
 object left unchanged. Many tests sit at the smallest p-value \hTwoDraws{}
 random sets allow, so the excess over random sets and its interval are the
 effect sizes.
+
+\section{Conclusion}
+Prompted priors and in-image text both override what a VLM sees, and patching
+selects partly the same heads for both. In Qwen, however, the typographic attack
+runs through heads that carry colour from the image, not through the
+prior-override heads; PaliGemma repeats the overlap and the mechanism with only
+partial causal separation. For deployed systems, this suggests seeking
+robustness to text in images at the heads that move colour from image to answer,
+not in the circuit that lets prompted knowledge override vision.
 
 \section*{Ethical Statement}
 We analyse a known attack, a note written onto an image, on public models and a

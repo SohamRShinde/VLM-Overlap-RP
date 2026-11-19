@@ -82,11 +82,35 @@ def load(name: str) -> dict:
     return json.loads((RES / name).read_text())["result"]
 
 
+def outline_fonts(pdf: Path) -> bool:
+    """Convert a figure PDF's text to outlines with Ghostscript (AAAI: no CID/Identity-H fonts).
+
+    matplotlib embeds TrueType text as CID fonts with Identity-H encoding, which the AAAI author
+    kit says must be converted to outlines, even inside graphics. Images are kept lossless (no
+    downsampling, Flate encoding). Returns False, and leaves the file as is, if gs is not installed.
+    """
+    import shutil
+    import subprocess
+    gs = shutil.which("gs")
+    if gs is None:
+        print(f"warning: gs not found, {pdf.name} keeps CID fonts (AAAI wants outlines)", file=sys.stderr)
+        return False
+    tmp = pdf.with_suffix(".outlined.pdf")
+    subprocess.run([gs, "-q", "-dNOPAUSE", "-dBATCH", "-dSAFER", "-sDEVICE=pdfwrite", "-dNoOutputFonts",
+                    "-dAutoRotatePages=/None", "-dDownsampleColorImages=false", "-dDownsampleGrayImages=false",
+                    "-dAutoFilterColorImages=false", "-dColorImageFilter=/FlateEncode",
+                    "-dAutoFilterGrayImages=false", "-dGrayImageFilter=/FlateEncode",
+                    f"-sOutputFile={tmp}", str(pdf)], check=True)
+    tmp.replace(pdf)
+    return True
+
+
 def save(fig, out: Path, name: str) -> list[Path]:
     paths = [out / f"{name}.pdf", out / f"{name}.png"]
     for p in paths:
         fig.savefig(p)
     plt.close(fig)
+    outline_fonts(paths[0])
     return paths
 
 
@@ -137,10 +161,16 @@ COND_COL = {"P": P_COL, "T": T_COL, "V": V_COL}
 INPUTS = ROOT / "figures" / "inputs"         # real Visual-Counterfact images, from scripts/fig1_inputs.py
 
 
-def tile(ax, x, y, s, image, edge) -> None:
-    """One input image from the dataset (figures/inputs/<image>.png), framed in the condition's colour."""
+def tile(ax, x, y, s, image, edge, crop=(44, 334, 50, 340)) -> None:
+    """One input image from the dataset (figures/inputs/<image>.png), framed in the condition's colour.
+
+    `crop` (rows, then columns, in pixels of the 360 x 360 inputs) trims the white margin around
+    the strawberry so it, and the note on it, fill the tile; the image itself is not altered.
+    """
     from matplotlib.patches import FancyBboxPatch
     img = plt.imread(INPUTS / f"{image}.png")
+    r0, r1, c0, c1 = crop
+    img = img[r0:r1, c0:c1]
     frame = FancyBboxPatch((x, y), s, s, boxstyle="round,pad=0,rounding_size=0.04",
                            fc=TILE, ec=edge, lw=0.9, zorder=3)
     ax.imshow(img, extent=(x, x + s, y, y + s), zorder=2, interpolation="lanczos")
@@ -161,7 +191,9 @@ def fig_design(out: Path) -> list[Path]:
     """
     from matplotlib.colors import to_rgba
     from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
-    W, H, s = TEXT_W, 1.92, 0.62
+    W, s, strip = TEXT_W, 0.76, 0.36         # tile side; height of the analysis strip below the panels
+    ph = 1.93                                 # panel height
+    H = strip + ph + 0.05
     prior_q, visual_q = "What color is a\nstrawberry usually?", "What color is this\nstrawberry here?"
     blocks = [
         ("P", "prompted prior", "prompt varies",
@@ -177,33 +209,55 @@ def fig_design(out: Path) -> list[Path]:
     ax.set_ylim(0, H)
     ax.axis("off")
     bw, gap, head_h = 2.27, 0.08, 0.27
+    pb, pt = strip + 0.02, H - 0.03           # panel bottom and top
     for i, (code, name, varies, runs) in enumerate(blocks):
         col = COND_COL[code]
         x0 = 0.02 + i * (bw + gap)
-        ax.add_patch(FancyBboxPatch((x0, 0.03), bw, H - 0.06, boxstyle="round,pad=0,rounding_size=0.07",
+        ax.add_patch(FancyBboxPatch((x0, pb), bw, pt - pb, boxstyle="round,pad=0,rounding_size=0.07",
                                     fc=to_rgba(col, 0.045), ec=col, lw=1.1, zorder=0))
-        ax.add_patch(FancyBboxPatch((x0, H - 0.03 - head_h), bw, head_h,
+        ax.add_patch(FancyBboxPatch((x0, pt - head_h), bw, head_h,
                                     boxstyle="round,pad=0,rounding_size=0.07", fc=col, ec=col, lw=1.1, zorder=0.5))
-        ax.add_patch(plt.Rectangle((x0 + 0.004, H - 0.03 - head_h), bw - 0.008, 0.08, fc=col, lw=0, zorder=0.6))
-        ax.text(x0 + 0.12, H - 0.03 - head_h / 2, f"{code}   {name}", ha="left", va="center",
+        ax.add_patch(plt.Rectangle((x0 + 0.004, pt - head_h), bw - 0.008, 0.08, fc=col, lw=0, zorder=0.6))
+        ax.text(x0 + 0.12, pt - head_h / 2, f"{code}   {name}", ha="left", va="center",
                 fontsize=8, fontweight="bold", color="white")
-        ax.text(x0 + bw - 0.12, H - 0.03 - head_h / 2, varies, ha="right", va="center", fontsize=6.3,
+        ax.text(x0 + bw - 0.12, pt - head_h / 2, varies, ha="right", va="center", fontsize=6.3,
                 color="white", style="italic")
-        xs = [x0 + 0.24, x0 + bw - 0.24 - s]
+        xs = [x0 + 0.12, x0 + bw - 0.12 - s]
+        ty = pb + 0.67                        # tile bottom
         for x, role in zip(xs, ("source run", "target run")):
-            ax.text(x + s / 2, H - 0.45, role, ha="center", va="center", fontsize=6.3, color=INK,
+            ax.text(x + s / 2, ty + s + 0.09, role, ha="center", va="center", fontsize=6.3, color=INK,
                     fontweight="bold")
         for x, (image, prompt, answer, ans_col, basis) in zip(xs, runs):
-            tile(ax, x, 0.68, s, image, col)
-            ax.text(x + s / 2, 0.5, prompt, ha="center", va="center", fontsize=5.6,
+            tile(ax, x, ty, s, image, col)
+            ax.text(x + s / 2, pb + 0.49, prompt, ha="center", va="center", fontsize=5.6,
                     color=INK2, linespacing=1.15, style="italic")
-            ax.text(x + s / 2, 0.24, f"$\\rightarrow$ {answer}", ha="center", va="center",
+            ax.text(x + s / 2, pb + 0.23, f"$\\rightarrow$ {answer}", ha="center", va="center",
                     fontsize=7.5, fontweight="bold", color=ans_col)
-            ax.text(x + s / 2, 0.1, f"(from {basis})", ha="center", va="center", fontsize=6, color=MUTED)
-        ax.add_patch(FancyArrowPatch((xs[0] + s + 0.05, 0.99), (xs[1] - 0.05, 0.99),
+            ax.text(x + s / 2, pb + 0.09, f"(from {basis})", ha="center", va="center", fontsize=6, color=MUTED)
+        mid = ty + s / 2
+        ax.add_patch(FancyArrowPatch((xs[0] + s + 0.04, mid - 0.06), (xs[1] - 0.04, mid - 0.06),
                                      arrowstyle="<|-|>", mutation_scale=8, color=col, lw=1.2))
-        ax.text((xs[0] + s + xs[1]) / 2, 1.09, "patch\none head", ha="center", va="bottom", fontsize=5.8,
+        ax.text((xs[0] + s + xs[1]) / 2, mid + 0.02, "patch\none head", ha="center", va="bottom", fontsize=5.8,
                 color=col, fontweight="bold", linespacing=1.1)
+
+    # the analysis that follows discovery, as one strip across all three conditions
+    stages = [("promoting heads", "per condition (PC1 > 2$\\sigma$)"),
+              ("overlap $J$", "vs chance and split-half ceiling"),
+              ("cross-ablation", "vs layer-matched random heads"),
+              ("mechanism", "attention to note, direct effect")]
+    sw, sgap = 1.5, 0.32
+    sx0 = (W - (len(stages) * sw + (len(stages) - 1) * sgap)) / 2
+    for k, (head, sub) in enumerate(stages):
+        x = sx0 + k * (sw + sgap)
+        ax.add_patch(FancyBboxPatch((x, 0.03), sw, strip - 0.06, boxstyle="round,pad=0,rounding_size=0.05",
+                                    fc="#f4f4f4", ec=FRAME, lw=0.8, zorder=1))
+        ax.text(x + sw / 2, 0.03 + (strip - 0.06) * 0.66, head, ha="center", va="center", fontsize=6.6,
+                fontweight="bold", color=INK)
+        ax.text(x + sw / 2, 0.03 + (strip - 0.06) * 0.28, sub, ha="center", va="center", fontsize=5.6,
+                color=INK2)
+        if k:
+            ax.add_patch(FancyArrowPatch((x - sgap + 0.05, strip / 2), (x - 0.05, strip / 2),
+                                         arrowstyle="-|>", mutation_scale=8, color=MUTED, lw=1.0))
     return save(fig, out, "fig_design")
 
 
