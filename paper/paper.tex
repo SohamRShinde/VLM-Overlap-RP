@@ -39,48 +39,53 @@ Vision-language models (VLMs) answer from the image by default, but other signal
 
 \section{Introduction}
 
-When a vision-language model (VLM) is asked about an image, the image is not the
-only possible source of the answer: the model has memorised what objects usually
-look like, and text can appear in the prompt or inside the image. An answer that
-silently follows the wrong source is a failure that looks like a success. This
-matters most once VLMs are deployed on inputs nobody curates, such as product
-photos, screenshots and street scenes, where anyone, including an adversary, can
-place text in the image.
+A vision-language model (VLM) asked about an image need not answer from the
+image: it has memorised what objects usually look like, and text can reach it
+through the prompt or inside the image itself. Recent work has traced how VLMs
+arbitrate between these sources. When a prompt asks what colour a blue
+strawberry \emph{usually} is, models mostly follow the image; the override to
+memory, when it succeeds, depends on a few late attention heads, which in
+Qwen-VL shift attention from image tokens toward text
+tokens~\citep{lietzow2026,golovanevsky2025counterfact}. Related studies find
+heads that route between image and caption~\citep{hua2025} or mediate conflicts
+with commonsense knowledge~\citep{ortu2025}. Separately, typographic attacks,
+text written into the image such as a note reading ``purple'' on a red apple,
+are known to override object recognition in CLIP and in large
+VLMs~\citep{goh2021multimodal,cheng2024typodeceptions,westerhoff2025scam}, and
+have been traced to a few heads in CLIP's vision
+encoder~\citep{dyslexify2025,liu2026typographic}.
 
-\citet{lietzow2026} studied one such arbitration with a recoloured-object
-benchmark~\citep{golovanevsky2025counterfact}. Shown a blue strawberry and asked
-what colour strawberries \emph{usually} are, a model must answer from memory.
-Models mostly follow the image instead; visual grounding is the default. When the
-override does succeed, it depends on a few attention heads in the second half of
-the network, which in Qwen-VL shift attention from image tokens toward text
-tokens; ablating them restores the visual answer.
+These two lines of work have not met. Circuit studies of VLM conflicts place the
+competing signal in the prompt or in stored knowledge, never in the image;
+typographic studies stop at the vision encoder and do not ask which language-model
+heads carry the attack to the answer. So it is unknown whether the heads that let
+a prompt override vision are the same heads that let in-image text do so. The
+answer matters for deployment, where anyone can put text in an image: a defence
+or monitor built on one circuit may or may not cover the other. It is also hard
+to answer from existing results, because circuits found in different studies
+differ in task, answer vocabulary and discovery method, and a low overlap
+between two circuits cannot be told apart from an unreliable circuit without a
+measure of how well a circuit agrees with itself.
 
-Typographic attacks put the competing signal \emph{inside} the
-image~\citep{goh2021multimodal,westerhoff2025scam}: a note reading ``purple'' on a
-red apple. Is this the same arbitration, solved by the same heads? If the
-prior-override heads implement a general ``answer from something other than the
-object's colour'' mechanism, they should carry the typographic override too; if
-they route from image to prompt text, as their attention shift suggests, they
-should not.
-
-We test this on Qwen2.5-VL-3B~\citep{bai2025qwen25vl} and
-PaliGemma2-3B~\citep{steiner2024paligemma2}, holding the task, objects, answer
-vocabulary and circuit-discovery pipeline fixed, and compare three
-answer-matched conflicts (Fig.~\ref{fig:design}): P, a prompted prior; T, a
-typographic note; and V, \citet{lietzow2026}'s image-varying contrast, which
-controls for T varying the image. Our contributions are:
+We close this gap with a controlled comparison on
+Qwen2.5-VL-3B~\citep{bai2025qwen25vl} and
+PaliGemma2-3B~\citep{steiner2024paligemma2}. We hold the task, objects, answer
+vocabulary and discovery pipeline fixed, and vary only where the competing
+signal comes from (Fig.~\ref{fig:design}): P, a prompted prior; T, a typographic
+note; and V, \citet{lietzow2026}'s image-varying contrast, which controls for T
+changing the image. Our contributions are:
 \begin{enumerate}\itemsep0pt
 \item \textbf{A controlled comparison:} an answer-matched P/T/V design on two
-VLMs, whose pipeline re-discovers \citet{lietzow2026}'s prior-override circuits
-exactly in both.
+VLMs, with a split-half ceiling for overlap, whose pipeline re-discovers
+\citet{lietzow2026}'s prior-override circuits exactly in both.
 \item \textbf{Partial overlap, on the visual side:} the typographic and
-prior-override circuits overlap above chance but far below the prior circuit's
-self-agreement ($J_{PT}=\JPT$ and \pgJPT), while the image-varying circuit
-overlaps the typographic one far more ($J_{VT}=\JVT$ and \pgJVT).
+prior-override circuits share heads above chance but far below the prior
+circuit's self-agreement, while the image-varying circuit overlaps the
+typographic one far more.
 \item \textbf{Selection is not cause:} in Qwen the shared heads are needed only
-for the prior override, and the typographic override runs through \nTonly{}
-later heads; in PaliGemma the separation is partial.
-\item \textbf{A mechanism and a deployment lead:} in both models the T-only heads
+for the prior override, and the typographic override runs through a few later
+heads; in PaliGemma the separation is partial.
+\item \textbf{A mechanism and a deployment lead:} in both models these heads
 read the note and write its colour, and with no note carry the object's own
 colour; in Qwen, ablating them defeats most typographic overrides (an in-sample
 estimate).
@@ -137,6 +142,17 @@ circuits; we add a split-half ceiling, so a low overlap can be told apart from a
 unreliable circuit.
 
 \section{Method}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_heads}
+\caption{Every head's PC1 score in two conditions ($\sigma$ units; dashed: the
+$\pm2\sigma$ cuts; $\rho$: Spearman rank correlation over all heads). (a)~P
+against T: P-only and T-only heads sit near zero in the other condition. (b)~V
+against T: on Qwen every V head is a T head; on PaliGemma every T head is a V
+head.}
+\label{fig:heads}
+\end{figure*}
 
 \paragraph{Models and data.}
 Qwen2.5-VL-3B-Instruct has \nLayers{} layers of \nHeadsPerLayer{} heads per
@@ -224,16 +240,17 @@ directions, so a last-token patch there reaches earlier positions in later
 layers. We therefore use full forward passes for PaliGemma's P and T; its V
 condition uses the exact layer replay described under cross-ablation, checked
 on every object against full forward passes. PaliGemma's intervention is
-not identical to Qwen's.
+not identical to Qwen's. Figure~\ref{fig:heads} shows every head's PC1 score in two conditions.
 
 \paragraph{Overlap Analysis.}
-Our primary statistic is the Jaccard index $J_{PT}$ between the P and T promoting sets, with a bootstrap confidence interval (\nBoot{} resamples); each replicate redraws each condition's objects independently and reruns head classification. 
+The scale, tests and verdict phrases below were fixed in advance (Appendix~C). Our primary statistic is the Jaccard index $J_{PT}$ between the P and T promoting sets, with a bootstrap confidence interval (\nBoot{} resamples); each replicate redraws each condition's objects independently and reruns head classification. 
 
 We read $J_{PT}$ on a fixed scale. The \emph{chance floor} is the Jaccard index of random head sets of the observed sizes (\nPerm{} draws). The \emph{ceiling} captures the noise of discovery itself: the overlap of the P circuit with itself when discovered on two random halves of its objects (\nHalfSplits{} splits). 
 
-Where the interval falls relative to these bounds gives one of four pre-registered verdicts: ``not distinguishable from chance at this $n$,'' ``not distinguishable from the P circuit's own self-agreement,'' ``above chance, below self-agreement,'' or ``inconclusive at this $n$.'' Because P and T keep different objects, we also compute $J_{PT}$ on the objects both keep.
+Where the interval falls relative to these bounds gives one of four verdicts: ``not distinguishable from chance at this $n$,'' ``not distinguishable from the P circuit's own self-agreement,'' ``above chance, below self-agreement,'' or ``inconclusive at this $n$.'' Because P and T keep different objects, we also compute $J_{PT}$ on the objects both keep.
 
-$J_{PV}$ and $J_{VT}$ are read the same way, against the lower of the two circuits' split-half ceilings. The pre-registered V test is $\Delta J = J_{VT} - J_{PT}$, with a bootstrap interval in which T is resampled once per replicate and used in both terms.
+$J_{PV}$ and $J_{VT}$ are read the same way, against the lower of the two circuits' split-half ceilings. The V test is $\Delta J = J_{VT} - J_{PT}$, with a bootstrap interval in which T is resampled once per replicate and used in both terms. Table~\ref{tab:overlap} reports every overlap on this scale.
+
 
 \paragraph{Cross-ablation.}
 To test whether the two overrides depend on the same heads, we zero the
@@ -245,8 +262,8 @@ answer associated with the target run exceeds that of the answer
 associated with the source run.
 
 Each rate is compared with \hTwoDraws{} random sets of unclassified heads
-matched in size and layer distribution, with add-one empirical p-values. The two primary cross-ablation tests were
-preregistered at $\alpha=\hTwoAlpha$; with \hTwoDraws{} random
+matched in size and layer distribution, with add-one empirical p-values. The two primary cross-ablation tests use
+$\alpha=\hTwoAlpha$; with \hTwoDraws{} random
 draws, the smallest attainable p-value is \hTwoMinP.
 We also test shared heads and each condition's own heads separately.
 
@@ -263,42 +280,53 @@ In both models we measure, for each head at the last token, its attention to the
 The direct effect is a logit lens~\citep{nostalgebraist2020logitlens}: the head's contribution to the residual stream, passed through the final norm and the unembedding, read as the source answer's logit minus the target answer's. In PaliGemma, whose Gemma-2 decoder normalises each attention output before adding it to the residual stream, the head's contribution also passes through that norm. PaliGemma's final logits may be soft-capped; we use the pre-cap logit difference, to which head contributions add linearly.
 
 Attention weights require eager attention (on PaliGemma, with full forward passes). We check that the weights rebuild each head's output and that the logit lens reproduces the model's logits. Statistics and random sets are those of the cross-ablation.
+
+
+
 \section{Results}
 \subsection{Our pipeline recovers the published prior-override circuit}\label{sec:replication}
-On the \nP{} correctly conflicting objects (same as \citet{lietzow2026} for this model), patching over all \nHeads{} heads finds \nPromP{} promoting and \nSupP{}
-suppressing heads, \promMatchesLietzow{} their published lists (Table~\ref{tab:replication}). Ablating the
-promoting group defeats the prior override on \repPriorFlip\% of objects and
-the visual answer on \repVisualFlip\% (theirs: \lietzowPriorFlip\% and
-\lietzowVisualFlip\%). The strongest single heads are \topSingleOne{}
-(\topSingleOneFlip\%; theirs \topSingleOneLietzow\%) and \topSingleTwo{}
-(\topSingleTwoFlip\%; theirs \topSingleTwoLietzow\%). We use our re-discovered
-set as $\HP$, so that P and T come from an identical pipeline.
+Before comparing circuits, we check that our pipeline reproduces
+\citet{lietzow2026}. In both models, on the same correctly conflicting objects,
+it finds promoting and suppressing heads \promMatchesLietzow{} their published
+lists, and ablating the promoting heads defeats the prior override about as
+often as they report while barely touching visual answers
+(Table~\ref{tab:replication}). We use our re-discovered set as $\HP$, so that P
+and T come from an identical pipeline.
 
-On the \pgNP{} correctly conflicting objects (which \citet{lietzow2026} also
-report as 121),
-patching over all \pgHeads{} heads finds \pgNPromP{} promoting and
-\pgNSupP{} suppressing heads, \pgMatchesLietzow{} their published lists. Group ablation defeats the prior override on \pgPriorFlip\%
-and the visual answer on \pgVisualFlip\% (theirs: \pgLietzowPriorFlip\% and
-\pgLietzowVisualFlip\%). The strongest single heads are \pgTopOne{}
-(\pgTopOneFlip\%; theirs \pgTopOneLietzow\%) and \pgTopTwo{}
-(\pgTopTwoFlip\%; theirs \pgTopTwoLietzow\%).
 
-\begin{table}[t]
+
+\subsection{A written note overrides vision by its content}
+Does a note fool the model, and is it the note's word that matters? An
+incongruent note moves the answer toward the note's colour by \attackShift{}
+logits on average, while a note naming the object's own colour moves it the
+other way, so the model reads the word rather than reacting to the note's
+presence. Of the objects answered correctly with a neutral note,
+\screenFoolRate\% are fooled by an incongruent one, more often when the note
+sits on the object than beside it (Appendix~B). Discovery uses the \nT{} objects
+(PaliGemma: \pgNT) fooled by a small note on the object.
+
+\begin{table}[!htb]
 \centering
 \small
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcc@{}}
 \toprule
  & Qwen & PaliGemma \\
 \midrule
 P objects / promoting heads & \nP{} / \nPromP & \pgNP{} / \pgNPromP \\
-Prior / visual flip, \% & \repPriorFlip{} / \repVisualFlip & \pgPriorFlip{} / \pgVisualFlip \\
 T objects / promoting heads & \nT{} / \nPromT & \pgNT{} / \pgNPromT \\
 V objects / promoting heads & \nV{} / \nPromV & \pgNV{} / \pgNPromV \\
 Heads shared by P and T & \nShared & \pgNShared \\
+\midrule
+Prior / visual flip, \% & \repPriorFlip{} / \repVisualFlip & \pgPriorFlip{} / \pgVisualFlip \\
+\quad \citet{lietzow2026} & \lietzowPriorFlip{} / \lietzowVisualFlip & \pgLietzowPriorFlip{} / \pgLietzowVisualFlip \\
+Strongest head, flip \% & \topSingleOne{} (\topSingleOneFlip) & \pgTopOne{} (\pgTopOneFlip) \\
+\quad \citet{lietzow2026} & \topSingleOneLietzow & \pgTopOneLietzow \\
 \bottomrule
 \end{tabular}
-\caption{Objects and circuits per condition. Both P circuits are identical to
-\citet{lietzow2026}'s lists; flips are from ablating the P promoting heads.}
+\caption{Objects and circuits per condition. Both P circuits are
+\promMatchesLietzow{} \citet{lietzow2026}'s lists; flips are from ablating the
+P promoting heads (group) or one head (strongest).}
 \label{tab:replication}
 \end{table}
 
@@ -311,11 +339,11 @@ Heads shared by P and T & \nShared & \pgNShared \\
 \cmidrule(lr){2-4}\cmidrule(l){5-7}
 Comparison & $J$ [95\% CI] & chance & ceiling & $J$ [95\% CI] & chance & ceiling \\
 \midrule
-P--T & \JPT{} [\JPTLo, \JPTHi] & \chanceEdge & \ceilingLo & \pgJPT{} [\pgJPTLo, \pgJPTHi] & \pgChanceEdge & \pgCeilingLo \\
+P--T ($J_{PT}$) & \JPT{} [\JPTLo, \JPTHi] & \chanceEdge & \ceilingLo & \pgJPT{} [\pgJPTLo, \pgJPTHi] & \pgChanceEdge & \pgCeilingLo \\
 \quad shared objects & \JPTshared{} [\JPTsharedLo, \JPTsharedHi] & & & \pgJPTshared{} [\pgJPTsharedLo, \pgJPTsharedHi] & & \\
-V--T & \JVT{} [\JVTLo, \JVTHi] & \chanceEdgeVT & \ceilingVTLo & \pgJVT{} [\pgJVTLo, \pgJVTHi] & \pgJVTChanceEdge & \pgCeilingVTLo \\
+V--T ($J_{VT}$) & \JVT{} [\JVTLo, \JVTHi] & \chanceEdgeVT & \ceilingVTLo & \pgJVT{} [\pgJVTLo, \pgJVTHi] & \pgJVTChanceEdge & \pgCeilingVTLo \\
 \quad shared objects & \JVTshared{} [\JVTsharedLo, \JVTsharedHi] & & & \pgJVTshared{} [\pgJVTsharedLo, \pgJVTsharedHi] & & \\
-P--V & \JPV{} [\JPVLo, \JPVHi] & \chanceEdgePV & \ceilingPVLo & \pgJPV{} [\pgJPVLo, \pgJPVHi] & \pgJPVChanceEdge & \pgCeilingPVLo \\
+P--V ($J_{PV}$) & \JPV{} [\JPVLo, \JPVHi] & \chanceEdgePV & \ceilingPVLo & \pgJPV{} [\pgJPVLo, \pgJPVHi] & \pgJPVChanceEdge & \pgCeilingPVLo \\
 \midrule
 $\Delta J = J_{VT}-J_{PT}$ & \dJ{} [\dJLo, \dJHi] & & & \pgdJ{} [\pgdJLo, \pgdJHi] & & \\
 \bottomrule
@@ -328,121 +356,80 @@ both conditions keep (Qwen \nSharedObjects{} and \nSharedObjectsVT; PaliGemma
 \label{tab:overlap}
 \end{table*}
 
-\subsection{A written note overrides vision by its content}
-A behavioural screen of all \nObjects{} objects shows that the note works by its
-content, not its presence. An incongruent note moves the logit difference toward
-the note's colour by \attackShift{} logits on average (minimum \attackShiftMin),
-while a note naming the object's own colour moves it \congruentShift{} the other
-way (maximum \congruentShiftMax). Of the \nCorrectNeutral{} objects answered
-correctly with a neutral note in at least one of three placements,
-\screenFoolRate\% are fooled by the incongruent note in at least one such
-placement. Placement matters more than size: small and medium notes on the
-object fool \screenFoolSmall\% and \screenFoolMedium\% of eligible objects, a
-note beside it \screenFoolBeside\%. Paired within objects, \pairedOnOnly{} are
-fooled only on the object and \pairedBesideOnly{} only beside it. The behavioural
-screen ran with bf16 compute; every circuit experiment used fp16. \nT{} objects
-(PaliGemma: \pgNT) meet the T selection rule with a small note on the object.
-
 \subsection{Prior and typographic circuits overlap only partly}\label{sec:overlap}
-Discovery on T finds \nPromT{} promoting heads. \nShared{} of them are also P
-heads, including the two strongest single P heads (Fig.~\ref{fig:heads}a). The
-P-only heads lie in layers \layersPonly{} and the T-only heads in layers
-\layersTonly{}.
-$J_{PT}=\JPT$ [\JPTLo, \JPTHi]. This lies far from both ends of the scale
-(Table~\ref{tab:overlap}): the chance floor's 95th percentile is \chanceEdge{}
-and the P ceiling's 2.5th percentile is \ceilingLo. The pre-registered verdict
-is \emph{``\JPTVerdict''}. Neither pure hypothesis fits: routing-specific heads
-predict overlap near chance, and a general override mechanism predicts overlap
-near the ceiling. Object selection does not drive the result: on the
-\nSharedObjects{} objects in both sets, $J_{PT}=\JPTshared$ [\JPTsharedLo,
-\JPTsharedHi]. Nor is T the noisy side, since T's circuit agrees with itself
-across halves at median $J=\TselfJ$. Across all heads, the rank correlation of
-PC1 scores is \rankRho{} (P's own, full length: \rankCeiling).
+How many heads do the two overrides share? We compare the P and T promoting
+sets with the Jaccard index $J_{PT}$, the number of heads in both sets divided
+by the number in either (Table~\ref{tab:replication} gives the set sizes). A
+Jaccard value is hard to read on its own, so Table~\ref{tab:overlap} places it
+between two references. The \emph{chance floor} is the overlap expected from
+random head sets of the same sizes. The \emph{split-half ceiling} is the
+overlap of the P circuit with itself when it is discovered on two random halves
+of its objects; it shows how far two circuits can agree at all with this many
+objects.
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{fig_heads}
-\caption{Every head's PC1 score in two conditions ($\sigma$ units; dashed: the
-$\pm2\sigma$ cuts; $\rho$: Spearman rank correlation over all heads). (a)~P
-against T: P-only and T-only heads sit near zero in the other condition. (b)~V
-against T: on Qwen every V head is a T head; on PaliGemma every T head is a V
-head.}
-\label{fig:heads}
-\end{figure*}
-
-
-On PaliGemma, $J_{PT}=\pgJPT$ [\pgJPTLo, \pgJPTHi], the chance 95th percentile
-is \pgChanceEdge{} and the ceiling 2.5th percentile is \pgCeilingLo. The
-pre-registered verdict is \emph{``\pgJPTVerdict''}. On the \pgNSharedObjects{}
-objects in both sets, $J_{PT}=\pgJPTshared$ [\pgJPTsharedLo, \pgJPTsharedHi].
-Unlike on Qwen, P's strongest single head, \pgTopOne, is not shared. 
+In both models $J_{PT}$ lies well above the chance floor and well below the
+ceiling: the verdict is \emph{``\JPTVerdict''} (PaliGemma:
+\emph{``\pgJPTVerdict''}). The two overrides share some heads, but far fewer
+than one circuit shares with itself. On Qwen the shared heads include P's two
+strongest single heads (Fig.~\ref{fig:heads}a); on PaliGemma they do not
+include P's strongest head, \pgTopOne. This rules out both pure hypotheses. If
+P's heads routed information from the image to the prompt text, they would have
+no role when the competing signal is inside the image, and the overlap would
+sit near chance. If they implemented a general ``answer from something other
+than the object's colour'' mechanism, T would reuse them, and the overlap would
+approach the ceiling. The result is not an artefact of object selection: P and
+T keep different objects, but on the objects both keep the overlap stays far
+from both references (Table~\ref{tab:overlap}, shared-object rows). Nor is the T
+circuit simply noisier, since it agrees with itself across halves at median
+$J=\TselfJ$ on Qwen.
 
 \subsection{The typographic circuit sits with the image-colour circuit}\label{sec:v}
-On Qwen, V finds \nPromV{} promoting heads, all in layers \layersV, and every
-one is also a T head (Fig.~\ref{fig:heads}b). $J_{VT}=\JVT$ [\JVTLo, \JVTHi] and
-$J_{PV}=\JPV$ [\JPVLo, \JPVHi], with pre-registered verdicts
-\emph{``\JVTVerdict''} and \emph{``\JPVVerdict''}. The pre-registered test
-gives $\Delta J=\dJ$ [\dJLo, \dJHi], verdict \emph{``\dJVerdict''}.
-\nTonlyInV{} of the \nTonly{} T-only heads and \nSharedInV{} of the \nShared{}
-shared heads are V heads. The heads that carry an object's real colour from its
-pixels to the answer are thus a subset of the heads that carry a note's colour:
-the attack recruits the model's ordinary visual route. Because V's token roles
-match P's, a token-role effect would have pushed the other way. Object selection
-does not drive the result either: on the \nSharedObjectsVT{} objects that V and
-T both keep, $J_{VT}=\JVTshared$ [\JVTsharedLo, \JVTsharedHi]. $J_{VT}$ sits at
-the top of its interval because it is the largest $J$ those set sizes allow.
+Does the overlap follow where the competing signal enters the model, or which
+answer token each run favours? The question arises because P and T swap the
+roles of the two colour tokens. In P the source run answers the object's usual
+colour, recalled from memory; in T it answers the counterfactual colour, read
+off the note. Heads that write one particular answer could therefore be selected
+in one condition and not the other for reasons that have nothing to do with
+where the signal comes from. V separates the two explanations: like T it
+changes only the image, but like P its source run answers the usual colour and
+its target run the counterfactual one. If token roles drove the overlap, T would
+overlap P at least as much as V; if the entry point of the signal did, T would
+overlap V more.
 
-On PaliGemma, V finds \pgNPromV{} promoting heads in layers \pgLayersV, and the
-containment runs the other way: every T head is also a V head
-(Fig.~\ref{fig:heads}b, bottom; \pgNTonlyInV{}
-of the \pgNTonly{} T-only and \pgNSharedInV{} of the \pgNShared{} shared heads). $J_{VT}=\pgJVT$ [\pgJVTLo, \pgJVTHi] and $J_{PV}=\pgJPV$
-[\pgJPVLo, \pgJPVHi], with verdicts \emph{``\pgJVTVerdict''} and
-\emph{``\pgJPVVerdict''}. The pre-registered test gives $\Delta J=\pgdJ$
-[\pgdJLo, \pgdJHi], verdict \emph{``\pgdJVerdict''}, as on Qwen. On the
-\pgNSharedObjectsVT{} objects that V and T both keep, $J_{VT}=\pgJVTshared$
-[\pgJVTsharedLo, \pgJVTsharedHi]. In both models, then, the typographic circuit
-sits far closer to the image-colour circuit than to the prior circuit, and
-most T-only heads (\nTonlyInV{} of \nTonly{} on Qwen, all on PaliGemma) are
-selected by a contrast with no note at all.
+In both models T overlaps V far more than it overlaps P
+(Table~\ref{tab:overlap}, $J_{VT}$ against $J_{PT}$). The test
+of $\Delta J=J_{VT}-J_{PT}$ gives \emph{``\dJVerdict''} on Qwen and
+\emph{``\pgdJVerdict''} on PaliGemma. The two models differ in which circuit
+contains which (Fig.~\ref{fig:heads}b): on Qwen every V head is also a T head,
+while on PaliGemma every T head is a V head. Either way, the heads that carry an
+object's real colour from its pixels to the answer largely coincide with those
+that carry a note's colour. The typographic attack needs no machinery of its
+own for text: it uses the model's ordinary route from image colour to answer.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{fig_h3}
+\caption{Mechanism, Qwen (top, \hThreeNT{} T objects) and PaliGemma (bottom,
+\pgThreeNT), on T objects with the incongruent note; objects whose answers
+changed under eager attention are dropped. (a)~Last-token attention mass on
+note tokens, mean over the set's heads; (b)~summed direct effect toward the
+note's colour; (c)~the T-only heads' direct effect with the note and with none
+(T's clean images, P's Visual runs). Grey: \hTwoDraws{} layer-matched random
+sets. Attention masses are not comparable across models, whose image grids
+differ.}
+\label{fig:h3}
+\end{figure*}
 
 \subsection{Shared selection, separate causes}\label{sec:h2}
-On Qwen, neither cross-ablation defeats the other override more often than layer-matched random heads (Table~\ref{tab:h2}).
-Ablating $\HP$ defeats the typographic override on \hTwoPtoTObs\% of T
-objects [\hTwoPtoTLo, \hTwoPtoTHi] (random: \hTwoPtoTNull\%,
-$p=\hTwoPtoTP$). Ablating $\HT$ defeats the prior override on
-\hTwoTtoPObs\% of P objects [\hTwoTtoPLo, \hTwoTtoPHi] (random:
-\hTwoTtoPNull\%, $p=\hTwoTtoPP$). Both are \emph{``not distinguishable
-from layer-matched random heads at this $n$''}. Each set does defeat its own
-override: \hTwoPtoPObs\% and \hTwoTtoTObs\%. \hTwoMeanSentence
+Patching shows which heads \emph{carry} the difference between two runs, not
+whether the answer \emph{needs} them. To test need, we zero-ablate each head set
+and count how often the override is defeated, against layer-matched random head
+sets of the same size (Table~\ref{tab:h2}). In both models each circuit is
+needed for its own override: ablating $\HP$ defeats the prior override and
+ablating $\HT$ defeats the typographic one far more often than random heads do.
+The question is whether either circuit is also needed for the other override.
 
-The decomposition explains the nulls. The \nShared{} shared heads alone
-defeat the prior override on \hTwoStoPObs\% of P objects, but the typographic
-override on \hTwoStoTObs\% of T objects (\hTwoStoTCount{} of \hTwoStoTN).
-The T override runs through the \nTonly{} T-only heads, which alone defeat
-it on \hTwoTOtoTObs\%. The P-only heads defeat it on \hTwoPOtoTObs\%
-($p=\hTwoPOtoTP$), which does not reach $\alpha$. $\HT$ on P reads null for
-a different reason than $\HP$ on T. The T-only heads push P's source runs
-\emph{toward} the image's colour (mean logit shift \hTwoTOonPShift, against
-\hTwoStoPShift{} for the shared heads), so ablating all of $\HT$ cancels the
-shared heads' effect.
-
-On PaliGemma, ablating $\HP$ on T defeats the override on \pgPtoTObs\%
-[\pgPtoTLo, \pgPtoTHi] versus random \pgPtoTNull\%, $p=\pgPtoTP$:
-``\pgPtoTVerdict''. Ablating $\HT$ on P defeats the override on \pgTtoPObs\%
-[\pgTtoPLo, \pgTtoPHi] versus random \pgTtoPNull\%, $p=\pgTtoPP$:
-``\pgTtoPVerdict'', unlike Qwen. The T-only heads defeat the P override on
-\pgTOtoPCount{} of \pgTOtoPN{} objects, so $\HT$ has no separate route to P.
-As on Qwen, they push P's answer toward the image's colour (mean logit shift
-\pgTOonPShift{} against \pgStoPShift{} for the shared heads), but here this
-cancels the shared heads' effect only in part (shared heads alone:
-\pgStoPObs\%). The shared heads carry a little of T here
-(\pgStoTObs\% vs random \pgStoTNull\%), none on Qwen. Under
-mean ablation, $\HP$ on T gives \pgMeanPtoTObs\% vs \pgMeanPtoTNull\% and
-$\HT$ on P gives \pgMeanTtoPObs\% vs \pgMeanTtoPNull\%
-($p=\pgMeanPtoTP$, the smallest attainable with \pgMeanDraws{} draws).
-\pgMeanSentence{}
-
-\begin{table}[t]
+\begin{table}[!htb]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
@@ -452,83 +439,68 @@ $\HT$ on P gives \pgMeanTtoPObs\% vs \pgMeanTtoPNull\%
 \cmidrule(lr){2-3}\cmidrule(l){4-5}
 Ablated & on P & on T & on P & on T \\
 \midrule
-$\HP$ & \hTwoPtoPObs{} (\hTwoPtoPNull) & \textbf{\hTwoPtoTObs} (\hTwoPtoTNull) & \pgPtoPObs{} (\pgPtoPNull) & \textbf{\pgPtoTObs} (\pgPtoTNull) \\
-$\HT$ & \textbf{\hTwoTtoPObs} (\hTwoTtoPNull) & \hTwoTtoTObs{} (\hTwoTtoTNull) & \textbf{\pgTtoPObs} (\pgTtoPNull) & \pgTtoTObs{} (\pgTtoTNull) \\
-shared & \hTwoStoPObs{} (\hTwoStoPNull) & \hTwoStoTObs{} (\hTwoStoTNull) & \pgStoPObs{} (\pgStoPNull) & \pgStoTObs{} (\pgStoTNull) \\
-P-only & \hTwoPOtoPObs$^*$ & \hTwoPOtoTObs{} (\hTwoPOtoTNull) & \pgPOtoPObs$^*$ & \pgPOtoTObs{} (\pgPOtoTNull) \\
-T-only & \hTwoTOtoPObs{} (\hTwoTOtoPNull) & \hTwoTOtoTObs$^*$ & \pgTOtoPObs{} (\pgTOtoPNull) & \pgTOtoTObs$^*$ \\
+$\HP$ & \hTwoPtoPObs\hTwoPtoPSig{} (\hTwoPtoPNull) & \textbf{\hTwoPtoTObs}\hTwoPtoTSig{} (\hTwoPtoTNull) & \pgPtoPObs\pgPtoPSig{} (\pgPtoPNull) & \textbf{\pgPtoTObs}\pgPtoTSig{} (\pgPtoTNull) \\
+$\HT$ & \textbf{\hTwoTtoPObs}\hTwoTtoPSig{} (\hTwoTtoPNull) & \hTwoTtoTObs\hTwoTtoTSig{} (\hTwoTtoTNull) & \textbf{\pgTtoPObs}\pgTtoPSig{} (\pgTtoPNull) & \pgTtoTObs\pgTtoTSig{} (\pgTtoTNull) \\
+shared & \hTwoStoPObs\hTwoStoPSig{} (\hTwoStoPNull) & \hTwoStoTObs\hTwoStoTSig{} (\hTwoStoTNull) & \pgStoPObs\pgStoPSig{} (\pgStoPNull) & \pgStoTObs\pgStoTSig{} (\pgStoTNull) \\
+P-only & \hTwoPOtoPObs$^*$ & \hTwoPOtoTObs\hTwoPOtoTSig{} (\hTwoPOtoTNull) & \pgPOtoPObs$^*$ & \pgPOtoTObs\pgPOtoTSig{} (\pgPOtoTNull) \\
+T-only & \hTwoTOtoPObs\hTwoTOtoPSig{} (\hTwoTOtoPNull) & \hTwoTOtoTObs$^*$ & \pgTOtoPObs\pgTOtoPSig{} (\pgTOtoPNull) & \pgTOtoTObs$^*$ \\
 \bottomrule
 \end{tabular}
 \caption{Cross-ablation: percentage of objects whose override is defeated by
-zero-ablating each head set, with the mean over \hTwoDraws{} layer-matched
-random sets in brackets. Bold: primary tests. $^*$No random control.}
+zero-ablating each head set; brackets: mean over \hTwoDraws{} layer-matched
+random sets. Bold: the primary tests. $^\dagger$More than random
+sets at $\alpha=\hTwoAlpha$. $^*$No random control.}
 \label{tab:h2}
 \end{table}
 
+On Qwen, neither is. Ablating $\HP$ defeats the typographic override no more
+often than ablating random heads, and ablating $\HT$ defeats the prior override
+no more often either: both primary tests are null. Splitting each circuit
+into its shared and condition-specific heads shows why. The shared heads alone
+defeat most prior overrides but not the typographic ones, while the T-only heads
+alone defeat most typographic overrides. The typographic override therefore runs
+through the T-only heads, not the shared ones. Ablating all of $\HT$ fails on P
+for a different reason: the T-only heads themselves push P's answer toward the
+image's colour, so removing them pushes it back toward the prior answer and
+cancels the effect of removing the shared heads. Patching selected the shared
+heads in both conditions, but only the prior override needs them; the overlap of
+Section~\ref{sec:overlap} is overlap in selection, not in cause.
+
+PaliGemma separates less cleanly. Ablating $\HT$ does defeat the prior override
+more often than random heads. This does not come from the T-only heads, which
+alone do not defeat it; it comes from the shared heads, whose effect the T-only
+heads cancel only in part here. The shared heads also carry a small part of the
+typographic override, which they do not on Qwen. We repeated PaliGemma's tests
+with mean instead of zero ablation. \pgMeanSentence{}
+
 \subsection{The T-only heads move colour from the image}\label{sec:h3}
-On Qwen's \hThreeNT{} T objects
-(\hThreeDropT{} dropped because their answers changed under eager attention or
-became non-finite), both primary mechanism tests pass (Fig.~\ref{fig:h3}a,b).
-The T-only heads place \hThreeAObs{} of their last-token attention on note
-tokens [\hThreeALo, \hThreeAHi], against \hThreeANull{} for random heads
-($p=\hThreeAP$). Their direct effect toward the note's colour is
-\hThreeWObs{} logits [\hThreeWLo, \hThreeWHi], against \hThreeWNull{}.
-The pre-registered mechanism sentence is \emph{``\hThreeMechanism''}. The
-note makes up \noteShare\% of the image tokens, but receives \enrichInc{}
-times its share of the T-only heads' image attention with a colour word and
-\enrichNeu{} times with a neutral word. The heads read text in the image
-regardless of its content, and read it more when it names a colour (rise
-\hThreeRiseObs, random \hThreeRiseNull).
+What do the T-only heads, which carry the typographic override, actually do? At
+the last token we measure how much attention each head pays to the note, and how
+far its output pushes the answer toward the note's colour (its direct effect),
+and compare both with layer-matched random heads. In both models the T-only
+heads attend to the note several times more than random heads and push the
+answer strongly toward its colour (Fig.~\ref{fig:h3}a,b), giving the
+mechanism sentence \emph{``\hThreeMechanism''} (PaliGemma:
+\emph{``\pgThreeMechanism''}).
 
-The shared heads neither attend to the note (\hThreeASObs, random
-\hThreeASNull, $p=\hThreeASP$) nor write its colour (\hThreeWSObs{} logits),
-consistent with their null ablation on T. The P-only heads attend to the note
-(\hThreeAPOObs, random \hThreeAPONull) but do not write its colour
-(\hThreeWPOObs).
+With no note, the same heads attend to the recoloured object and push the answer
+toward the image's colour, both on T's clean images and on P's Visual-prompt
+runs (Fig.~\ref{fig:h3}c). They are not dedicated to text: they move colour from
+wherever it appears in the image to the answer, and a note works by giving them
+a colour to move. They do attend to text whatever it says. On Qwen the note
+covers \noteShare\% of the image tokens but draws \enrichNeu{} times that share
+of their image attention with a neutral word, and \enrichInc{} times with a
+colour word.
 
-With no note, the T-only heads do the same thing with the object's own colour
-(Fig.~\ref{fig:h3}c). On the clean original image they attend to the recoloured
-object region (\hThreeObjCleanObs, random \hThreeObjCleanNull) and write the
-image's colour (\hThreeColCleanObs{} logits, random \hThreeColCleanNull). On
-P's Visual-prompt runs they do likewise (\hThreeObjPVObs; \hThreeColPVObs{}
-logits). As a check on the attention measurement, $\HP$ attends to the image
-more under the Visual than the Prior prompt, the direction \citet{lietzow2026}
-report (difference \hThreeRoutingObs, random \hThreeRoutingNull,
-$p=\hThreeRoutingP$).
-
-On PaliGemma's \pgThreeNT{} T objects (\pgThreeDropT{} dropped for the same
-reasons), both primary tests also pass (Fig.~\ref{fig:h3}, bottom) and give
-the same mechanism sentence,
-\emph{``\pgThreeMechanism''}. The T-only heads place \pgThreeAObs{}
-[\pgThreeALo, \pgThreeAHi] of their last-token attention on note tokens, against
-\pgThreeANull{} for random heads ($p=\pgThreeAP$), and their direct effect
-toward the note's colour is \pgThreeWObs{} logits [\pgThreeWLo, \pgThreeWHi],
-against \pgThreeWNull. The note makes up \pgNoteShare\% of the image tokens and
-receives \pgEnrichInc{} times its share of their image attention with a colour
-word and \pgEnrichNeu{} times with a neutral word. Unlike on Qwen, the shared
-heads also attend to the note (\pgThreeASObs, random \pgThreeASNull,
-$p=\pgThreeASP$) and write its colour (\pgThreeWSObs{} logits, random
-\pgThreeWSNull), which fits their small effect on T in PaliGemma's
-cross-ablation. The P-only heads do neither ($p=\pgThreeAPOP$ and
-\pgThreeWPOP). With no note, the T-only heads again attend to the recoloured
-object (\pgThreeObjCleanObs, random \pgThreeObjCleanNull) and write the image's
-colour (\pgThreeColCleanObs{} logits on the clean image, \pgThreeColPVObs{} on
-P's Visual-prompt runs). The routing check does not reach $\alpha$ here
-(\pgThreeRoutingObs, random \pgThreeRoutingNull, $p=\pgThreeRoutingP$); we
-fixed it in advance as descriptive on PaliGemma, because \citet{lietzow2026}
-find that PaliGemma's heads do not shift attention under the Prior prompt.
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{fig_h3}
-\caption{Mechanism, Qwen (top) and PaliGemma (bottom), on T objects with the
-incongruent note. (a)~Last-token attention mass on note tokens, mean over the
-set's heads; (b)~summed direct effect toward the note's colour; (c)~the T-only
-heads' direct effect with the note and with none (T's clean images, P's Visual
-runs). Grey: \hTwoDraws{} layer-matched random sets. Attention masses are not
-comparable across models, whose image grids differ.}
-\label{fig:h3}
-\end{figure*}
+The models differ in the shared heads. On Qwen they neither attend to the note
+nor write its colour, consistent with their null ablation on T; on PaliGemma
+they do both, weakly, matching their small effect on T (Fig.~\ref{fig:h3},
+green bars). As a check on the attention measurement, $\HP$ attends to the image
+more under the Visual than the Prior prompt on Qwen, the direction
+\citet{lietzow2026} report ($p=\hThreeRoutingP$). On PaliGemma this check does
+not reach $\alpha$ ($p=\pgThreeRoutingP$); we fixed it in advance as
+descriptive there, since \citet{lietzow2026} find that PaliGemma's heads do not
+shift attention.
 
 \section{Discussion}
 
@@ -636,6 +608,10 @@ mean restoration scores over the condition's objects.}
 \end{table*}
 
 \section{Appendix B. Note placement}
+In Qwen's behavioural screen of all objects, small and medium notes on the
+object fool \screenFoolSmall\% and \screenFoolMedium\% of eligible objects and
+a note beside it \screenFoolBeside\%; paired within objects, \pairedOnOnly{}
+are fooled only on the object and \pairedBesideOnly{} only beside it.
 Circuit discovery used a small note on the object. On Qwen's T objects, which
 that note fools by construction, a medium note on the object fools
 \foolMedium\% and a note beside the object \foolBeside\%; on PaliGemma's,
@@ -652,7 +628,7 @@ triangles); (b) the share of T objects the incongruent note fools at that placem
 \label{fig:spatial}
 \end{figure}
 
-\section{Appendix C. Reproducibility and pre-registration}
+\section{Appendix C. Reproducibility and analysis plan}
 All circuit experiments used 4-bit NF4 weights with fp16 compute on a single
 NVIDIA T4 GPU; the behavioural screen used bf16 compute.
 Overlap intervals use \nBoot{} bootstrap resamples, chance floors \nPerm{}

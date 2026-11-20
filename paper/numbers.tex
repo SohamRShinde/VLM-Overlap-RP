@@ -76,6 +76,7 @@
 \newcommand{\hTwoPtoTNull}{4.3}  % cross_ablation P->T null_mean
 \newcommand{\hTwoPtoTNullEdge}{9.8}  % cross_ablation P->T null_p95
 \newcommand{\hTwoPtoTP}{0.75}  % cross_ablation P->T p
+\newcommand{\hTwoPtoTSig}{}  % cross_ablation P->T passes (alpha)
 \newcommand{\hTwoPtoTCount}{6}  % cross_ablation P->T count
 \newcommand{\hTwoPtoTN}{244}  % cross_ablation P->T n
 \newcommand{\hTwoTtoPObs}{2.7}  % cross_ablation T->P observed
@@ -84,6 +85,7 @@
 \newcommand{\hTwoTtoPNull}{4.9}  % cross_ablation T->P null_mean
 \newcommand{\hTwoTtoPNullEdge}{17.8}  % cross_ablation T->P null_p95
 \newcommand{\hTwoTtoPP}{0.50}  % cross_ablation T->P p
+\newcommand{\hTwoTtoPSig}{}  % cross_ablation T->P passes (alpha)
 \newcommand{\hTwoTtoPCount}{2}  % cross_ablation T->P count
 \newcommand{\hTwoTtoPN}{73}  % cross_ablation T->P n
 \newcommand{\hTwoPtoPObs}{87.7}  % cross_ablation P->P observed
@@ -92,6 +94,7 @@
 \newcommand{\hTwoPtoPNull}{7.3}  % cross_ablation P->P null_mean
 \newcommand{\hTwoPtoPNullEdge}{20.7}  % cross_ablation P->P null_p95
 \newcommand{\hTwoPtoPP}{0.0099}  % cross_ablation P->P p
+\newcommand{\hTwoPtoPSig}{$^\dagger$}  % cross_ablation P->P passes (alpha)
 \newcommand{\hTwoPtoPCount}{64}  % cross_ablation P->P count
 \newcommand{\hTwoPtoPN}{73}  % cross_ablation P->P n
 \newcommand{\hTwoTtoTObs}{67.2}  % cross_ablation T->T observed
@@ -100,6 +103,7 @@
 \newcommand{\hTwoTtoTNull}{5.0}  % cross_ablation T->T null_mean
 \newcommand{\hTwoTtoTNullEdge}{10.7}  % cross_ablation T->T null_p95
 \newcommand{\hTwoTtoTP}{0.0099}  % cross_ablation T->T p
+\newcommand{\hTwoTtoTSig}{$^\dagger$}  % cross_ablation T->T passes (alpha)
 \newcommand{\hTwoTtoTCount}{164}  % cross_ablation T->T count
 \newcommand{\hTwoTtoTN}{244}  % cross_ablation T->T n
 \newcommand{\hTwoStoPObs}{83.6}  % cross_ablation shared->P observed
@@ -108,6 +112,7 @@
 \newcommand{\hTwoStoPNull}{4.2}  % cross_ablation shared->P null_mean
 \newcommand{\hTwoStoPNullEdge}{19.2}  % cross_ablation shared->P null_p95
 \newcommand{\hTwoStoPP}{0.0099}  % cross_ablation shared->P p
+\newcommand{\hTwoStoPSig}{$^\dagger$}  % cross_ablation shared->P passes (alpha)
 \newcommand{\hTwoStoPCount}{61}  % cross_ablation shared->P count
 \newcommand{\hTwoStoPN}{73}  % cross_ablation shared->P n
 \newcommand{\hTwoStoTObs}{0.0}  % cross_ablation shared->T observed
@@ -116,6 +121,7 @@
 \newcommand{\hTwoStoTNull}{2.9}  % cross_ablation shared->T null_mean
 \newcommand{\hTwoStoTNullEdge}{9.0}  % cross_ablation shared->T null_p95
 \newcommand{\hTwoStoTP}{1.00}  % cross_ablation shared->T p
+\newcommand{\hTwoStoTSig}{}  % cross_ablation shared->T passes (alpha)
 \newcommand{\hTwoStoTCount}{0}  % cross_ablation shared->T count
 \newcommand{\hTwoStoTN}{244}  % cross_ablation shared->T n
 \newcommand{\hTwoPOtoTObs}{7.8}  % cross_ablation P_only->T observed
@@ -124,6 +130,7 @@
 \newcommand{\hTwoPOtoTNull}{2.6}  % cross_ablation P_only->T null_mean
 \newcommand{\hTwoPOtoTNullEdge}{6.2}  % cross_ablation P_only->T null_p95
 \newcommand{\hTwoPOtoTP}{0.0495}  % cross_ablation P_only->T p
+\newcommand{\hTwoPOtoTSig}{}  % cross_ablation P_only->T passes (alpha)
 \newcommand{\hTwoPOtoTCount}{19}  % cross_ablation P_only->T count
 \newcommand{\hTwoPOtoTN}{244}  % cross_ablation P_only->T n
 \newcommand{\hTwoTOtoPObs}{0.0}  % cross_ablation T_only->P observed
@@ -132,6 +139,7 @@
 \newcommand{\hTwoTOtoPNull}{2.5}  % cross_ablation T_only->P null_mean
 \newcommand{\hTwoTOtoPNullEdge}{9.6}  % cross_ablation T_only->P null_p95
 \newcommand{\hTwoTOtoPP}{1.00}  % cross_ablation T_only->P p
+\newcommand{\hTwoTOtoPSig}{}  % cross_ablation T_only->P passes (alpha)
 \newcommand{\hTwoTOtoPCount}{0}  % cross_ablation T_only->P count
 \newcommand{\hTwoTOtoPN}{73}  % cross_ablation T_only->P n
 \newcommand{\hTwoTOtoTObs}{70.5}  % own_condition_subsets T_only->T
@@ -315,6 +323,7 @@
 \newcommand{\pgPtoTNull}{3.5}  % pg_cross_ablation P->T null_mean
 \newcommand{\pgPtoTNullEdge}{10.6}  % pg_cross_ablation P->T null_p95
 \newcommand{\pgPtoTP}{0.12}  % pg_cross_ablation P->T p
+\newcommand{\pgPtoTSig}{}  % pg_cross_ablation P->T passes (alpha)
 \newcommand{\pgPtoTCount}{24}  % pg_cross_ablation P->T count
 \newcommand{\pgPtoTN}{302}  % pg_cross_ablation P->T n
 \newcommand{\pgTtoPObs}{28.9}  % pg_cross_ablation T->P observed
@@ -323,6 +332,7 @@
 \newcommand{\pgTtoPNull}{5.6}  % pg_cross_ablation T->P null_mean
 \newcommand{\pgTtoPNullEdge}{13.2}  % pg_cross_ablation T->P null_p95
 \newcommand{\pgTtoPP}{0.0099}  % pg_cross_ablation T->P p
+\newcommand{\pgTtoPSig}{$^\dagger$}  % pg_cross_ablation T->P passes (alpha)
 \newcommand{\pgTtoPCount}{35}  % pg_cross_ablation T->P count
 \newcommand{\pgTtoPN}{121}  % pg_cross_ablation T->P n
 \newcommand{\pgPtoPObs}{95.9}  % pg_cross_ablation P->P observed
@@ -331,6 +341,7 @@
 \newcommand{\pgPtoPNull}{1.9}  % pg_cross_ablation P->P null_mean
 \newcommand{\pgPtoPNullEdge}{7.5}  % pg_cross_ablation P->P null_p95
 \newcommand{\pgPtoPP}{0.0099}  % pg_cross_ablation P->P p
+\newcommand{\pgPtoPSig}{$^\dagger$}  % pg_cross_ablation P->P passes (alpha)
 \newcommand{\pgPtoPCount}{116}  % pg_cross_ablation P->P count
 \newcommand{\pgPtoPN}{121}  % pg_cross_ablation P->P n
 \newcommand{\pgTtoTObs}{53.6}  % pg_cross_ablation T->T observed
@@ -339,6 +350,7 @@
 \newcommand{\pgTtoTNull}{2.1}  % pg_cross_ablation T->T null_mean
 \newcommand{\pgTtoTNullEdge}{5.0}  % pg_cross_ablation T->T null_p95
 \newcommand{\pgTtoTP}{0.0099}  % pg_cross_ablation T->T p
+\newcommand{\pgTtoTSig}{$^\dagger$}  % pg_cross_ablation T->T passes (alpha)
 \newcommand{\pgTtoTCount}{162}  % pg_cross_ablation T->T count
 \newcommand{\pgTtoTN}{302}  % pg_cross_ablation T->T n
 \newcommand{\pgStoPObs}{75.2}  % pg_cross_ablation shared->P observed
@@ -347,6 +359,7 @@
 \newcommand{\pgStoPNull}{1.8}  % pg_cross_ablation shared->P null_mean
 \newcommand{\pgStoPNullEdge}{4.1}  % pg_cross_ablation shared->P null_p95
 \newcommand{\pgStoPP}{0.0099}  % pg_cross_ablation shared->P p
+\newcommand{\pgStoPSig}{$^\dagger$}  % pg_cross_ablation shared->P passes (alpha)
 \newcommand{\pgStoPCount}{91}  % pg_cross_ablation shared->P count
 \newcommand{\pgStoPN}{121}  % pg_cross_ablation shared->P n
 \newcommand{\pgStoTObs}{8.9}  % pg_cross_ablation shared->T observed
@@ -355,6 +368,7 @@
 \newcommand{\pgStoTNull}{1.5}  % pg_cross_ablation shared->T null_mean
 \newcommand{\pgStoTNullEdge}{3.7}  % pg_cross_ablation shared->T null_p95
 \newcommand{\pgStoTP}{0.0099}  % pg_cross_ablation shared->T p
+\newcommand{\pgStoTSig}{$^\dagger$}  % pg_cross_ablation shared->T passes (alpha)
 \newcommand{\pgStoTCount}{27}  % pg_cross_ablation shared->T count
 \newcommand{\pgStoTN}{302}  % pg_cross_ablation shared->T n
 \newcommand{\pgPOtoTObs}{2.0}  % pg_cross_ablation P_only->T observed
@@ -363,6 +377,7 @@
 \newcommand{\pgPOtoTNull}{3.6}  % pg_cross_ablation P_only->T null_mean
 \newcommand{\pgPOtoTNullEdge}{13.2}  % pg_cross_ablation P_only->T null_p95
 \newcommand{\pgPOtoTP}{0.48}  % pg_cross_ablation P_only->T p
+\newcommand{\pgPOtoTSig}{}  % pg_cross_ablation P_only->T passes (alpha)
 \newcommand{\pgPOtoTCount}{6}  % pg_cross_ablation P_only->T count
 \newcommand{\pgPOtoTN}{302}  % pg_cross_ablation P_only->T n
 \newcommand{\pgTOtoPObs}{0.0}  % pg_cross_ablation T_only->P observed
@@ -371,6 +386,7 @@
 \newcommand{\pgTOtoPNull}{5.5}  % pg_cross_ablation T_only->P null_mean
 \newcommand{\pgTOtoPNullEdge}{10.8}  % pg_cross_ablation T_only->P null_p95
 \newcommand{\pgTOtoPP}{1.00}  % pg_cross_ablation T_only->P p
+\newcommand{\pgTOtoPSig}{}  % pg_cross_ablation T_only->P passes (alpha)
 \newcommand{\pgTOtoPCount}{0}  % pg_cross_ablation T_only->P count
 \newcommand{\pgTOtoPN}{121}  % pg_cross_ablation T_only->P n
 \newcommand{\pgPtoTVerdict}{ablating $\mathcal{H}_P$: not distinguishable from layer-matched random heads at this $n$}  % pg primary P->T wording (D73 fixed phrase)

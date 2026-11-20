@@ -209,6 +209,7 @@ def build() -> Macros:
                         ("T->T", "hTwoTtoT"), ("shared->P", "hTwoStoP"), ("shared->T", "hTwoStoT"),
                         ("P_only->T", "hTwoPOtoT"), ("T_only->P", "hTwoTOtoP")]:
         test(m, prefix, tests[key], f"cross_ablation {key}")
+        m.add(prefix + "Sig", "$^\\dagger$" if tests[key]["passes"] else "", f"cross_ablation {key} passes (alpha)")
         m.add(prefix + "Count", str(tests[key]["count"]), f"cross_ablation {key} count")
         m.add(prefix + "N", str(tests[key]["n"]), f"cross_ablation {key} n")
     own = x["own_condition_subsets"]
@@ -360,6 +361,7 @@ def build() -> Macros:
                         ("shared->P", "pgStoP"), ("shared->T", "pgStoT"),
                         ("P_only->T", "pgPOtoT"), ("T_only->P", "pgTOtoP")]:
         test(m, prefix, tests[key], f"pg_cross_ablation {key}")
+        m.add(prefix + "Sig", "$^\\dagger$" if tests[key]["passes"] else "", f"pg_cross_ablation {key} passes (alpha)")
         m.add(prefix + "Count", str(tests[key]["count"]), f"pg_cross_ablation {key} count")
         m.add(prefix + "N", str(tests[key]["n"]), f"pg_cross_ablation {key} n")
     for key, prefix in [("P->T", "pgPtoT"), ("T->P", "pgTtoP")]:
