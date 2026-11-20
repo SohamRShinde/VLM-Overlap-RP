@@ -46,7 +46,7 @@ arbitrate between these sources. When a prompt asks what colour a blue
 strawberry \emph{usually} is, models mostly follow the image; the override to
 memory, when it succeeds, depends on a few late attention heads, which in
 Qwen-VL shift attention from image tokens toward text
-tokens~\citep{lietzow2026,golovanevsky2025counterfact}. Related studies find
+tokens~\citep{lietzow2026}. Related studies find
 heads that route between image and caption~\citep{hua2025} or mediate conflicts
 with commonsense knowledge~\citep{ortu2025}. Separately, typographic attacks,
 text written into the image such as a note reading ``purple'' on a red apple,
@@ -120,8 +120,7 @@ steer image--caption conflicts toward the modality the instruction asks for;
 \citet{ortu2025} find a small set of heads that mediates conflicts between
 counterfactual images and commonsense knowledge; \citet{nooralahzadeh2026} show
 across ten VLMs that models answering against the image still encode its
-evidence, so the failure lies in arbitration; and \citet{golovanevsky2024notice}
-find attention heads that act across tasks. In all of these, the signal that
+evidence, so the failure lies in arbitration. In all of these, the signal that
 competes with the image arrives as prompt text or stored knowledge, never inside
 the image.
 
