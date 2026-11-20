@@ -180,18 +180,17 @@ both directions.
 
 For P~\citep{lietzow2026}, we retain objects answered with $\cco$
 under the Prior prompt and $\ccf$ under the Visual prompt
-(``correctly conflicting''; \nP{} objects).
+(``correctly conflicting'').
 For T, the note is one fifth of the image width and centred on
 the object's bounding box. The neutral note contains a non-colour
 word of similar length to the conflicting colour word. We retain
 objects for which the neutral-note run answers an accepted colour
-and the conflicting-note run answers the note's colour
-(\nT{} objects).
+and the conflicting-note run answers the note's colour.
 For V~\citep{lietzow2026}, we retain objects for which the
 original-image run answers a real colour and the counterfactual-image
 run answers $\ccf$ (\nVselected{} objects on Qwen, \pgNVselected{} on
-PaliGemma). We patch \nV{} and \pgNV{} of these objects, to match each
-model's T sample size.
+PaliGemma), and patch as many of them as the model has T objects.
+Table~\ref{tab:replication} gives the objects and promoting heads per condition.
 
 V changes the image, as T does, but keeps P's ordering of the original and
 counterfactual colour tokens, which T reverses. Greater overlap of T with V than
