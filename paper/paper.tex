@@ -295,19 +295,7 @@ often as they report while barely changing answers to the Visual prompt
 (Table~\ref{tab:replication}). We use our re-discovered set as $\HP$, so that P
 and T come from an identical pipeline.
 
-
-
-\subsection{A written note overrides vision by its content}
-Does a note fool the model, and is it the note's word that matters? An
-incongruent note moves the answer toward the note's colour by \attackShift{}
-logits on average, while a note naming the object's own colour moves it the
-other way, so the model reads the word rather than reacting to the note's
-presence. Of the objects answered correctly with a neutral note,
-\screenFoolRate\% are fooled by an incongruent one, more often when the note
-sits on the object than beside it (Appendix~B). Discovery uses the \nT{} objects
-(PaliGemma: \pgNT) fooled by a small note on the object.
-
-\begin{table}[!htb]
+\begin{center}
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
@@ -326,11 +314,11 @@ Strongest head, flip \% & \topSingleOne{} (\topSingleOneFlip) & \pgTopOne{} (\pg
 \quad \citet{lietzow2026} & \topSingleOneLietzow & \pgTopOneLietzow \\
 \bottomrule
 \end{tabular}
-\caption{Objects and circuits per condition. Both P circuits are
+\captionof{table}{Objects and circuits per condition. Both P circuits are
 \promMatchesLietzow{} \citet{lietzow2026}'s lists; flips are of Prior- and Visual-prompt answers, from ablating the
 P promoting heads (group) or one head (strongest).}
 \label{tab:replication}
-\end{table}
+\end{center}
 
 \begin{table*}[t]
 \centering
@@ -357,6 +345,20 @@ both conditions keep (Qwen \nSharedObjects{} and \nSharedObjectsVT; PaliGemma
 \pgNSharedObjects{} and \pgNSharedObjectsVT).}
 \label{tab:overlap}
 \end{table*}
+
+
+
+\subsection{A written note overrides vision by its content}
+Does a note fool the model, and is it the note's word that matters? An
+incongruent note moves the answer toward the note's colour by \attackShift{}
+logits on average, while a note naming the object's own colour moves it the
+other way, so the model reads the word rather than reacting to the note's
+presence. Of the objects answered correctly with a neutral note,
+\screenFoolRate\% are fooled by an incongruent one, more often when the note
+sits on the object than beside it (Appendix~B). Discovery uses the \nT{} objects
+(PaliGemma: \pgNT) fooled by a small note on the object.
+
+
 
 \subsection{Prior and typographic circuits overlap only partly}\label{sec:overlap}
 How many heads do the two overrides share? We compare the P and T promoting
