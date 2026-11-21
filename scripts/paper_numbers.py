@@ -254,7 +254,7 @@ def build() -> Macros:
     m.add("enrichNeu", f"{en['T_only:on_object_small/neutral']:.1f}", "note_enrichment T_only neutral")
     sp = ds["spatial"]
     for k, word in [("on_object_small", "Small"), ("on_object_medium", "Medium"), ("beside_object", "Beside")]:
-        m.add(f"fool{word}", pct(sp[k]["fool_rate"], 0), f"spatial {k} fool_rate")
+        m.add(f"fool{word}", pct(sp[k]["fool_rate"], 1), f"spatial {k} fool_rate")
 
     # ------------------------------------------------------------ V condition (Qwen)
     m.section("V condition, results/v_patching_qwen25vl3b.json, v_circuit_overlap_qwen25vl3b.json (D75)")
