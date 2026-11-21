@@ -1,5 +1,8 @@
 # Paper source (first draft started 4 Nov 2026)
 
+**Submitted 21 Nov 2026** to the Deployable AI workshop from commit `95ba7cd`.
+Edits after that are for a camera-ready or a later version.
+
 ```bash
 # 1. numbers: every result in the text is a macro generated from results/
 .venv/bin/python scripts/paper_numbers.py        # writes paper/numbers.tex
@@ -32,4 +35,6 @@
   macro prints as `[JPT]`-style text and citations as `[?]`. `\graphicspath` also finds
   `../figures/` when building inside `paper/`.
 - Page budget (Deployable AI long track): 7 pages of main text; references and the
-  appendices after them do not count. As of 16 Nov the main text ends on page 7.
+  appendices after them do not count. As of 16 Nov the main text ends on page 7; in the submitted version (21 Nov) too.
+- Sections are unnumbered (`secnumdepth` 0, the AAAI default), so `Section~\ref{...}`
+  prints an empty number; refer to a section by name instead.

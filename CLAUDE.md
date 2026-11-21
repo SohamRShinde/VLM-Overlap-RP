@@ -23,10 +23,15 @@ before re-deriving any of that.
 AAAI-2027 style, anonymous, one PDF; main text **4 pages (short) or 7 (long)**,
 references and appendices outside the limit. **Long track: 7 pages of main
 text** (D01a, 15 Nov). **Due 20 Nov 2026 AoE** on OpenReview; notification
-2 Dec. Framing stays interpretability, which the workshop lists in scope (D04).
+2 Dec. **Submitted 21 Nov 2026** on OpenReview as "Two Ways to Override Vision: Disentangling Typographic Attacks from Memorised Knowledge in Vision-Language Models"; the submitted source is commit `95ba7cd`. Framing stays interpretability, which the workshop lists in scope (D04).
 The workshop's page is copied in `docs/DAI.md`.
 
-## Status, 18 Nov 2026
+## Status, 21 Nov 2026
+- **Paper: submitted** (21 Nov) to the Deployable AI workshop, long track,
+  from `paper/paper.tex` at `95ba7cd` (7 pages of main text, 9 in all).
+  Notification 2 Dec. Until then the paper source is frozen: a change to
+  `paper/`, `figures/` or `scripts/paper_numbers.py` is for the camera-ready
+  or a later venue, so say which. See STATE.md, Paper.
 - **T condition: done.** Behavioural screen passed its gate (286 usable objects
   of 436 eligible, 65.6%). Per-record data in `results/`. See RESULTS.md.
 - **Replication gate (D40): PASSED** on all six criteria (thresholds

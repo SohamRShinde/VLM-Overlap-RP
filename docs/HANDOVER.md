@@ -1,5 +1,9 @@
 # Handover, 3 Nov 2026 (Soham -> Kush, then both in parallel)
 
+**2026-11-21: historical.** Tracks A, B and C are done and the paper was
+submitted on 21 Nov (source at `95ba7cd`; STATE.md, Paper). Read this file
+for how the work was split, not for what is left.
+
 Written for kushviradiya and his Claude Code session. Read this, then
 `CLAUDE.md` (rules, gotchas), then `docs/RESULTS.md` (every number) and
 `docs/DECISIONS.md` D70-D74 (how each result was read). Plan of record:
